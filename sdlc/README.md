@@ -76,7 +76,7 @@ duplicated per repo. Today it holds:
 | [`JIRA-REFERENCE.md`](../../cto-tools/JIRA-REFERENCE.md) | Jira scripts, REST endpoints, custom fields, ADF, sprint API |
 | [`lifecycle-agents.md`](../../cto-tools/lifecycle-agents.md) | Which agent and model run each lifecycle action; review gate rules; human vs agent gates |
 | [`docs/code-standards.md`](../../cto-tools/docs/code-standards.md) | Full code standards behind the Review Gate (design, clean code, DRY, testing, OWASP Top 10) |
-| [`config/sdlc.json`](../../cto-tools/config/sdlc.json) | Process toggles (currently `pr`) |
+| [`config/sdlc.json`](../../cto-tools/config/sdlc.json) | Default process toggles; c-PAL's values are in [`cpal.global/config/sdlc.json`](../../config/sdlc.json) |
 | [`scripts/jira/`](../../cto-tools/scripts/jira/) | Jira REST CRUD scripts |
 | [`scripts/hooks/context-guard.py`](../../cto-tools/scripts/hooks/context-guard.py) + [`.claude/settings.json`](../../cto-tools/.claude/settings.json) | Token-saving Claude Code `PreToolUse` hook |
 | [`.env.default`](../../cto-tools/.env.default) | Template for the shared `.env` |
@@ -95,8 +95,12 @@ cp cto-tools/.env.default .env   # from cpal.global/, then fill in the values
 | `JIRA_URL` | yes | Atlassian site URL |
 | `JIRA_EMAIL` | yes | Account email for the API token |
 | `JIRA_TOKEN` | yes | Atlassian API token — never committed, never passed as a literal shell arg |
-| `PROJECT_KEY` | yes | Jira project key for c-PAL |
-| `STORY_POINTS_FIELD` | no | Per-site custom field id (default `customfield_10016`); find it via `GET /rest/api/3/field` |
+| `PROJECT_KEY` | yes | `CPAL` |
+| `JIRA_BOARD_ID` | for sprints | c-PAL agile board id |
+| `STORY_POINTS_FIELD`, `SPRINT_FIELD`, `START_DATE_FIELD` | no | Per-site custom field ids; find them via `GET /rest/api/3/field` |
+
+The scripts find this file by walking up from `cto-tools/scripts/jira/`; exported
+variables override it, and `JIRA_ENV_FILE=<path>` points them at another file.
 
 ### Jira scripts
 
@@ -154,19 +158,38 @@ W1 Feature → W2 Epic → W3 Stories → W4 Implement stories → W5 Human epic
 | [`JIRA-REFERENCE.md`](../../cto-tools/JIRA-REFERENCE.md) | Script command tables, REST/Agile API calls, custom fields, ADF format |
 | [`lifecycle-agents.md`](../../cto-tools/lifecycle-agents.md) | Model policy (Sonnet default; Opus pinned for W1 feature-writing and W4 code review); serial vs team dispatch; review lenses (Correctness + Security blocking, Standards advisory); reviewers never mutate the tracker; agents never close an epic |
 
+### Project bindings (c-PAL)
+
+The cto-tools docs are project-agnostic and use placeholders
+([definition](../../cto-tools/SDLC.md#project-bindings)). For c-PAL they bind to:
+
+| Placeholder | c-PAL value |
+|---|---|
+| `PROJ` | **`CPAL`** — issue keys `CPAL-123` |
+| `$JIRA_URL`, `$JIRA_BOARD_ID`, `$*_FIELD` | from `cpal.global/.env` (see [Credentials](#credentials-env)) |
+| `<superrepo>` | `cpal.global` |
+| `<docs-repo>` | `cpal.docs` |
+| `<frontend-repo>` | `c-PAL.web` (public site), `cpaltracker.web` (tracker app, PHP — front and back in one repo) |
+| `<backend-repo>` | `cpaltracker.web` |
+| `<compute-repo>`, `<infra-repo>`, `<e2e-repo>`, `<tooling-repo>` | none yet |
+| `<templates-dir>` | `cpal.docs/sdlc/product/` |
+| `<features-dir>` | `cpal.docs/features/` |
+| `<epics-dir>` | `cpal.docs/epics/` |
+| `<dev-epic-context-dir>`, `<e2e-scenarios-dir>`, `<software-items-registry>`, `<compliance-docs-dir>`, `<qualification-dir>`, `<boundaries-dir>`, `<help-content-dir>` | not bound — the matching lifecycle parts don't apply yet (table below) |
+
+Bind a placeholder here when the corresponding folder or repo is created.
+
 ### Applicability to c-PAL today
 
-The Jira project key is **`KAN`**. These docs come from a larger project and still
-carry some of its specifics (board `1`, `axiome-*` repos and paths); read those as
-placeholders for the c-PAL equivalents. The table says what is usable now.
+The table says which parts of the lifecycle are usable now.
 
 | Part of the lifecycle | Status in c-PAL | Missing piece |
 |---|---|---|
 | SSoT, W1–W3 (feature → epic → stories, 100% requirement traceability) | **Applies** | — templates in [`product/`](#product-templates) |
 | Story lifecycle, Review Gate, PR flag, git conventions | **Applies** (`pr: false`) | — |
 | Human sign-off on epics (W5) | **Applies** | — |
-| Sprint rules (`AGILE-PRACTICES.md`) | Applies once c-PAL runs sprints | c-PAL Jira board id; no sprint script (REST calls only) |
-| Jira IDs in `JIRA-REFERENCE.md` (issue types, custom fields) | **Verify per site** | IDs are Jira-site-specific; `tasks.py`, `update_points.py`, `bootstrap-env.sh` are not in cto-tools |
+| Sprint rules (`AGILE-PRACTICES.md`) | Applies once c-PAL runs sprints | `JIRA_BOARD_ID` in `.env`; no sprint script (REST calls only) |
+| Jira custom fields, board | **Configure** | Set `SPRINT_FIELD`, `START_DATE_FIELD`, `JIRA_BOARD_ID` in `.env`; `tasks.py`, `update_points.py` are not in cto-tools |
 | Pinned-model agents, team dispatch (`lifecycle-agents.md`) | Not wired | `.claude/agents/*`, `/engineering-manager` skill, `epicDispatch` in `config/sdlc.json` |
 | Status beacon, journal, bounce tripwire, andon | Not wired | `scripts/status/*` |
 | Automated GitHub review panel + Jira close-out | Not wired (inert under `pr: false`) | `.github/workflows/ai-review-panel.yml`, `scripts/autopilot/*` |
@@ -207,8 +230,8 @@ links to the `cpal.docs` id; it does not restate the requirement. Label by area
 Work in the relevant submodule. Move the ticket with `update_status.py`.
 
 ### 4. Review & merge
-The merge path is set by `pr` in [`cto-tools/config/sdlc.json`](../../cto-tools/config/sdlc.json)
-(current value: **`false`**):
+The merge path is set by `pr` in [`cpal.global/config/sdlc.json`](../../config/sdlc.json)
+(current value: **`false`**; it overrides the cto-tools default):
 
 | `pr` | Path |
 |---|---|
@@ -216,7 +239,7 @@ The merge path is set by `pr` in [`cto-tools/config/sdlc.json`](../../cto-tools/
 | `false` | review the local diff against the Review Gate → merge directly to `main` |
 
 Read the flag once per unit of work; don't switch path mid-task. New process
-toggles go into `config/sdlc.json`, not into prose.
+toggles go into `cpal.global/config/sdlc.json` (defaults in cto-tools), not into prose.
 
 ### 5. Close
 Commit the submodule, push, bump the pointer in `cpal.global`, close the ticket.

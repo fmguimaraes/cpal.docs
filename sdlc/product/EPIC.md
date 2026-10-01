@@ -22,11 +22,11 @@ Write as the Technical Leader defining an epic for the platform.
 
 ## Jira
 
-<!-- Jira is the sole tracker. Qualify keys as `KAN-…`. -->
+<!-- Jira is the sole tracker. Qualify keys as `CPAL-…`. -->
 
 | Field | Value | Note |
 | --- | --- | --- |
-| Key | `KAN-…` | epic (authoritative — sprint mechanics) |
+| Key | `CPAL-…` | epic (authoritative — sprint mechanics) |
 
 ## Subject
 <!-- The epic title -->
@@ -73,9 +73,9 @@ requirement text lives solely in the feature doc.
 | Requirement | Story key(s) |
 | --- | --- |
 <!-- Example:
-| FR1 | KAN-338 |
-| FR2 | KAN-333, KAN-335 |
-| NFR1 | KAN-333 |
+| FR1 | CPAL-338 |
+| FR2 | CPAL-333, CPAL-335 |
+| NFR1 | CPAL-333 |
 -->
 
 <!-- Close with: *Coverage: all N FRs, M NFRs, and K ACs mapped to at least one story.
@@ -87,17 +87,5 @@ requirement text lives solely in the feature doc.
 
 ## Jira Link
 <!-- Required: link to the Jira epic + its sprint window. Example:
-- Epic: [KAN-1033](https://quietstage.atlassian.net/browse/KAN-1033) — sprint 171 (S11), 2026-07-18 → 2026-07-25
+- Epic: [CPAL-12]($JIRA_URL/browse/CPAL-12) — sprint S3, <start> → <end>
 -->
-
----
-
-## Conformance note (2026-07-20)
-
-Epics created before this reconciliation may still carry the superseded
-`## Requirements` / `### Functional Requirements` / `### Non-Functional Requirements`
-/ `## Acceptance Criteria` sections that copied requirement text verbatim
-(e.g. `KAN-1026-Governance-First-Overview-Refinement.md`). Those are **not** a model
-for new epics. Migrate them opportunistically when the epic is next touched: replace
-the copied blocks with a `## Requirement References` section pointing at the feature
-spec.
