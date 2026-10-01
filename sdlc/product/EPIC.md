@@ -22,11 +22,11 @@ Write as the Technical Leader defining an epic for the platform.
 
 ## Jira
 
-<!-- Jira is the sole tracker. Qualify keys as `CPAL-…`. -->
+<!-- Jira is the sole tracker. Qualify keys as `KAN-…`. -->
 
 | Field | Value | Note |
 | --- | --- | --- |
-| Key | `CPAL-…` | epic (authoritative — sprint mechanics) |
+| Key | `KAN-…` | epic (authoritative — sprint mechanics) |
 
 ## Subject
 <!-- The epic title -->
@@ -73,9 +73,9 @@ requirement text lives solely in the feature doc.
 | Requirement | Story key(s) |
 | --- | --- |
 <!-- Example:
-| FR1 | CPAL-338 |
-| FR2 | CPAL-333, CPAL-335 |
-| NFR1 | CPAL-333 |
+| FR1 | KAN-338 |
+| FR2 | KAN-333, KAN-335 |
+| NFR1 | KAN-333 |
 -->
 
 <!-- Close with: *Coverage: all N FRs, M NFRs, and K ACs mapped to at least one story.
@@ -87,5 +87,5 @@ requirement text lives solely in the feature doc.
 
 ## Jira Link
 <!-- Required: link to the Jira epic + its sprint window. Example:
-- Epic: [CPAL-12]($JIRA_URL/browse/CPAL-12) — sprint S3, <start> → <end>
+- Epic: [KAN-12]($JIRA_URL/browse/KAN-12) — sprint S3, <start> → <end>
 -->

@@ -95,8 +95,8 @@ cp cto-tools/.env.default .env   # from cpal.global/, then fill in the values
 | `JIRA_URL` | yes | Atlassian site URL |
 | `JIRA_EMAIL` | yes | Account email for the API token |
 | `JIRA_TOKEN` | yes | Atlassian API token — never committed, never passed as a literal shell arg |
-| `PROJECT_KEY` | yes | `CPAL` |
-| `JIRA_BOARD_ID` | for sprints | c-PAL agile board id |
+| `PROJECT_KEY` | yes | `KAN` |
+| `JIRA_BOARD_ID` | for sprints | `1` ("KAN board", team-managed) |
 | `STORY_POINTS_FIELD`, `SPRINT_FIELD`, `START_DATE_FIELD` | no | Per-site custom field ids; find them via `GET /rest/api/3/field` |
 
 The scripts find this file by walking up from `cto-tools/scripts/jira/`; exported
@@ -165,8 +165,10 @@ The cto-tools docs are project-agnostic and use placeholders
 
 | Placeholder | c-PAL value |
 |---|---|
-| `PROJ` | **`CPAL`** — issue keys `CPAL-123` |
-| `$JIRA_URL`, `$JIRA_BOARD_ID`, `$*_FIELD` | from `cpal.global/.env` (see [Credentials](#credentials-env)) |
+| `PROJ` | **`KAN`** — issue keys `KAN-123` |
+| `$JIRA_URL` | `https://c-pal.atlassian.net` (project "c-PAL") |
+| `$JIRA_BOARD_ID` | `1` |
+| `$*_FIELD` | from `cpal.global/.env` (see [Credentials](#credentials-env)) |
 | `<superrepo>` | `cpal.global` |
 | `<docs-repo>` | `cpal.docs` |
 | `<frontend-repo>` | `c-PAL.web` (public site), `cpaltracker.web` (tracker app, PHP — front and back in one repo) |
