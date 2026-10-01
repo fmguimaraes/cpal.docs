@@ -141,11 +141,11 @@ refuses three wasteful moves and tells Claude what to do instead.
 | start a helper agent without choosing a model | pick a cheaper one: `haiku` for searching, `sonnet` for multi-step work |
 
 **Where it applies.** Claude Code loads hooks from the `.claude/settings.json` of
-the folder the session is **opened in**. The guard is registered only in
-`cto-tools/.claude/settings.json`, so it works when you open Claude Code inside
-`cto-tools/`, but **not** when you open it at `cpal.global/` (the usual place). To
-have it everywhere, add the same hook to a `cpal.global/.claude/settings.json`,
-pointing at `$CLAUDE_PROJECT_DIR/cto-tools/scripts/hooks/context-guard.py`.
+the folder the session is opened in. The guard is registered in both
+[`cpal.global/.claude/settings.json`](../../.claude/settings.json) (sessions opened at
+the umbrella root — the usual case) and `cto-tools/.claude/settings.json` (sessions
+opened inside `cto-tools/`). Both run the same script,
+`cto-tools/scripts/hooks/context-guard.py`.
 
 Turn it off for one session with `CONTEXT_GUARD_OFF=1`; change the 300-line limit
 with `CONTEXT_GUARD_MAX_LINES`.
