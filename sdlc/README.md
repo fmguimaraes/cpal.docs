@@ -97,7 +97,10 @@ cp cto-tools/.env.default .env   # from cpal.global/, then fill in the values
 | `JIRA_TOKEN` | yes | Atlassian API token — never committed, never passed as a literal shell arg |
 | `PROJECT_KEY` | yes | `KAN` |
 | `JIRA_BOARD_ID` | for sprints | `1` ("KAN board", team-managed) |
-| `STORY_POINTS_FIELD`, `SPRINT_FIELD`, `START_DATE_FIELD` | no | Per-site custom field ids; find them via `GET /rest/api/3/field` |
+| `STORY_POINTS_FIELD` | no | `customfield_10016` ("Story point estimate") |
+| `SPRINT_FIELD` | no | `customfield_10020` ("Sprint") |
+| `START_DATE_FIELD` | no | `customfield_10015` ("Start date") |
+| `JIRA_STATUS_MAP` | no | `Backlog=Idée;To Do=À faire;In Progress=En cours;Testing=En cours;In Review=En revue;Done=Terminé` — see [Board statuses](#board-statuses) |
 
 The scripts find this file by walking up from `cto-tools/scripts/jira/`; exported
 variables override it, and `JIRA_ENV_FILE=<path>` points them at another file.
@@ -127,18 +130,25 @@ don't cover.
 
 ### Claude Code context guard
 
-`context-guard.py` runs before `Read` and `Agent` tool calls and blocks:
+**What it is.** A small script that Claude Code runs automatically before Claude
+reads a file or starts a helper agent. Its only job is to keep sessions cheap: it
+refuses three wasteful moves and tells Claude what to do instead.
 
-- whole-file reads of files over `CONTEXT_GUARD_MAX_LINES` (default 300) without `offset`/`limit`;
-- re-reading a file already read whole in the same session;
-- subagent spawns that would silently inherit the session model — pass
-  `model: "haiku"` for search/lookup, `"sonnet"` for multi-step work.
+| Claude tries to… | Guard says |
+|---|---|
+| read a whole file longer than 300 lines | read only the part you need (`offset`/`limit`) |
+| read the same whole file a second time | it's already in your context — don't reload it |
+| start a helper agent without choosing a model | pick a cheaper one: `haiku` for searching, `sonnet` for multi-step work |
 
-`CONTEXT_GUARD_OFF=1` disables it for a session. The hook is registered in
-`cto-tools/.claude/settings.json` with a `$CLAUDE_PROJECT_DIR/scripts/...` path, so
-it is active only when the Claude Code session is opened in `cto-tools`. To enforce
-it across the whole umbrella, register it in `cpal.global/.claude/settings.json`
+**Where it applies.** Claude Code loads hooks from the `.claude/settings.json` of
+the folder the session is **opened in**. The guard is registered only in
+`cto-tools/.claude/settings.json`, so it works when you open Claude Code inside
+`cto-tools/`, but **not** when you open it at `cpal.global/` (the usual place). To
+have it everywhere, add the same hook to a `cpal.global/.claude/settings.json`,
 pointing at `$CLAUDE_PROJECT_DIR/cto-tools/scripts/hooks/context-guard.py`.
+
+Turn it off for one session with `CONTEXT_GUARD_OFF=1`; change the 300-line limit
+with `CONTEXT_GUARD_MAX_LINES`.
 
 ---
 
@@ -168,7 +178,8 @@ The cto-tools docs are project-agnostic and use placeholders
 | `PROJ` | **`KAN`** — issue keys `KAN-123` |
 | `$JIRA_URL` | `https://c-pal.atlassian.net` (project "c-PAL") |
 | `$JIRA_BOARD_ID` | `1` |
-| `$*_FIELD` | from `cpal.global/.env` (see [Credentials](#credentials-env)) |
+| `$SPRINT_FIELD`, `$START_DATE_FIELD`, `$STORY_POINTS_FIELD` | `customfield_10020`, `customfield_10015`, `customfield_10016` |
+| Lifecycle statuses | see [Board statuses](#board-statuses) |
 | `<superrepo>` | `cpal.global` |
 | `<docs-repo>` | `cpal.docs` |
 | `<frontend-repo>` | `c-PAL.web` (public site), `cpaltracker.web` (tracker app, PHP — front and back in one repo) |
@@ -181,6 +192,29 @@ The cto-tools docs are project-agnostic and use placeholders
 
 Bind a placeholder here when the corresponding folder or repo is created.
 
+### Board statuses
+
+The KAN board (team-managed) uses French status names. The lifecycle and the
+Jira scripts use the English names; `JIRA_STATUS_MAP` in `.env` translates them, so
+`update_status.py KAN-12 "In Progress"` moves the issue to *En cours*.
+
+| Lifecycle (English) | KAN board | Category |
+|---|---|---|
+| `Backlog` | Idée | new — idea, not yet refined |
+| `To Do` | À faire | to do |
+| `In Progress` | En cours | in progress |
+| `Testing` | En cours | in progress — the board has no testing column; Testing (W4 step g) is recorded by comment/label while the issue stays *En cours* |
+| `In Review` | En revue | in progress |
+| `Done` | Terminé | done |
+
+The same five statuses apply to every issue type (Epic, Feature, Story, Task,
+Subtask, Bug). If a *Testing* column is added to the board later, update the map
+entry `Testing=<new name>`.
+
+Sprints: existing sprints are `S01`, `S2`, `S3`, `S4` (weekly, all *future* as of
+2026-10-01). Start one before work is embarked per
+[`AGILE-PRACTICES.md`](../../cto-tools/AGILE-PRACTICES.md).
+
 ### Applicability to c-PAL today
 
 The table says which parts of the lifecycle are usable now.
@@ -190,8 +224,8 @@ The table says which parts of the lifecycle are usable now.
 | SSoT, W1–W3 (feature → epic → stories, 100% requirement traceability) | **Applies** | — templates in [`product/`](#product-templates) |
 | Story lifecycle, Review Gate, PR flag, git conventions | **Applies** (`pr: false`) | — |
 | Human sign-off on epics (W5) | **Applies** | — |
-| Sprint rules (`AGILE-PRACTICES.md`) | Applies once c-PAL runs sprints | `JIRA_BOARD_ID` in `.env`; no sprint script (REST calls only) |
-| Jira custom fields, board | **Configure** | Set `SPRINT_FIELD`, `START_DATE_FIELD`, `JIRA_BOARD_ID` in `.env`; `tasks.py`, `update_points.py` are not in cto-tools |
+| Sprint rules (`AGILE-PRACTICES.md`) | **Applies** — sprints exist on board 1 | No sprint script (REST calls only); no sprint started yet |
+| Jira custom fields, board, statuses | **Configured** in `.env` | `tasks.py`, `update_points.py` are not in cto-tools |
 | Pinned-model agents, team dispatch (`lifecycle-agents.md`) | Not wired | `.claude/agents/*`, `/engineering-manager` skill, `epicDispatch` in `config/sdlc.json` |
 | Status beacon, journal, bounce tripwire, andon | Not wired | `scripts/status/*` |
 | Automated GitHub review panel + Jira close-out | Not wired (inert under `pr: false`) | `.github/workflows/ai-review-panel.yml`, `scripts/autopilot/*` |
