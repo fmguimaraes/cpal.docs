@@ -78,7 +78,7 @@ duplicated per repo. Today it holds:
 | [`docs/code-standards.md`](../../cto-tools/docs/code-standards.md) | Full code standards behind the Review Gate (design, clean code, DRY, testing, OWASP Top 10) |
 | [`config/sdlc.json`](../../cto-tools/config/sdlc.json) | Default process toggles; c-PAL's values are in [`cpal.global/config/sdlc.json`](../../config/sdlc.json) |
 | [`scripts/jira/`](../../cto-tools/scripts/jira/) | Jira REST CRUD scripts |
-| [`scripts/hooks/context-guard.py`](../../cto-tools/scripts/hooks/context-guard.py) + [`.claude/settings.json`](../../cto-tools/.claude/settings.json) | Token-saving Claude Code `PreToolUse` hook |
+| [`scripts/hooks/context-guard.py`](../../cto-tools/scripts/hooks/context-guard.py) + [`.claude/settings.json`](../../cto-tools/.claude/settings.json) | Context guard — token-saving Claude Code hook ([docs](../../cto-tools/docs/context-guard.md)) |
 | [`.env.default`](../../cto-tools/.env.default) | Template for the shared `.env` |
 
 ### Credentials (`.env`)
@@ -130,25 +130,12 @@ don't cover.
 
 ### Claude Code context guard
 
-**What it is.** A small script that Claude Code runs automatically before Claude
-reads a file or starts a helper agent. Its only job is to keep sessions cheap: it
-refuses three wasteful moves and tells Claude what to do instead.
-
-| Claude tries to… | Guard says |
-|---|---|
-| read a whole file longer than 300 lines | read only the part you need (`offset`/`limit`) |
-| read the same whole file a second time | it's already in your context — don't reload it |
-| start a helper agent without choosing a model | pick a cheaper one: `haiku` for searching, `sonnet` for multi-step work |
-
-**Where it applies.** Claude Code loads hooks from the `.claude/settings.json` of
-the folder the session is opened in. The guard is registered in both
-[`cpal.global/.claude/settings.json`](../../.claude/settings.json) (sessions opened at
-the umbrella root — the usual case) and `cto-tools/.claude/settings.json` (sessions
-opened inside `cto-tools/`). Both run the same script,
-`cto-tools/scripts/hooks/context-guard.py`.
-
-Turn it off for one session with `CONTEXT_GUARD_OFF=1`; change the 300-line limit
-with `CONTEXT_GUARD_MAX_LINES`.
+The cto-tools context guard (keeps Claude sessions lean by blocking large whole-file
+reads, repeat reads and helper agents on an expensive model — explained in
+[`cto-tools/docs/context-guard.md`](../../cto-tools/docs/context-guard.md)) is
+**enabled for sessions opened at `cpal.global`** via
+[`cpal.global/.claude/settings.json`](../../.claude/settings.json). Disable it for a
+session with `CONTEXT_GUARD_OFF=1`.
 
 ---
 
