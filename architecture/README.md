@@ -78,9 +78,21 @@ and CDN-hosted frontend libraries (Leaflet, Font Awesome, Chart.js) — both
 single points of failure for live data and dashboard rendering respectively
 if unreachable.
 
+## Detailed technical reference
+
+This page is the cross-repo overview. Per-repo technical depth (REST API
+surface, Apache/deployment specifics, security assessment, test/CI
+coverage, design patterns) is kept with the code it describes so each
+repo stays self-contained, not duplicated here:
+
+- [`cpaltracker.web/docs/`](../../cpaltracker.web/docs/README.md) — the
+  primary target system.
+
 ## Source of truth
 
 This page lives in `cpal.docs/architecture/` and is linked from
 [`cpal.docs/README.md`](../README.md). Keep it current when a component,
 stack choice or external dependency changes; it is the one place this
-overview is written, per [`sdlc/README.md`](../sdlc/README.md#single-source-of-truth-cpaldocs).
+*cross-repo* overview is written, per [`sdlc/README.md`](../sdlc/README.md#single-source-of-truth-cpaldocs) —
+repo-specific technical detail belongs in that repo's own `docs/`
+instead, linked from here rather than copied.
