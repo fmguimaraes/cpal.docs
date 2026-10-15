@@ -81,8 +81,11 @@ parallel.
 
 - A React login screen (email, password, submit) built on the shared design
   system (tokens, dark/light), using React Hook Form, desktop-first.
-- An `AuthContext` + thin REST/cookie client against `/api/v1` auth endpoints
+- An `AuthContext` + thin REST client against `/api/v1` auth endpoints
   (`fetch`, credentials included), per the stack decision §3 — no Supabase.
+  Superseded: `/api/v1` is bearer-token only and never relies on cookies —
+  `credentials: 'omit'` always, token attached via `Authorization: Bearer`.
+  See stack decision §3 (KAN-142) and §6 (KAN-151).
 - Client-side required-field validation and submit/loading/disabled states.
 - Sanitization of the `suite` return-target so only same-origin relative paths
   survive (open-redirect prevention).
@@ -162,7 +165,8 @@ parallel.
 - **FR4.** The app SHALL submit credentials and the CSRF token to the `/api/v1`
   auth endpoint via the thin REST/cookie client (`fetch`, credentials
   included), per stack decision §3. *(replicates CB18, CB24; integrates
-  `/api/v1`)*
+  `/api/v1`)* — superseded by stack decision §3/§6: `/api/v1` is bearer-token
+  only, `credentials: 'omit'` always, no CSRF token in the contract (KAN-151).
 - **FR5.** The app SHALL block submission and show an inline message when email
   or password is empty, without issuing a request. *(replicates CB4)*
 - **FR6.** On authentication success the app SHALL redirect to the
@@ -215,7 +219,12 @@ parallel.
   *(US7; stack decision §2)*
 - **NFR3.** The UI SHALL rely on the backend-set httponly session cookie and
   never store credentials or session secrets in `localStorage`/`sessionStorage`
-  or app logs; it SHALL not weaken any server cookie flag (CB23). *(US1)*
+  or app logs; it SHALL not weaken any server cookie flag (CB23). *(US1)* —
+  the httponly-cookie clause is superseded by stack decision §3 (bearer token,
+  in-memory only); the no-persistent-storage/no-logging clauses still apply
+  and are regression-tested (KAN-151). See stack decision §6 for the full
+  reconciliation, including the leftover XSS-exposure tradeoff this
+  supersession carries.
 - **NFR4.** The login form SHALL be interactive within the app's standard
   first-paint budget and the auth bootstrap SHALL resolve without blocking the
   shell or causing layout shift. *(US1)*

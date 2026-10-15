@@ -150,14 +150,36 @@ and NFR3's underlying security intent for a bearer-token client (KAN-151):
 - **Server cookie flags.** NFR3's "SHALL not weaken any server cookie flag
   (CB23)" is vacuously satisfied: this client never sets, reads, or
   participates in any cookie at all, so there is no flag it could weaken.
+  `auth.php`'s `cpal_session_start()` still runs on every `/api/v1` request
+  and still emits a `Set-Cookie: CPALSESSID`, a known backend-side artifact of
+  reusing the legacy session bootstrap — harmless here only because nothing in
+  `/api/v1` ever reads that session and `credentials: 'omit'` means this
+  client ignores the `Set-Cookie` it receives. It is the one place a cookie
+  touches this API at all and is out of scope for this frontend-only
+  reconciliation (backend-owned, not a regression to fix here).
+- **Leftover risk NFR3's cookie clause would have covered.** NFR3's first
+  clause ("rely on the backend-set `httponly` session cookie") is superseded
+  by §3's bearer-in-memory decision, not satisfied by it: an `httpOnly` cookie
+  is unreadable to injected script, while an in-memory JS variable is not — a
+  successful XSS against this app can read the live token (or simply call
+  `apiClient` directly; either way the attacker doesn't need the token
+  itself). Moving to a cookie would remove that exposure but reintroduce the
+  cookie-borne CSRF surface this section argues doesn't currently exist, so it
+  is not proposed here. What limits the exposure today: the token lives only
+  in `client.ts`'s module variable, is cleared on reload/logout, and every
+  `/api/v1` request re-validates it server-side (role, `mustChangePassword`)
+  on each call rather than trusting a long-lived client claim. Mitigating XSS
+  itself (CSP, output encoding, dependency hygiene) is owned by KAN-136, not
+  this record.
 - **NFR8** (no client-side rate limiting; no copy built around
   `docs/security.md`'s stale "no rate limiting" claim) is unaffected by this
   reconciliation and remains satisfied as-is — no rate-limiting code exists
   anywhere in this app (lockout/throttle copy is FR7/FR8's scope, KAN-155).
 
 This reconciliation was flagged as a judgment call for review: if a future
-story finds a literal backend CSRF mechanism was added to `/api/v1` (it is
-not present as of KAN-151 per `openapi.yaml`), this section must be revisited
+story finds a literal backend CSRF mechanism was added to `/api/v1`, or that
+any `/api/v1` endpoint started accepting session-cookie auth (it is not
+present as of KAN-151 per `openapi.yaml`), this section must be revisited
 before any FR9-shaped work is marked done against it.
 
 ## 7. Related Documentation
