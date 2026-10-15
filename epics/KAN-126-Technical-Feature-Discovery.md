@@ -27,7 +27,7 @@ input for KAN-60. Purely additive/exploratory: no application code changes.
 
 ## Requirement References (SSoT = Feature doc)
 
-Feature spec: [`IN-PROGRESS-Technical-Feature-Discovery.md`](../features/IN-PROGRESS-Technical-Feature-Discovery.md)
+Feature spec: [`Technical-Feature-Discovery.md`](../features/Technical-Feature-Discovery.md)
 — 10 FRs, 4 NFRs, 11 ACs. This epic references requirements by ID only;
 requirement text lives solely in the feature doc.
 
@@ -89,7 +89,7 @@ Coverage: all 10 FRs and 4 NFRs mapped to at least one story.
 
 ## Related Documentation
 
-- Feature spec: [`IN-PROGRESS-Technical-Feature-Discovery.md`](../features/IN-PROGRESS-Technical-Feature-Discovery.md)
+- Feature spec: [`Technical-Feature-Discovery.md`](../features/Technical-Feature-Discovery.md)
 - Doc-type template: [`product/TECH-FEATURE.md`](../sdlc/product/TECH-FEATURE.md)
 - Task-tracking policy: [SDLC — Single source of truth](../sdlc/README.md#single-source-of-truth-cpaldocs)
 - Feeds into: KAN-60 (UI Refactor epic)

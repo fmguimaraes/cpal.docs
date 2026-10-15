@@ -3,7 +3,7 @@
 > Produced under **KAN-134** (epic **KAN-126**, "Technical Feature Discovery —
 > cpaltracker.web"), rolling up the seven area-level Technical-Feature docs
 > into one cross-referenced inventory per FR9/FR10/NFR4 of
-> [`IN-PROGRESS-Technical-Feature-Discovery.md`](../IN-PROGRESS-Technical-Feature-Discovery.md).
+> [`Technical-Feature-Discovery.md`](../Technical-Feature-Discovery.md).
 > Read-only synthesis — no application code and none of the seven source
 > docs were modified to produce this document.
 
