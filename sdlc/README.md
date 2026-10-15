@@ -19,7 +19,8 @@ cpal.global/                 umbrella repo — CLAUDE.md, .gitmodules, shared .e
 ├── cpal.docs/               documentation — single source of truth (this repo)
 ├── cto-tools/               shared scripts & dev rules used by more than one project
 ├── c-PAL.web/               public website (static HTML/CSS/JS)
-└── cpaltracker.web/         c-PAL tracker web app (PHP)
+├── cpaltracker.web/         c-PAL tracker web app (PHP)
+└── cpaltracker-react/       React/TS rebuild of cpaltracker.web's UI (KAN-60)
 ```
 
 | Repo | Remote | Role |
@@ -29,6 +30,7 @@ cpal.global/                 umbrella repo — CLAUDE.md, .gitmodules, shared .e
 | `cto-tools` | `git@github.com:fmguimaraes/cto-tools.git` | Cross-project scripts, code standards, Claude Code hooks |
 | `c-PAL.web` | `git@github.com:GCO147/c-PAL.web.git` | Product / marketing website |
 | `cpaltracker.web` | `git@github.com:GCO147/cpaltracker.web.git` | Tracker application |
+| `cpaltracker-react` | `git@github.com:fmguimaraes/cpaltracker-react.git` | React/TS rebuild of `cpaltracker.web`'s UI (KAN-60), consuming its `/api/v1` (KAN-116). **Temporarily hosted under `fmguimaraes`**, not `GCO147` like the other product repos — the Jira account used here has no repo-create permission on `GCO147`; transfer with `gh repo transfer` once granted. |
 
 ### Working with the umbrella
 
@@ -169,7 +171,7 @@ The cto-tools docs are project-agnostic and use placeholders
 | Lifecycle statuses | see [Board statuses](#board-statuses) |
 | `<superrepo>` | `cpal.global` |
 | `<docs-repo>` | `cpal.docs` |
-| `<frontend-repo>` | `c-PAL.web` (public site), `cpaltracker.web` (tracker app, PHP — front and back in one repo) |
+| `<frontend-repo>` | `c-PAL.web` (public site), `cpaltracker.web` (tracker app, PHP — front and back in one repo), `cpaltracker-react` (KAN-60 React/TS rebuild of `cpaltracker.web`'s UI, consuming its `/api/v1`; standalone repo, additive, no backend change) |
 | `<backend-repo>` | `cpaltracker.web` |
 | `<compute-repo>`, `<infra-repo>`, `<e2e-repo>`, `<tooling-repo>` | none yet |
 | `<templates-dir>` | `cpal.docs/sdlc/product/` |
