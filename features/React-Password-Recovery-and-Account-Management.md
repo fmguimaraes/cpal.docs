@@ -292,8 +292,10 @@ c-PAL enters a regulated scope.
 - Reset link opened in two tabs → server enforces single-use (CB11); the UI SHALL
   render the "already used / invalid" error on the losing tab (FR7).
 - Reset link expired or revoked between open and submit → FR7 error state.
-- Self-service password change that invalidates other sessions → the acting
-  session is kept alive (CB26) and the UI shows the "others closed" message (FR12).
+- Self-service password change that invalidates other sessions → the UI shows
+  the "others closed" message (FR12); see GAP5 below for how the acting
+  session is kept alive in practice (the real `/api/v1` endpoint does not
+  exempt its own bearer token from the revocation CB26 describes).
 - Clearing the phone number (empty submit) is a valid action, not an error (FR13).
 - E-mail change to an address owned by another account → API rejects; UI renders
   it (FR14).
@@ -318,6 +320,20 @@ c-PAL enters a regulated scope.
     behavior; it does not affect the React UI. The doc correction is owned by the
     backend/security docs (IMP4) and is recorded here only so no GAP is left
     unaddressed.
+  - **GAP5 (KAN-152 finding — a successful account password change revokes
+    the acting session's own token too).** *Fix at the frontend boundary + log
+    backend follow-up.* `PATCH /api/v1/account.php`'s password action calls
+    the same token-revocation routine the reset-password flow uses, but with
+    no exemption for the token that authenticated the very request that just
+    succeeded — unlike the legacy page's `session_regenerate_id()`, which
+    only ends *other* browser sessions. FR12(b)'s "keep the acting session
+    logged in" is met by having the React app transparently re-authenticate
+    with the password it just set, immediately after a successful change
+    (`AuthContext.updateAccount`, react-frontend-stack-decision.md §11) —
+    the user never sees an interruption. The real fix (the server either
+    exempting its own token from the revocation, or returning a fresh token
+    in the PATCH response) is logged as an open backend question (§14),
+    **not** worked around by changing `/api/v1`'s behavior in this epic.
 
 ## 13. Metrics / KPIs
 
@@ -345,10 +361,19 @@ c-PAL enters a regulated scope.
   UI, which then drift.** *Mitigation:* NFR7 — source such values from the API.
 - **Risk: divergence from the legacy pages during parallel running.** *Mitigation:*
   FRs cite the CB-n they replicate; E2E covers both happy and error paths.
+- **Risk: the frontend's transparent re-authentication after a password
+  change (GAP5) masks the underlying token-revocation gap indefinitely.**
+  *Mitigation:* logged as an explicit open backend question below, not
+  silently absorbed; if the re-authentication call itself ever fails, the
+  UI falls back to the ordinary session-loss flow rather than pretending the
+  session survived.
 - **Open backend questions (not resolved in this epic):** (a) add an IP/attempt
   throttle to the `/api/v1` account password check (GAP1/IMP1); (b) default
   `PWD_CHECK_HIBP` on for new deployments (GAP3/IMP3); (c) correct
-  `docs/security.md`'s rate-limiting entry (GAP4/IMP4).
+  `docs/security.md`'s rate-limiting entry (GAP4/IMP4); (d) exempt the
+  acting bearer token from `PATCH /api/v1/account.php`'s password-change
+  token revocation, or return a freshly issued token in that response
+  (GAP5).
 
 ## 15. Acceptance Criteria (Definition of Done)
 

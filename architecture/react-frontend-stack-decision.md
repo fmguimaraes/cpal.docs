@@ -452,7 +452,47 @@ with nothing signalled back either way (CB1, proper) — map to `'confirmed'`;
 maps to its own `invalidRequest`; and a genuine `5xx`/transport failure
 maps to `serviceUnavailable`.
 
-## 11. Related Documentation
+## 11. Account self-service token revocation (KAN-152, GAP5)
+
+`PATCH /api/v1/account.php`'s password action (`account_logic.php`'s
+`cpal_compte_changer_motdepasse`) calls the same `cpal_token_revoquer($pdo,
+$userId, 'api')` the reset-password flow uses (NFR8) — but with no
+exemption for the bearer token that authenticated the very PATCH request
+that just succeeded. The legacy `account.php` page does not have this
+problem: its own "other sessions closed" effect is the `SessionEpoch`
+trigger plus `session_regenerate_id()`, which only invalidates *other*
+browser sessions, never the one making the change. The real `/api/v1`
+behavior is stricter than that: every live `api`-type token for the
+account is revoked, including the one this request is using right now —
+the next call with that same token gets a `401 unauthorized`, which
+`client.ts`'s session-loss interceptor (§8) would otherwise treat as an
+ordinary dropped session and log the user out.
+
+FR12(b) requires the acting session to stay logged in through a
+self-service password change, so `AuthContext.updateAccount()` resolves
+this at the frontend boundary: immediately after a successful password
+PATCH, it silently re-authenticates (`POST /auth/login.php`) with the
+e-mail on the account and the password the user just set, installing the
+freshly issued token before the caller's own stale one can ever be used
+again — the user never sees an interruption. This deliberately does not
+reuse `login()`'s own state update (which only has `login.php`'s smaller
+`AccountSummary` to work with) — the richer `Account` object the PATCH
+response itself returned is kept instead, and only the token is replaced.
+If the re-authentication call itself fails (a narrow, rare window — the
+password change already succeeded by this point), `updateAccount()`
+swallows that failure rather than reporting the whole action as failed;
+the next real API call then simply hits the already-revoked token's `401`
+and falls through to the ordinary session-loss flow, which is honest
+(the session really did just become unauthenticated) rather than
+pretending otherwise.
+
+The real fix — the server either exempting its own request's token from
+the revocation, or returning a freshly issued token in the PATCH response
+body the way `login.php` does — is logged as an open backend question
+(`React-Password-Recovery-and-Account-Management.md` §14), not implemented
+here (no backend change, per this epic's constraint).
+
+## 12. Related Documentation
 
 - Feeds: KAN-60 and its child epics (Core, Auth & Session, Password Recovery
   & Account Management, Live Tracking, History Dashboard, Device Pilotage,
