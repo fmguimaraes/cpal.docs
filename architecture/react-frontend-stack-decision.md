@@ -169,8 +169,10 @@ and NFR3's underlying security intent for a bearer-token client (KAN-151):
   in `client.ts`'s module variable, is cleared on reload/logout, and every
   `/api/v1` request re-validates it server-side (role, `mustChangePassword`)
   on each call rather than trusting a long-lived client claim. Mitigating XSS
-  itself (CSP, output encoding, dependency hygiene) is owned by KAN-136, not
-  this record.
+  itself (CSP, output encoding, dependency hygiene) is tracked as its own
+  story, KAN-177 (CSP & Security-Header Hardening for the React Frontend,
+  filed under KAN-136), not owned implicitly by this record or the epic at
+  large.
 - **NFR8** (no client-side rate limiting; no copy built around
   `docs/security.md`'s stale "no rate limiting" claim) is unaffected by this
   reconciliation and remains satisfied as-is — no rate-limiting code exists
