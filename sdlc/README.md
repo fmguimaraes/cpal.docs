@@ -229,6 +229,7 @@ Requirement docs are written from these templates, kept in `cpal.docs`:
 | Template | Used in | Holds |
 |---|---|---|
 | [`product/FEATURE.md`](product/FEATURE.md) | W1 | The feature spec — the only place requirement text lives (FR/NFR IDs, ACs, edge cases, KPIs) |
+| [`product/TECH-FEATURE.md`](product/TECH-FEATURE.md) | W1 (reverse-engineering epics) | **Technical-Feature**: reverse-engineered current behavior (CB-n), gaps (GAP-n) and suggested improvements (IMP-n) extracted *from* existing code — in contrast to `FEATURE.md`, which specifies *new* behavior from a product ask. Same SSoT/ID-traceability discipline; used when an epic's job is to produce an inventory of an existing system (e.g. [KAN-126](https://c-pal.atlassian.net/browse/KAN-126), seeding the KAN-60 React rebuild) rather than to implement something new. |
 | [`product/EPIC.md`](product/EPIC.md) | W2 | Epic doc: requirement references by ID, Child Stories table, Requirement Traceability table |
 | [`product/STORY.md`](product/STORY.md) | W3 | Story description: subject, feature area, covered requirement IDs, Given/When/Then ACs |
 
