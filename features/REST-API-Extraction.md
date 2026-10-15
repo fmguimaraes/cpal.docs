@@ -182,6 +182,16 @@ otherwise) can be built entirely against `/api/v1/...` while every current
   failure, auth failure, or authorization failure.
 - FR14. System SHALL publish an OpenAPI (or equivalent) description
   covering every endpoint in FR1-FR12.
+  **Implementation note (KAN-125):** this app has no router/rewrite rule
+  (one PHP file per URL, per `docs/architecture.md`), so every endpoint's
+  real, reachable URL has a `.php` suffix (e.g. `/api/v1/auth/login.php`,
+  not `/api/v1/auth/login`); the four id-bearing endpoints additionally
+  accept the id via a trailing PATH_INFO segment
+  (`/api/v1/devices/config.php/{deviceId}`) or, as a permanent fallback,
+  a `?xxxId=` query parameter. `api/openapi.yaml` documents the physical
+  `.php` form directly so every operation is actually callable; see its
+  `info.description` and `docs/architecture.md`'s "Physical URL mapping"
+  section for the full rationale.
 - FR15. None of FR1-FR14 SHALL change the routes, markup, or observable
   behavior of any existing `.php` page. Extraction SHALL edit a page only
   to make it call a shared function it previously inlined; existing pages

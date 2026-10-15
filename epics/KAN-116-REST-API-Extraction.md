@@ -27,7 +27,7 @@ existing page and the new endpoint — never by changing what the existing
 page does.
 
 ## Requirement References (SSoT = Feature doc)
-Feature spec: [`IN-PROGRESS-REST-API-Extraction.md`](../features/IN-PROGRESS-REST-API-Extraction.md)
+Feature spec: [`REST-API-Extraction.md`](../features/REST-API-Extraction.md)
 — 15 FRs, 8 NFRs, 11 ACs, 9 edge cases. This epic references requirements
 by ID only; requirement text lives solely in the feature doc.
 
@@ -92,7 +92,7 @@ Jira active sprint S2 (id 3, 2026-10-11 → 2026-10-22).*
 one story. 100% structural coverage.*
 
 ## Related Documentation
-- Feature spec: [`IN-PROGRESS-REST-API-Extraction.md`](../features/IN-PROGRESS-REST-API-Extraction.md)
+- Feature spec: [`REST-API-Extraction.md`](../features/REST-API-Extraction.md)
 - Related epic: [KAN-60 — UI Refactor](https://c-pal.atlassian.net/browse/KAN-60)
 - Task-tracking policy: [SDLC — Single source of truth](../sdlc/README.md#single-source-of-truth-cpaldocs)
 

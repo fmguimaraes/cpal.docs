@@ -22,7 +22,7 @@ rebuild. It is included solely so the epic's file-by-file coverage of
 Feature-Discovery.md` FR7). It is also explicitly excluded from the
 KAN-116 REST API extraction epic, which already treats it as "functionally
 already a machine API with its own auth model" and out of scope for
-extraction (`IN-PROGRESS-REST-API-Extraction.md`, "Out of Scope," item on
+extraction (`REST-API-Extraction.md`, "Out of Scope," item on
 `insert_data.php`).
 
 ## 2. Scope (files / pages covered)
@@ -258,7 +258,7 @@ extraction (`IN-PROGRESS-REST-API-Extraction.md`, "Out of Scope," item on
   to `T_DATA`. Author's own recommendation.
 - **IMP5.** Since this area is explicitly out of scope for both the
   KAN-116 REST API extraction and the KAN-60 React UI rebuild (per
-  `IN-PROGRESS-REST-API-Extraction.md`'s Out-of-Scope section and this
+  `REST-API-Extraction.md`'s Out-of-Scope section and this
   epic's own framing in §1 above), no UI-facing improvement is proposed
   here. Any future change to this endpoint's auth model (IMP1) or
   validation (IMP3/IMP4) should be scoped as its own story outside both
