@@ -181,7 +181,14 @@ parallel.
   SHALL show a neutral throttle message ("too many attempts, try again later")
   that does NOT reveal the exact remaining minutes and is presented identically
   whether or not the account exists. *(replicates CB13/CB11 lockout concept;
-  **resolves GAP4** at the UI layer)*
+  **resolves GAP4** at the UI layer)* — superseded by stack decision §7
+  (KAN-155): `/api/v1` already collapses a locked account into the same 401
+  `invalid_credentials` response as any other rejection (GAP4 closed
+  server-side, not just at the UI), so there is no distinct lockout signal
+  for the client to key a separate branch on; the generic-rejection copy
+  (FR7) serves both buckets via one code path. The ipThrottle copy also
+  drops CB5's minutes figure, since the real 429 response carries none
+  (NFR8) — see §7 for both adaptations.
 - **FR9.** The app SHALL obtain the CSRF token at bootstrap, send it on every
   state-changing auth request (login, logout), and on a CSRF failure show the
   session-expired message and refresh the token before retry.
