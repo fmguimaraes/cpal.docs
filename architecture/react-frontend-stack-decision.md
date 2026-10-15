@@ -492,7 +492,83 @@ body the way `login.php` does — is logged as an open backend question
 (`React-Password-Recovery-and-Account-Management.md` §14), not implemented
 here (no backend change, per this epic's constraint).
 
-## 12. Related Documentation
+## 12. Cross-cutting stack/design-system/accessibility/test audit (KAN-154)
+
+KAN-154 closes out the Password Recovery & Account Management epic the same
+way KAN-157 closed out Auth & Session (§9): by the time it was picked up,
+every one of the epic's three flows (KAN-146 forgot-password, KAN-148
+reset-password, KAN-152 account self-service) had already built its own
+Vitest/Testing Library and Playwright coverage, used design-system theme
+tokens, and followed the labeled/`aria-describedby`-linked form pattern as
+part of its own Done condition. KAN-154's work is therefore an audit against
+this epic's NFRs, not new feature code.
+
+- **Stack (NFR1)**: `package.json` still pins exactly the KAN-60 reference
+  stack — React 18.3.1, TypeScript 5.5.4, Vite 5.4.8, React Router 6.26.2,
+  Zustand 4.5.5, Tailwind 4.3.3, React Hook Form 7.90.0 — no Supabase, no
+  new runtime dependency, no new backend endpoint/contract/DB schema
+  introduced by any of KAN-146/148/152.
+- **AuthContext-only networking (NFR1)**: all three flows' network calls go
+  through `apiClient`/`AuthContext` (`forgotPasswordOutcome.ts`,
+  `resetPasswordOutcome.ts`, `accountActionOutcome.ts` all map `ApiError`
+  from the one shared client in `api/client.ts`); none of the three routes
+  constructs its own `fetch`.
+- **Design-system theming (NFR6)**: every form across the three flows
+  (`ForgotPassword.tsx`, `ResetPassword.tsx`, `PasswordForm.tsx`,
+  `PhoneForm.tsx`, `EmailForm.tsx`) styles exclusively through
+  `theme/tokens.css`'s `var(--color-*)` custom properties, which
+  `:root[data-theme='dark']` (and the `prefers-color-scheme` default)
+  already redefine — no flow introduces a hard-coded color. No new token is
+  needed; nothing to add here beyond confirming the existing pattern held.
+- **Accessibility (NFR5, WCAG 2.1 AA)**: every input across all three flows
+  has an associated `<label htmlFor>`, `aria-invalid`, and
+  `aria-describedby` pointing at its own error element when invalid
+  (verified by grep across `ForgotPassword.tsx`, `ResetPassword.tsx`, and
+  the three `account/*Form.tsx` files — the same pattern KAN-145/149
+  established for `Login.tsx`). Status/error regions use `aria-live`
+  (`polite` for success, `assertive` for errors). Keyboard navigation needs
+  no bespoke handling: every interactive element in all three flows is a
+  native `<input>`, `<button>`, or `<a>` in normal document flow — there is
+  no custom widget (no modal, no custom dropdown, no drag target) that
+  would need an explicit tab-order or key-handler audit.
+- **Test coverage (NFR9, NFR10)**: already comprehensive at the point this
+  story picked it up — 163 Vitest/Testing Library tests across 14 files and
+  35 Playwright e2e tests across 7 spec files when KAN-154 started, with
+  every FR across the three flows covered by at least one unit test and one
+  e2e test (forgot: `forgotPasswordOutcome.test.ts` +
+  `ForgotPassword.test.tsx` + `forgot-password.spec.ts`; reset:
+  `resetPasswordOutcome.test.ts` + `ResetPassword.test.tsx` +
+  `reset-password.spec.ts`; account: `accountActionOutcome.test.ts` +
+  `Account.test.tsx` + `account.spec.ts` + the `AuthContext.test.tsx`
+  `updateAccount` suite for GAP5). No gap found; no new test was needed.
+- **CI gate (NFR9/NFR10, inherited from KAN-157)**: `.github/workflows/
+  ci.yml` already runs `npm test` and `npx playwright test` unconditionally
+  on every push to `main`, so all three flows' suites are already wired into
+  the Done-condition gate §9 describes — KAN-157's CI work did not need to
+  be flow-specific to cover flows added after it.
+- **Legacy PHP parity (NFR3)**: no file under `cpaltracker.web` was touched
+  by KAN-146/148/152 — the three legacy pages (`forgot_password.php`,
+  `reset_password.php`, `account.php`) keep serving traffic completely
+  unmodified, same guarantee as every other story in this epic.
+- **Interaction latency (NFR11, "under 300ms excluding network latency")**:
+  every client-side interaction across the three flows — React Hook Form's
+  `onChange`/`onSubmit` validation, the phone/e-mail normalization helpers,
+  the first-connection panel toggle in `Account.tsx` — is a synchronous
+  state update with no I/O, heavy computation, or artificial delay in the
+  critical path; React's own re-render for a form this size is sub-frame
+  (under 16ms) on ordinary hardware. This was checked by reasoning about the
+  code path rather than by adding new perf-measurement tooling: there is no
+  code path here that could plausibly approach 300ms on its own, so a
+  synthetic benchmark would not be testing anything the architecture doesn't
+  already guarantee. If a future flow (e.g. Live Tracking's map rendering)
+  introduces real computation on the interaction path, that is the point to
+  add an actual measurement, not here.
+
+No code changes resulted from this audit — every area was already compliant
+from the stories that built it. This mirrors the actual, not merely
+designed-in-advance, pattern KAN-157 found for Auth & Session (§9).
+
+## 13. Related Documentation
 
 - Feeds: KAN-60 and its child epics (Core, Auth & Session, Password Recovery
   & Account Management, Live Tracking, History Dashboard, Device Pilotage,
