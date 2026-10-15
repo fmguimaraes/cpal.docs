@@ -416,7 +416,37 @@ MySQL) is wanted in addition to this — e.g. as a periodic smoke test rather
 than a per-commit gate — that is a new, explicitly-scoped story, not
 something this one silently left undone.
 
-## 10. Related Documentation
+## 10. Forgot-password 429 collapsing (KAN-146)
+
+`POST /auth/forgot-password.php` (`api/openapi.yaml`) issues a distinct
+`429` when the caller's IP is already throttled (`cpal_ip_bloquee`, CB3) —
+unlike `POST /auth/login.php`, whose own `429 rate_limited` is shown to the
+user as its own neutral `ipThrottle` message (§7's `authOutcome.ts`). The
+forgot-password screen (KAN-146) does the opposite on purpose: its `429` is
+collapsed into the *same* "check your mailbox" confirmation every other
+outcome gets, per `React-Password-Recovery-and-Account-Management.md`
+FR2's explicit outcome list ("unknown, inactive, per-IP blocked,
+per-account rate-limited, or mail-send failure") and its §12 edge case
+("Forgot-password for an unknown, soft-deleted, inactive, **throttled**, or
+mail-failed account → identical confirmation").
+
+This isn't an inconsistency with §7 — it's the same anti-enumeration
+principle applied to a screen with a stricter bar. Login's `ipThrottle`
+message is safe to show distinctly because *every* visitor to `/login`
+already knows an account is being targeted (they're attempting to log in);
+revealing "this IP is throttled" adds no new information about account
+existence. Forgot-password's entire purpose is to never reveal whether the
+submitted e-mail belongs to an account at all — the legacy page already
+reflects this (CB1: `forgot_password.php` sets `$envoye = true`
+*unconditionally*, before its own IP-block check even runs, so even the
+PHP page's internal decision to silently drop a throttled request is
+invisible to the visitor). `forgotPasswordOutcome.ts`'s `mapForgotPasswordOutcome`
+keeps that same invisibility: every 4xx (429 included) maps to `'confirmed'`;
+only a genuine 5xx/transport failure — an infrastructure fact, not an
+account fact, and outside FR2's enumerated list — gets its own
+`serviceUnavailable` message.
+
+## 11. Related Documentation
 
 - Feeds: KAN-60 and its child epics (Core, Auth & Session, Password Recovery
   & Account Management, Live Tracking, History Dashboard, Device Pilotage,
