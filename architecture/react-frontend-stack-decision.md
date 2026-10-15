@@ -230,7 +230,86 @@ distinguishing signal (e.g. a dedicated `account_locked` error code that
 itself omits the countdown) — that is a backend contract change and is out
 of scope for KAN-155 and this frontend-only epic.
 
-## 8. Related Documentation
+## 8. Logout & session-loss signal reconciliation (KAN-156)
+
+`React-Auth-and-Session.md`'s FR10 ("logout SHALL occur only via an explicit
+authenticated in-app action that POSTs the CSRF token... never triggerable
+by a bare GET or third-party markup load") inherits the same stale "CSRF
+token" phrasing §6 above already reconciled for FR9 — `POST
+/api/v1/auth/logout.php` requires no CSRF token to send or validate (there
+is none in the contract, same as §6). The rest of FR10's intent is already
+true of this architecture **by construction, not by added code**:
+`api/v1/auth/logout.php` only ever handles `POST` (`cpal_api_auth_logout_handle()`
+replies `405 method_not_allowed` to anything else — `logout.php` lines
+50-53), there is no server-side route that performs it on `GET`, and this
+frontend's only call site is `AuthContext.logout()`'s
+`apiClient.post('/auth/logout.php')` — a POST issued solely from an explicit
+in-app button click (`HelloWorld`'s "Sign out"), never a link, `<img>`, or
+other GET-triggerable markup. CB19/CB20's bespoke "logged-in + bad CSRF token
+renders a confirmation page instead of logging out" branch (the legacy
+`logout.php` page's own anti-`<img src="logout.php">` defense) has no bearer-
+token equivalent to replicate: a cross-site request simply cannot attach this
+app's `Authorization: Bearer` header at all (§6's "no ambient credential"
+argument applies identically to logout), so there is nothing an attacker's
+page could forge in the first place — not a narrower defense than CB19/CB20,
+a structurally stronger one (FR10's own wording: "removing GET-triggered
+logout entirely").
+
+**FR11/FR12 — session-loss signal collapsing.** FR11 asks `AuthContext` to
+distinguish idle-timeout, absolute-timeout, account-disabled and
+epoch-mismatch responses (CB27, CB28, CB30, CB31 — all legacy
+`$_SESSION`-based checks inside `cpal_current_user()`, `auth.php` lines
+180-212) and FR12 asks it to treat "any 401/session-invalidation response"
+as session loss. Re-reading the real `/api/v1` bearer-token path
+(`cpal_api_require_auth()`, `auth.php` lines 670-715, and its error mapping
+`cpal_api_require_auth_error()`, lines 726-735) shows every one of those four
+legacy conditions — along with a simply missing/malformed/expired/already-
+invalidated token — collapses into the exact same response before this
+frontend ever sees it: `401 unauthorized`, `"Missing, invalid or expired
+token."`, word for word, for every case
+(`api/v1/account.php` line 139 is one caller of that same shared mapping).
+Confirmed against `api/openapi.yaml`, which documents only one `Unauthorized`
+response component reused by every authenticated operation — there is no
+status code, error code, or body field left for this client to key a
+four-way (or even two-way) branch on. This is the same shape of finding as
+§7's GAP4 lockout-signal collapse (KAN-155): the gap is already closed at the
+`/api/v1` layer, not something the frontend needs to work around or invent
+distinguishing UI branches for.
+
+**Decision:** a single shared mechanism (`client.ts`'s `request()`, the one
+place every `/api/v1` call passes through) detects this one real signal and
+notifies `AuthContext` via a registered callback
+(`setSessionLossHandler()` — the same module-variable registration pattern
+`setAuthToken()` already uses, since a plain `fetch` wrapper can't reach into
+React context directly). It fires only when the failing request **was
+carrying a bearer token** (i.e., this client believed it was authenticated)
+and got back `401` with code `unauthorized` specifically — not merely any
+401. That second condition is what keeps a plain not-yet-signed-in visitor's
+very first bootstrap `GET /account.php` (also a `401 unauthorized`, since
+`cpal_api_require_auth()` rejects a missing `Authorization` header the same
+way) from being mislabeled "your session expired": nothing was ever
+authenticated to lose in that case. `POST /auth/login.php` can never
+trigger it either way — that endpoint requires no bearer token
+(`security: []`) and always replies `invalid_credentials` on rejection,
+never `unauthorized`; a rejected login is FR7/FR8's job
+(`src/auth/authOutcome.ts`, KAN-155), not a session-loss event. Once the
+interceptor fires, `AuthContext` drops to `anonymous` and reuses FR13's
+already-existing `RequireAuth` anonymous-redirect (`buildLoginRedirectPath`)
+unmodified for FR12's "routes to login with suite set to the current
+location" — no second redirect/open-redirect-protected code path was added.
+FR11's "session-expired copy" requirement reuses
+`src/auth/authOutcome.ts`'s existing `sessionExpired` message (KAN-155) via a
+new `?notice=` query indicator (`src/auth/loginNotice.ts`), the same
+query-param-driven style `suite` already uses, rather than inventing new
+copy or a new redirect-targeting mechanism.
+
+**Open question for a future backend story, not worked around here:** if a
+product need ever arises for the UI to distinguish *why* a session ended
+(e.g. "your account was disabled" vs "you were idle too long"), `/api/v1`
+would need to start returning a distinguishing code per case — a backend
+contract change, out of scope for KAN-156 and this frontend-only epic.
+
+## 9. Related Documentation
 
 - Feeds: KAN-60 and its child epics (Core, Auth & Session, Password Recovery
   & Account Management, Live Tracking, History Dashboard, Device Pilotage,
