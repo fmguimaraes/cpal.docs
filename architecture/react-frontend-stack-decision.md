@@ -276,6 +276,26 @@ four-way (or even two-way) branch on. This is the same shape of finding as
 `/api/v1` layer, not something the frontend needs to work around or invent
 distinguishing UI branches for.
 
+Review gate round 1 (KAN-156): "collapses" is accurate for the *response
+the client sees*, but three of the four legacy conditions do have a real,
+server-side bearer-token analogue causing that collapse, while one does
+not — worth stating precisely rather than implying all four are equally
+"handled":
+- **Epoch-mismatch** → a real analogue: API tokens are revoked on a
+  password change/reset (`account_logic.php:123`,
+  `password_recovery_logic.php:245`).
+- **Account-disabled** → a real analogue: the token-validity check includes
+  the account's `SuppressionDate`.
+- **Absolute-timeout** → a real analogue: a token's `ExpiresAt`.
+- **Idle-timeout** → **no analogue at all.** `cpal_token_valide` has no
+  sliding/last-seen check and nothing refreshes a token's expiry on
+  activity (no counterpart to CB28's idle-refresh) — a bearer token that's
+  merely gone unused, but isn't yet past `ExpiresAt`, stays valid
+  indefinitely. This is a genuine security-posture gap against CB27's
+  legacy 1800s idle window, not something this story's client-side
+  reconciliation closes — logged here as a backend open question (see
+  below), not silently treated as covered.
+
 **Decision:** a single shared mechanism (`client.ts`'s `request()`, the one
 place every `/api/v1` call passes through) detects this one real signal and
 notifies `AuthContext` via a registered callback
@@ -303,11 +323,19 @@ new `?notice=` query indicator (`src/auth/loginNotice.ts`), the same
 query-param-driven style `suite` already uses, rather than inventing new
 copy or a new redirect-targeting mechanism.
 
-**Open question for a future backend story, not worked around here:** if a
-product need ever arises for the UI to distinguish *why* a session ended
-(e.g. "your account was disabled" vs "you were idle too long"), `/api/v1`
-would need to start returning a distinguishing code per case — a backend
-contract change, out of scope for KAN-156 and this frontend-only epic.
+**Open question for a future backend story, not worked around here:**
+two distinct gaps, not one:
+1. If a product need ever arises for the UI to distinguish *why* a session
+   ended (e.g. "your account was disabled" vs "you were idle too long"),
+   `/api/v1` would need to start returning a distinguishing code per case —
+   a backend contract change, out of scope for KAN-156 and this
+   frontend-only epic.
+2. Separately, and regardless of (1): bearer tokens have no idle-timeout
+   enforcement at all today (see the "Idle-timeout" point above) — a
+   security-posture gap against the legacy session model's behavior, not
+   merely a UI-copy limitation. Flagged here for a future backend story to
+   decide whether/how to close it; this frontend cannot enforce an
+   idle-timeout the server itself doesn't track.
 
 ## 9. Related Documentation
 
