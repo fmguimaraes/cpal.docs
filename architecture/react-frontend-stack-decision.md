@@ -416,35 +416,41 @@ MySQL) is wanted in addition to this — e.g. as a periodic smoke test rather
 than a per-commit gate — that is a new, explicitly-scoped story, not
 something this one silently left undone.
 
-## 10. Forgot-password 429 collapsing (KAN-146)
+## 10. Forgot-password 429/400 handling (KAN-146)
 
 `POST /auth/forgot-password.php` (`api/openapi.yaml`) issues a distinct
-`429` when the caller's IP is already throttled (`cpal_ip_bloquee`, CB3) —
-unlike `POST /auth/login.php`, whose own `429 rate_limited` is shown to the
-user as its own neutral `ipThrottle` message (§7's `authOutcome.ts`). The
-forgot-password screen (KAN-146) does the opposite on purpose: its `429` is
-collapsed into the *same* "check your mailbox" confirmation every other
-outcome gets, per `React-Password-Recovery-and-Account-Management.md`
-FR2's explicit outcome list ("unknown, inactive, per-IP blocked,
-per-account rate-limited, or mail-send failure") and its §12 edge case
-("Forgot-password for an unknown, soft-deleted, inactive, **throttled**, or
-mail-failed account → identical confirmation").
+`429` when the caller's IP is already throttled (`cpal_ip_bloquee`, CB3),
+matching `POST /auth/login.php`'s own `429 rate_limited` (§7's
+`authOutcome.ts`, `ipThrottle`). The legacy page confirms this directly:
+`forgot_password.php` checks `cpal_ip_bloquee($pdo)` in an `elseif` branch
+that sets its own distinct "Trop de tentatives..." message, and only its
+final `else` branch — reached solely when that check has already passed —
+sets `$envoye = true`. `api/v1/auth/forgot-password.php`'s own header
+comment says the same thing explicitly: the two cases that get a distinct
+response are a malformed body (`400`) and an IP already blocked by
+`cpal_ip_bloquee()` (`429`, CB3) — neither reveals anything about a
+specific account, so showing either distinctly does not violate
+anti-enumeration (an IP block and a malformed request are facts about the
+request, not about whether any account exists for the submitted e-mail).
 
-This isn't an inconsistency with §7 — it's the same anti-enumeration
-principle applied to a screen with a stricter bar. Login's `ipThrottle`
-message is safe to show distinctly because *every* visitor to `/login`
-already knows an account is being targeted (they're attempting to log in);
-revealing "this IP is throttled" adds no new information about account
-existence. Forgot-password's entire purpose is to never reveal whether the
-submitted e-mail belongs to an account at all — the legacy page already
-reflects this (CB1: `forgot_password.php` sets `$envoye = true`
-*unconditionally*, before its own IP-block check even runs, so even the
-PHP page's internal decision to silently drop a throttled request is
-invisible to the visitor). `forgotPasswordOutcome.ts`'s `mapForgotPasswordOutcome`
-keeps that same invisibility: every 4xx (429 included) maps to `'confirmed'`;
-only a genuine 5xx/transport failure — an infrastructure fact, not an
-account fact, and outside FR2's enumerated list — gets its own
-`serviceUnavailable` message.
+Review gate round 1 on KAN-146 (B1) caught an earlier version of
+`forgotPasswordOutcome.ts` that collapsed `429` into the "check your
+mailbox" confirmation anyway, on the mistaken premise that the legacy page
+hides IP-throttling from the visitor unconditionally (it doesn't — see
+above). That collapse was not an anti-enumeration improvement; it was a UX
+regression — a legitimately-throttled visitor would be told an e-mail was
+on its way when none ever would be, with no indication to retry later,
+where both the legacy page and `/api/v1` already tell them exactly that.
+The corrected mapper has four buckets: a genuine success, and any other
+account-existence-related outcome — unknown/soft-deleted/inactive account,
+an account over its own per-account hourly cap (`cpal_demander_reinitialisation`'s
+CB4), or a mail-send failure, all of which `cpal_demander_reinitialisation()`
+(`password_recovery_logic.php`) collapses identically via a silent `return`
+with nothing signalled back either way (CB1, proper) — map to `'confirmed'`;
+`429` maps to its own `ipThrottle`, reusing login's exact copy; `400`
+(malformed body — defensive only, FR1 already blocks this client-side)
+maps to its own `invalidRequest`; and a genuine `5xx`/transport failure
+maps to `serviceUnavailable`.
 
 ## 11. Related Documentation
 

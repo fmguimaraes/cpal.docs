@@ -121,8 +121,11 @@ parallel. All behavior is covered by Vitest unit tests and Playwright E2E tests.
 1. User opens the forgot-password route and enters their e-mail.
 2. UI validates e-mail format client-side; on blur/submit shows inline errors.
 3. User submits; UI calls `/api/v1` forgot-password via the AuthContext client.
-4. Regardless of the result (unknown / inactive / throttled / send failure /
-   success), the UI shows one identical "check your mailbox" confirmation state.
+4. For any account-existence-related result (unknown / inactive / per-account
+   rate-limited / send failure / success), the UI shows one identical "check
+   your mailbox" confirmation state; a per-IP-throttled request (CB3) or a
+   malformed submission instead get their own distinct, non-leaking message
+   (stack-decision.md §10).
 
 **Reset password**
 1. User opens the reset link; UI reads the `t` token from the query string and
@@ -151,9 +154,13 @@ parallel. All behavior is covered by Vitest unit tests and Playwright E2E tests.
 - **FR1.** The forgot-password page SHALL present an e-mail input and SHALL
   validate e-mail format client-side (React Hook Form) before enabling submit.
 - **FR2.** The forgot-password page SHALL render a single, identical
-  "check your mailbox" confirmation state for every outcome — unknown, inactive,
-  per-IP blocked, per-account rate-limited, or mail-send failure — never revealing
-  which occurred. *(replicates CB1, CB3, CB4; §6 edge cases)*
+  "check your mailbox" confirmation state for every account-existence-related
+  outcome — unknown, inactive, per-account rate-limited, or mail-send failure —
+  never revealing which occurred; a per-IP-blocked request (CB3) or a
+  malformed submission SHALL instead get their own distinct, non-leaking
+  message (matching login's own `ipThrottle` precedent), since neither
+  reveals anything about whether the submitted e-mail belongs to an account.
+  *(replicates CB1, CB3, CB4; §6 edge cases; stack-decision.md §10)*
 - **FR3.** The forgot-password submission SHALL be sent through the `AuthContext`
   thin REST/cookie client to the `/api/v1` forgot-password endpoint, including any
   CSRF/session handling the API requires; the UI SHALL NOT mint or validate tokens
@@ -277,8 +284,11 @@ c-PAL enters a regulated scope.
 
 ## 12. Edge Cases & Constraints
 
-- Forgot-password for an unknown, soft-deleted, inactive, throttled, or
-  mail-failed account → identical confirmation (FR2, NFR3).
+- Forgot-password for an unknown, soft-deleted, inactive, per-account
+  rate-limited (CB4), or mail-failed account → identical confirmation (FR2,
+  NFR3). A per-IP-blocked request (CB3) is NOT part of this set — it gets its
+  own distinct, non-leaking throttle message, matching login's own
+  `ipThrottle` precedent (stack-decision.md §10).
 - Reset link opened in two tabs → server enforces single-use (CB11); the UI SHALL
   render the "already used / invalid" error on the losing tab (FR7).
 - Reset link expired or revoked between open and submit → FR7 error state.
@@ -343,7 +353,8 @@ c-PAL enters a regulated scope.
 ## 15. Acceptance Criteria (Definition of Done)
 
 - [ ] Forgot-password page validates e-mail client-side and renders one identical
-      confirmation for every outcome. *(FR1, FR2, NFR3)*
+      confirmation for every account-existence-related outcome, with distinct
+      messages for a per-IP throttle and a malformed submission. *(FR1, FR2, NFR3)*
 - [ ] Forgot-password submits through the AuthContext client to `/api/v1`, minting
       no tokens itself. *(FR3, NFR2)*
 - [ ] Reset page reads the `t` token from the URL, retains it across resubmission,
