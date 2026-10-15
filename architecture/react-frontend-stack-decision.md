@@ -350,8 +350,9 @@ feature tests were needed:
 - Unit (Vitest 2.1 + Testing Library — the §2 table's "Vitest 4" was never
   actually installed; `package.json` pins 2.1.1): empty-field validation
   (`Login.test.tsx`), suite sanitizer (`suite.test.ts`), outcome→copy
-  mapper (`authOutcome.test.ts`), lockout copy (`authOutcome.test.ts` +
-  `loginNotice.test.ts`), route guards (`RequireAuth.test.tsx`), logout
+  mapper (`authOutcome.test.ts`), lockout copy (`authOutcome.test.ts` —
+  the neutral, no-digit copy for the collapsed 401/429 buckets), route
+  guards (`RequireAuth.test.tsx`), logout
   handler (`AuthContext.test.tsx` + `HelloWorld.test.tsx`).
 - E2E (Playwright): login success via the actual form submission
   (`logout-session.spec.ts` + `csrf-security.spec.ts` — `hello-world.spec.ts`
@@ -391,8 +392,18 @@ mocks `/api/v1` responses with `page.route` rather than pointing at a live
 it — no PHP/MySQL backend is available in this CI environment (and this
 epic's constraint is no backend/DB change or disruption to the running
 monolith, which a CI job hitting it would risk), and every acceptance
-criterion this epic has needed so far (including GAP4) has been verifiable
-against the built frontend's own request/response handling without one.
+criterion this epic has needed so far has been verifiable against the
+built frontend's own request/response handling without one. GAP4 is a
+partial exception, split across two different kinds of evidence rather
+than fully closed by mocked E2E: its UI half (a locked account gets the
+same neutral, no-digit copy as a wrong password, never a distinguishing
+message) is what E2E actually verifies; its server half (that a real
+locked account is collapsed to the same `401 invalid_credentials` the
+wrong-password case gets, rather than some other signal) rests on §7's
+code-level reconciliation against `auth.php`/`openapi.yaml`, not on any
+test run here — and would be a reasonable scope item for an optional
+live-backend smoke story if that server-side behavior is ever meant to be
+test-verified rather than reconciled by reading.
 
 Three spec file headers (`e2e/login.spec.ts`, `e2e/protected-routes.spec.ts`,
 `e2e/logout-session.spec.ts`) still had comments saying a "live `/api/v1`
