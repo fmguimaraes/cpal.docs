@@ -46,16 +46,28 @@ see [SDLC project bindings](../sdlc/README.md#project-bindings-c-pal)) that:
 ## 3. Deviation: auth client
 
 The pasted reference stack specifies "Supabase JS client (auth, via
-AuthContext)". This system has no Supabase project anywhere —
-`cpaltracker.web` auth is PHP session/cookie-based, re-checked against the
-DB on every request ([`architecture.md`](../../cpaltracker.web/docs/architecture.md),
-[`Auth-and-Session.md`](../features/technical/Auth-and-Session.md)), fronted
-by KAN-116's `/api/v1`.
+AuthContext)". This system has no Supabase project anywhere.
+`cpaltracker.web`'s own HTML pages use PHP session/cookie auth, re-checked
+against the DB on every request, but **`/api/v1` (KAN-116) is separate and
+bearer-token authenticated, not cookie-based** — `api/v1/_lib.php` sends no
+`Access-Control-Allow-Credentials` header specifically because the REST
+layer never relies on cookies; a client-issued token comes from
+`POST /auth/login.php` and is sent back as `Authorization: Bearer <token>`
+([`architecture.md`](../../cpaltracker.web/docs/architecture.md),
+[`Auth-and-Session.md`](../features/technical/Auth-and-Session.md),
+[`openapi.yaml`](../../cpaltracker.web/api/openapi.yaml)). An earlier draft
+of this record assumed the REST layer shared the HTML pages' cookie session
+— it does not (caught in KAN-142's review gate).
 
 **Decision:** keep the `AuthContext` pattern (a single React context wrapping
 auth state and actions), but back it with a thin REST client calling
-`/api/v1`'s auth endpoints over `fetch`/cookies — not an actual Supabase
-backend. No Supabase package is added to the stack.
+`/api/v1`'s auth endpoints over `fetch`, holding the bearer token in memory
+and attaching `Authorization: Bearer <token>` to every request —
+`credentials: 'omit'`, never `'include'`. No Supabase package is added to
+the stack. Token storage is deliberately in-memory only (cleared on reload)
+until Auth & Session (KAN-136) decides whether/how to persist a session
+across page reloads; that is a security tradeoff for that epic to make
+explicitly, not a default to inherit silently from this scaffold.
 
 ## 4. Design system foundation (added requirement)
 
