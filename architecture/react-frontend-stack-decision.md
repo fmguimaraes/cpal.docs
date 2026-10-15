@@ -97,7 +97,70 @@ incidental styling choice:
   the rebuild. No disruption to the current monolith is an acceptance
   condition on every story in every child epic.
 
-## 6. Related Documentation
+## 6. CSRF / client-side security constraints reconciliation (KAN-151)
+
+`React-Auth-and-Session.md`'s FR9 ("obtain a CSRF token at bootstrap, send it
+on every state-changing auth request, refresh it on a CSRF failure") and its
+FR4/NFR3 cross-references read `/api/v1` against the wrong model. They were
+written against `cpaltracker.web`'s PHP pages (CB3, CB18, CB19–CB21, CB23,
+CB24 in
+[`Auth-and-Session.md`](../features/technical/Auth-and-Session.md)), where
+`cpal_session_start()` seeds a `$_SESSION['csrf_token']`, the browser
+auto-attaches the `CPALSESSID` cookie on every request (including ones a
+malicious third-party page can trigger), and the CSRF token is the only thing
+stopping that ambient cookie from being replayed cross-site. §3 above already
+established that `/api/v1` is bearer-token only and never relies on cookies
+(`api/v1/_lib.php` sends no `Access-Control-Allow-Credentials` header; this
+repo's client always calls `fetch` with `credentials: 'omit'`). Re-reading
+`openapi.yaml`'s login/logout schemas for KAN-151 confirms there is no CSRF
+field anywhere in the contract — the backend has nothing to issue, and
+nothing to validate.
+
+**Decision: FR9's literal "CSRF token" mechanism does not apply and is not
+implemented.** CSRF is an attack that relies on the browser *automatically*
+attaching an ambient credential (a cookie) to a cross-origin request the
+victim didn't knowingly make. This client never has an ambient credential for
+a forged request to ride on: the bearer token lives only in an in-memory
+module variable (`client.ts`), is attached explicitly via
+`Authorization: Bearer <token>` by this app's own code, and no browser
+mechanism will attach it to a request this app didn't itself issue.
+Implementing a double-submit-cookie/CSRF-token scheme here would validate
+against nothing the real backend checks — dead code that would mislead a
+future reader into believing a cookie session exists where there is none.
+FR9's acceptance criterion ("CSRF token is sent on login & logout") is
+therefore **reclassified as N/A for this architecture**, not implemented, and
+logged here rather than silently dropped.
+
+What *is* implemented, as the architecturally-correct translation of FR9's
+and NFR3's underlying security intent for a bearer-token client (KAN-151):
+
+- **No ambient-credential regression.** `credentials: 'omit'` is sent on
+  every single `/api/v1` request (`client.ts`'s `request()` — not
+  overridable per-call) and is locked down by a Vitest regression test
+  (`src/api/client.test.ts`) asserting it on every call, so nothing can
+  silently start sending cookies or inventing a CSRF header/field the backend
+  never reads.
+- **In-memory-only token (NFR3).** The bearer token lives in `client.ts`'s
+  module-scoped `authToken` variable only — never written to
+  `localStorage`/`sessionStorage`/a cookie, and cleared via `setAuthToken(null)`
+  on logout/failed bootstrap. Regression-tested in `client.test.ts` and
+  `AuthContext.test.tsx` (spies on `Storage.prototype.setItem` across a full
+  login→logout cycle, and on `console.error`, to ensure the token is never
+  persisted or logged).
+- **Server cookie flags.** NFR3's "SHALL not weaken any server cookie flag
+  (CB23)" is vacuously satisfied: this client never sets, reads, or
+  participates in any cookie at all, so there is no flag it could weaken.
+- **NFR8** (no client-side rate limiting; no copy built around
+  `docs/security.md`'s stale "no rate limiting" claim) is unaffected by this
+  reconciliation and remains satisfied as-is — no rate-limiting code exists
+  anywhere in this app (lockout/throttle copy is FR7/FR8's scope, KAN-155).
+
+This reconciliation was flagged as a judgment call for review: if a future
+story finds a literal backend CSRF mechanism was added to `/api/v1` (it is
+not present as of KAN-151 per `openapi.yaml`), this section must be revisited
+before any FR9-shaped work is marked done against it.
+
+## 7. Related Documentation
 
 - Feeds: KAN-60 and its child epics (Core, Auth & Session, Password Recovery
   & Account Management, Live Tracking, History Dashboard, Device Pilotage,
