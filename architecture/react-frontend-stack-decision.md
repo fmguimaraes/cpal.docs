@@ -189,7 +189,48 @@ any `/api/v1` endpoint started accepting session-cookie auth (it is not
 present as of KAN-151 per `openapi.yaml`), this section must be revisited
 before any FR9-shaped work is marked done against it.
 
-## 7. Related Documentation
+## 7. Lockout signal reconciliation (KAN-155)
+
+`React-Auth-and-Session.md`'s FR8 ("on an account-lockout signal... show a
+neutral throttle message... that does NOT reveal the exact remaining
+minutes and is presented identically whether or not the account exists")
+was written against `Auth-and-Session.md`'s GAP4: the legacy `login.php`
+page's still-locked branch returns a *distinct* message disclosing the
+remaining lockout minutes (`login.php` lines 80-84), unlike every other
+rejection branch, which is an exception to the page's own stated
+single-message anti-enumeration rule.
+
+**That gap is already closed at the `/api/v1` layer, before this frontend
+ever sees a response.** `cpal_login_verifier()` (`auth.php` lines 534-607,
+shared by `login.php` and `POST /api/v1/auth/login`) collapses unknown
+account, soft-deleted, uninitialized-password, wrong-password, *and*
+still-locked/newly-locked into one `raison: 'identifiants'`, and
+`api/v1/auth/login.php` (lines 100-117) responds to all of them with the
+exact same `401 invalid_credentials` body, word for word — there is no
+status code, error code, or any other field in the real response this
+client could key a distinct "locked" branch on (confirmed against
+`api/openapi.yaml`'s `/auth/login.php` operation, which documents only
+`400`/`401`/`429`/`405`/`503`).
+
+**Decision:** `src/auth/authOutcome.ts`'s `mapAuthOutcome()` does not
+implement a separate `accountLockout` outcome. The single `genericRejection`
+outcome/message is used for both the ordinary-rejection case and the
+locked-account case, because the real backend already makes them
+indistinguishable — the same one branch (not two sharing a string) handles
+both, which is a stronger guarantee against UI-structure leakage than FR8's
+literal wording asks for. This mapping keeps `LOGIN_MAX_FAILS`/
+`LOGIN_LOCK_MINUTES` (`config.php`) entirely server-side; the frontend never
+hardcodes or guesses either value (NFR8).
+
+**Open question for a future backend story, not worked around here:** if a
+product need ever arises for the UI to show a dedicated "your account is
+temporarily locked" message (distinct from "wrong email or password"),
+`POST /api/v1/auth/login` would need a new, deliberately-still-neutral
+distinguishing signal (e.g. a dedicated `account_locked` error code that
+itself omits the countdown) — that is a backend contract change and is out
+of scope for KAN-155 and this frontend-only epic.
+
+## 8. Related Documentation
 
 - Feeds: KAN-60 and its child epics (Core, Auth & Session, Password Recovery
   & Account Management, Live Tracking, History Dashboard, Device Pilotage,
