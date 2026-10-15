@@ -40,7 +40,7 @@ see [SDLC project bindings](../sdlc/README.md#project-bindings-c-pal)) that:
 | Client-side search | MiniSearch |
 | Realtime | `socket.io-client` — **held, not adopted** until an epic needs it; `/api/v1` has no realtime endpoint today ([`Live-Tracking.md`](../features/technical/Live-Tracking.md) GAP1–3: today's "live" view has no working map and no polling) |
 | Lint/types | ESLint 9 + typescript-eslint, `tsc --noEmit` via `npm run typecheck` (two tsconfigs; root config intentionally checks nothing, per project convention) |
-| Unit testing | Vitest 4 + Testing Library (jsdom) |
+| Unit testing | Vitest 2.1 + Testing Library (jsdom) — the originally pasted reference stack said "Vitest 4"; `package.json` installed 2.1.1, the latest available at scaffolding time (KAN-60), and nothing since has needed a bump (see §9) |
 | E2E testing | **Added** — Playwright, against a running local/staging build, per `cto-tools/SDLC.md`'s "scenario first, automate against the running app" E2E strategy |
 
 ## 3. Deviation: auth client
@@ -347,17 +347,24 @@ plus the one genuine gap: neither suite was wired into CI yet.
 
 Audit result — every required area already has passing coverage, no new
 feature tests were needed:
-- Unit (Vitest 4 + Testing Library): empty-field validation
+- Unit (Vitest 2.1 + Testing Library — the §2 table's "Vitest 4" was never
+  actually installed; `package.json` pins 2.1.1): empty-field validation
   (`Login.test.tsx`), suite sanitizer (`suite.test.ts`), outcome→copy
   mapper (`authOutcome.test.ts`), lockout copy (`authOutcome.test.ts` +
   `loginNotice.test.ts`), route guards (`RequireAuth.test.tsx`), logout
   handler (`AuthContext.test.tsx` + `HelloWorld.test.tsx`).
-- E2E (Playwright): login success and protected-home load
-  (`hello-world.spec.ts`), wrong password (`login.spec.ts`), lockout —
-  reconciled to the per-IP 429 `rate_limited` bucket per §7
-  (`login.spec.ts`), explicit logout (`logout-session.spec.ts`),
-  protected-route redirect (`protected-routes.spec.ts`), session
-  expiry/invalidation (`logout-session.spec.ts`).
+- E2E (Playwright): login success via the actual form submission
+  (`logout-session.spec.ts` + `csrf-security.spec.ts` — `hello-world.spec.ts`
+  only fakes an already-authenticated session by mocking `/account.php`, it
+  never submits the login form), wrong password / lockout — per §7, a
+  locked account gets the *same* `401 invalid_credentials` response as a
+  wrong password (anti-enumeration: the UI must not reveal a locked account
+  exists), both mapped to the identical genericRejection copy and both
+  covered by the same test (`login.spec.ts`'s invalid-credentials case; the
+  429 `rate_limited` case in the same file is the separate per-IP throttle,
+  not lockout), explicit logout (`logout-session.spec.ts`), protected-route
+  redirect (`protected-routes.spec.ts`), session expiry/invalidation
+  (`logout-session.spec.ts`).
 
 The actual deliverable: `.github/workflows/ci.yml`, running on every push
 and pull request to `main` (this repo currently commits straight to `main`
@@ -366,7 +373,37 @@ typecheck + lint + the Vitest suite in one job, the Playwright suite
 (against a built-and-previewed app, per `playwright.config.ts`'s own
 `webServer`) in a second — both required to pass, making this epic's own
 stated Done condition ("both suites are wired into CI and treated as a Done
-condition gate") real rather than only a documented intent.
+condition gate") real rather than only a documented intent. There is no
+branch protection rule enforcing this yet (commits land on `main` directly,
+`pr:false`), so today the gate is procedural — a story is not closed out
+until its CI run for that commit is checked green — rather than one GitHub
+itself blocks on.
+
+### 9.1 NFR2's "running local/staging build" means a built app with a mocked `/api/v1`, not a live PHP/DB backend
+
+`React-Auth-and-Session.md`'s NFR2 asks for E2E "against a running
+local/staging build"; §13 says GAP4 is "verified by E2E". Every Playwright
+spec added across this whole epic (KAN-145 through KAN-156) already
+satisfies this the same way: `playwright.config.ts`'s `webServer` builds
+the real production bundle and serves it with `vite preview`, and each spec
+mocks `/api/v1` responses with `page.route` rather than pointing at a live
+`cpaltracker.web` instance. KAN-157 keeps that pattern rather than changing
+it — no PHP/MySQL backend is available in this CI environment (and this
+epic's constraint is no backend/DB change or disruption to the running
+monolith, which a CI job hitting it would risk), and every acceptance
+criterion this epic has needed so far (including GAP4) has been verifiable
+against the built frontend's own request/response handling without one.
+
+Three spec file headers (`e2e/login.spec.ts`, `e2e/protected-routes.spec.ts`,
+`e2e/logout-session.spec.ts`) still had comments saying a "live `/api/v1`
+backend" run "remains KAN-157's job" — stale from when this story was
+scoped before the audit above found no new flows were actually needed;
+removed as part of this story, since KAN-157 did not add one.
+
+If a *live*-backend E2E run (hitting a real local `cpaltracker.web` +
+MySQL) is wanted in addition to this — e.g. as a periodic smoke test rather
+than a per-commit gate — that is a new, explicitly-scoped story, not
+something this one silently left undone.
 
 ## 10. Related Documentation
 
