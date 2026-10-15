@@ -57,11 +57,47 @@ requirement text lives solely in the feature doc.
 
 | Jira | Story | Pts | Covered Requirements | Software Items |
 | --- | --- | --- | --- | --- |
+| KAN-146 | Forgot Password Flow | 3 | FR1-3, NFR3 | N/A |
+| KAN-148 | Reset Password Flow | 5 | FR4-8, NFR4, NFR7 | N/A |
+| KAN-152 | Account Self-Service (Gate, First-Connection, Password/Phone/E-mail Actions) | 8 | FR9-15 | N/A |
+| KAN-154 | Cross-Cutting: Stack, Design System, Accessibility, Testing & Rollout Parity | 8 | NFR1, NFR2, NFR5, NFR6, NFR8-11 | N/A |
+
+*Total: 24 points across 4 stories. All stories pointed and assigned
+to Jira active sprint 3 (S2, 2026-10-11 → 2026-10-22).*
 
 ## Requirement Traceability
 
 | Requirement | Story key(s) |
 | --- | --- |
+| FR1 | KAN-146 |
+| FR2 | KAN-146 |
+| FR3 | KAN-146 |
+| FR4 | KAN-148 |
+| FR5 | KAN-148 |
+| FR6 | KAN-148 |
+| FR7 | KAN-148 |
+| FR8 | KAN-148 |
+| FR9 | KAN-152 |
+| FR10 | KAN-152 |
+| FR11 | KAN-152 |
+| FR12 | KAN-152 |
+| FR13 | KAN-152 |
+| FR14 | KAN-152 |
+| FR15 | KAN-152 |
+| NFR1 | KAN-154 |
+| NFR2 | KAN-154 |
+| NFR3 | KAN-146 |
+| NFR4 | KAN-148 |
+| NFR5 | KAN-154 |
+| NFR6 | KAN-154 |
+| NFR7 | KAN-148 |
+| NFR8 | KAN-154 |
+| NFR9 | KAN-154 |
+| NFR10 | KAN-154 |
+| NFR11 | KAN-154 |
+
+Coverage: all 15 FRs and 11 NFRs mapped to at least one story.
+100% structural coverage.
 
 ## Related Documentation
 

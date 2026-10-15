@@ -34,8 +34,10 @@ permissiveness. No backend/DB/REST-contract change; no modification to
 ## Requirement References (SSoT = Feature doc)
 
 Feature spec: [`React-History-Dashboard.md`](../features/React-History-Dashboard.md)
-— 22 FRs, 9 NFRs, 25 ACs. This epic references requirements by ID only;
-requirement text lives solely in the feature doc.
+— 26 FRs, 9 NFRs, 25 ACs (corrected from the original 22-FR estimate against
+the file's actual FR1–FR26 numbering, confirmed during Workflow 3). This
+epic references requirements by ID only; requirement text lives solely in
+the feature doc.
 
 ## KPIs
 
@@ -62,11 +64,57 @@ requirement text lives solely in the feature doc.
 
 | Jira | Story | Pts | Covered Requirements | Software Items |
 | --- | --- | --- | --- | --- |
+| KAN-170 | Date Range Selection & Validation | 5 | FR3, FR5-8, NFR4 | N/A |
+| KAN-172 | Auth, Contract/Device Scoping & Access Security | 3 | FR1, FR2, FR25, NFR5 | N/A |
+| KAN-174 | Time-Slider & Trail Replay Map | 13 | FR10-18, NFR1, NFR3 | N/A |
+| KAN-175 | Charts, Device Checklist, Lot-Hooks & Selection Summary | 8 | FR4, FR9, FR19-24, NFR3 | N/A |
+| KAN-176 | Design System Theming, Stack Compliance & Test Coverage | 8 | FR26, NFR2, NFR6-9 | N/A |
+
+*Total: 37 points across 5 stories. All stories pointed and assigned
+to Jira active sprint 3 (S2, 2026-10-11 → 2026-10-22).*
 
 ## Requirement Traceability
 
 | Requirement | Story key(s) |
 | --- | --- |
+| FR1 | KAN-172 |
+| FR2 | KAN-172 |
+| FR3 | KAN-170 |
+| FR4 | KAN-175 |
+| FR5 | KAN-170 |
+| FR6 | KAN-170 |
+| FR7 | KAN-170 |
+| FR8 | KAN-170 |
+| FR9 | KAN-175 |
+| FR10 | KAN-174 |
+| FR11 | KAN-174 |
+| FR12 | KAN-174 |
+| FR13 | KAN-174 |
+| FR14 | KAN-174 |
+| FR15 | KAN-174 |
+| FR16 | KAN-174 |
+| FR17 | KAN-174 |
+| FR18 | KAN-174 |
+| FR19 | KAN-175 |
+| FR20 | KAN-175 |
+| FR21 | KAN-175 |
+| FR22 | KAN-175 |
+| FR23 | KAN-175 |
+| FR24 | KAN-175 |
+| FR25 | KAN-172 |
+| FR26 | KAN-176 |
+| NFR1 | KAN-174 |
+| NFR2 | KAN-176 |
+| NFR3 | KAN-174, KAN-175 |
+| NFR4 | KAN-170 |
+| NFR5 | KAN-172 |
+| NFR6 | KAN-176 |
+| NFR7 | KAN-176 |
+| NFR8 | KAN-176 |
+| NFR9 | KAN-176 |
+
+Coverage: all 26 FRs and 9 NFRs mapped to at least one story.
+100% structural coverage.
 
 ## Related Documentation
 

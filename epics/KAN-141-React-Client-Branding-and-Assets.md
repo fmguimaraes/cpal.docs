@@ -55,11 +55,42 @@ requirement text lives solely in the feature doc.
 
 | Jira | Story | Pts | Covered Requirements | Software Items |
 | --- | --- | --- | --- | --- |
+| KAN-161 | Logo Rendering & Unified-404 Error Handling | 5 | FR1-4, NFR3, NFR4, NFR6, NFR7 | N/A |
+| KAN-164 | Logo Automated Test Coverage (Vitest + Playwright) | 5 | NFR1, NFR2, NFR5 | N/A |
+| KAN-167 | Design-Token System: Colors, Themes & Breakpoints | 8 | FR5-7, NFR9 | N/A |
+| KAN-171 | Branding Placement, Typography & Accessibility | 8 | FR8-12, NFR8 | N/A |
+
+*Total: 26 points across 4 stories. All stories pointed and assigned
+to Jira active sprint 3 (S2, 2026-10-11 → 2026-10-22).*
 
 ## Requirement Traceability
 
 | Requirement | Story key(s) |
 | --- | --- |
+| FR1 | KAN-161 |
+| FR2 | KAN-161 |
+| FR3 | KAN-161 |
+| FR4 | KAN-161 |
+| FR5 | KAN-167 |
+| FR6 | KAN-167 |
+| FR7 | KAN-167 |
+| FR8 | KAN-171 |
+| FR9 | KAN-171 |
+| FR10 | KAN-171 |
+| FR11 | KAN-171 |
+| FR12 | KAN-171 |
+| NFR1 | KAN-164 |
+| NFR2 | KAN-164 |
+| NFR3 | KAN-161 |
+| NFR4 | KAN-161 |
+| NFR5 | KAN-164 |
+| NFR6 | KAN-161 |
+| NFR7 | KAN-161 |
+| NFR8 | KAN-171 |
+| NFR9 | KAN-167 |
+
+Coverage: all 12 FRs and 9 NFRs mapped to at least one story.
+100% structural coverage.
 
 ## Related Documentation
 

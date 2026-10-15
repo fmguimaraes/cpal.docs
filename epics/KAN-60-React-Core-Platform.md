@@ -67,15 +67,39 @@ restated.
 
 | Jira | Story | Pts | Covered Requirements | Software Items |
 | --- | --- | --- | --- | --- |
-<!-- populated during Workflow 3 (story splitting) -->
+| KAN-142 | Project Scaffold & Tooling | 5 | FR1, FR11, NFR1-3 | N/A |
+| KAN-143 | API Client & Dual-Target Connectivity | 5 | FR2, FR3, NFR4 | N/A |
+| KAN-144 | AuthContext Scaffold | 3 | FR4 | N/A |
+| KAN-147 | Design Token System & Theming | 8 | FR5-7, NFR5 | N/A |
+| KAN-150 | Routing & Hello-World Screen | 5 | FR8 | N/A |
+| KAN-153 | Test Harness (Unit+E2E) | 5 | FR9, FR10 | N/A |
+
+*Total: 31 points across 6 stories. All stories pointed and assigned
+to Jira active sprint 3 (S2, 2026-10-11 → 2026-10-22).*
 
 ## Requirement Traceability
 
-<!-- populated once child stories exist; feature doc holds 11 FRs, 5 NFRs,
-     8 ACs pending story assignment -->
-
 | Requirement | Story key(s) |
 | --- | --- |
+| FR1 | KAN-142 |
+| FR2 | KAN-143 |
+| FR3 | KAN-143 |
+| FR4 | KAN-144 |
+| FR5 | KAN-147 |
+| FR6 | KAN-147 |
+| FR7 | KAN-147 |
+| FR8 | KAN-150 |
+| FR9 | KAN-153 |
+| FR10 | KAN-153 |
+| FR11 | KAN-142 |
+| NFR1 | KAN-142 |
+| NFR2 | KAN-142 |
+| NFR3 | KAN-142 |
+| NFR4 | KAN-143 |
+| NFR5 | KAN-147 |
+
+Coverage: all 11 FRs and 5 NFRs mapped to at least one story.
+100% structural coverage.
 
 ## Related Documentation
 
