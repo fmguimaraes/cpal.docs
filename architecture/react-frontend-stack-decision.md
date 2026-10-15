@@ -135,18 +135,23 @@ What *is* implemented, as the architecturally-correct translation of FR9's
 and NFR3's underlying security intent for a bearer-token client (KAN-151):
 
 - **No ambient-credential regression.** `credentials: 'omit'` is sent on
-  every single `/api/v1` request (`client.ts`'s `request()` — not
-  overridable per-call) and is locked down by a Vitest regression test
-  (`src/api/client.test.ts`) asserting it on every call, so nothing can
-  silently start sending cookies or inventing a CSRF header/field the backend
-  never reads.
+  every single `/api/v1` request — it's set unconditionally in `client.ts`'s
+  `request()`, after `...init`, so no caller can override it — and is
+  regression-tested in `src/api/client.test.ts`. Also regression-tested:
+  no request ever carries a CSRF-shaped header/field the backend doesn't
+  validate (an allowlist of the exact three headers this client ever sends).
 - **In-memory-only token (NFR3).** The bearer token lives in `client.ts`'s
   module-scoped `authToken` variable only — never written to
-  `localStorage`/`sessionStorage`/a cookie, and cleared via `setAuthToken(null)`
-  on logout/failed bootstrap. Regression-tested in `client.test.ts` and
-  `AuthContext.test.tsx` (spies on `Storage.prototype.setItem` across a full
-  login→logout cycle, and on `console.error`, to ensure the token is never
-  persisted or logged).
+  `localStorage`/`sessionStorage`, and cleared via `setAuthToken(null)` on
+  logout and on a failed `refresh()` (KAN-151 review round 3: an earlier
+  version only cleared it on logout, leaving a stale token live — and sent —
+  after an expired-token 401). Not independently tested against
+  `document.cookie` or IndexedDB, since nothing in this client ever writes to
+  either. Regression-tested in `client.test.ts` and `AuthContext.test.tsx`
+  (spies on `Storage.prototype.setItem` across a full login→logout cycle, and
+  on every `console.*` method, to catch the token being persisted or logged
+  — within the limits of a substring check: an encoded form, e.g.
+  `btoa(token)`, would not be caught).
 - **Server cookie flags.** NFR3's "SHALL not weaken any server cookie flag
   (CB23)" is vacuously satisfied: this client never sets, reads, or
   participates in any cookie at all, so there is no flag it could weaken.
