@@ -337,7 +337,38 @@ two distinct gaps, not one:
    decide whether/how to close it; this frontend cannot enforce an
    idle-timeout the server itself doesn't track.
 
-## 9. Related Documentation
+## 9. Test coverage & CI gate (KAN-157)
+
+By the time this story was picked up, every prior Auth & Session story
+(KAN-145, KAN-149, KAN-151, KAN-155, KAN-156) had already added its own
+Vitest/Testing Library and Playwright coverage as part of its own Done
+condition. KAN-157's work was therefore an audit against this epic's ACs
+plus the one genuine gap: neither suite was wired into CI yet.
+
+Audit result — every required area already has passing coverage, no new
+feature tests were needed:
+- Unit (Vitest 4 + Testing Library): empty-field validation
+  (`Login.test.tsx`), suite sanitizer (`suite.test.ts`), outcome→copy
+  mapper (`authOutcome.test.ts`), lockout copy (`authOutcome.test.ts` +
+  `loginNotice.test.ts`), route guards (`RequireAuth.test.tsx`), logout
+  handler (`AuthContext.test.tsx` + `HelloWorld.test.tsx`).
+- E2E (Playwright): login success and protected-home load
+  (`hello-world.spec.ts`), wrong password (`login.spec.ts`), lockout —
+  reconciled to the per-IP 429 `rate_limited` bucket per §7
+  (`login.spec.ts`), explicit logout (`logout-session.spec.ts`),
+  protected-route redirect (`protected-routes.spec.ts`), session
+  expiry/invalidation (`logout-session.spec.ts`).
+
+The actual deliverable: `.github/workflows/ci.yml`, running on every push
+and pull request to `main` (this repo currently commits straight to `main`
+per its delivery workflow, so a PR-only trigger would never fire) —
+typecheck + lint + the Vitest suite in one job, the Playwright suite
+(against a built-and-previewed app, per `playwright.config.ts`'s own
+`webServer`) in a second — both required to pass, making this epic's own
+stated Done condition ("both suites are wired into CI and treated as a Done
+condition gate") real rather than only a documented intent.
+
+## 10. Related Documentation
 
 - Feeds: KAN-60 and its child epics (Core, Auth & Session, Password Recovery
   & Account Management, Live Tracking, History Dashboard, Device Pilotage,
