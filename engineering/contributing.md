@@ -38,8 +38,7 @@ it reaches `main`. The project uses one of two merge paths:
 | **Pull request** (default) | branch → PR → review → CI green → merge |
 | **Reviewed direct merge** (small teams) | branch → review of the local diff → tests pass locally → merge to `main` |
 
-**c-PAL uses the reviewed direct merge** (`"pr": false` in
-[`cpal.global/config/sdlc.json`](../../config/sdlc.json)). Either way, the review
+**c-PAL uses the reviewed direct merge.** Either way, the review
 and the tests are never skipped; the path only changes *where* they happen.
 
 ## Working in the umbrella repo

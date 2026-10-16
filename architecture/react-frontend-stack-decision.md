@@ -9,8 +9,8 @@ monolith is unchanged; this is a new, additive frontend consuming KAN-116's
 
 ## 1. Scope of this decision
 
-A new, standalone frontend application (new repo/package, not bound yet —
-see [SDLC project bindings](../sdlc/README.md#project-bindings-c-pal)) that:
+A new, standalone frontend application (new repo/package, since created as `cpaltracker-react` —
+see [repository topology](../sdlc/README.md#repository-topology)) that:
 
 - Talks only to `/api/v1` (KAN-116) — no new backend or DB work, ever, under
   this stack decision.
@@ -41,7 +41,7 @@ see [SDLC project bindings](../sdlc/README.md#project-bindings-c-pal)) that:
 | Realtime | `socket.io-client` — **held, not adopted** until an epic needs it; `/api/v1` has no realtime endpoint today ([`Live-Tracking.md`](../features/technical/Live-Tracking.md) GAP1–3: today's "live" view has no working map and no polling) |
 | Lint/types | ESLint 9 + typescript-eslint, `tsc --noEmit` via `npm run typecheck` (two tsconfigs; root config intentionally checks nothing, per project convention) |
 | Unit testing | Vitest 2.1 + Testing Library (jsdom) — the originally pasted reference stack said "Vitest 4"; `package.json` installed 2.1.1, the latest available at scaffolding time (KAN-60), and nothing since has needed a bump (see §9) |
-| E2E testing | **Added** — Playwright, against a running local/staging build, per `cto-tools/SDLC.md`'s "scenario first, automate against the running app" E2E strategy |
+| E2E testing | **Added** — Playwright, against a running local/staging build, per the "scenario first, automate against the running app" E2E strategy ([`testing.md`](../engineering/testing.md#end-to-end-tests--scenario-first-automate-against-running-code)) |
 
 ## 3. Deviation: auth client
 

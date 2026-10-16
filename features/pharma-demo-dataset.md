@@ -196,7 +196,7 @@ and on the demo client IDs.
 
 ## 11a. Software items
 
-Not applicable (see [SDLC, applicability](../sdlc/README.md#applicability-to-c-pal-today)).
+Not applicable (see [SDLC, product templates](../sdlc/README.md#product-templates)).
 
 ## 12. Edge cases and constraints
 

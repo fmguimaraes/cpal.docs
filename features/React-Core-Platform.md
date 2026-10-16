@@ -47,8 +47,8 @@ each re-deciding tooling.
 5. In Scope (What WILL be delivered)
 
 - Vite 5 + React 18.3 + TypeScript 5.5 project scaffold (new package/repo;
-  binding TBD — see [`sdlc/README.md`](../sdlc/README.md#project-bindings-c-pal)
-  `<frontend-repo>` placeholder for the React app).
+  since created as `cpaltracker-react` — see
+  [repository topology](../sdlc/README.md#repository-topology)).
 - React Router v6 wired with at least two routes (hello-world screen + a
   not-found screen) to prove routing works end-to-end.
 - Zustand store wired for at least one piece of global state (active theme)
@@ -211,7 +211,7 @@ partial/inconsistent theme state across components.
 11a. Software Items (IEC 62304 §5.3 — MANDATORY)
 
 N/A — IEC 62304 Software Items are not applicable to this project today, per
-[`sdlc/README.md`](../sdlc/README.md#applicability-to-c-pal-today).
+[`sdlc/README.md`](../sdlc/README.md#product-templates).
 
 12. Edge Cases & Constraints
 

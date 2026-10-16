@@ -269,7 +269,7 @@ user reaches the map/timeline view.
   module's own "LIVE" framing is inconsistent with the one-shot,
   manually-triggered data loading actually implemented.
 - **GAP-4.** `docs/design-and-standards.md` documents, as a known deviation
-  from `cto-tools`'s Review Gate, that page files violate SRP because
+  from the [Review Gate](../../engineering/code-standards.md#review-gate-blocking), that page files violate SRP because
   "every page file does auth-check + data access + HTML rendering + ...
   embedding JS config" with business logic living inline rather than in a
   separate layer. `index.php` is a direct, concrete instance of this

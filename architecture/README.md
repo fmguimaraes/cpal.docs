@@ -1,8 +1,7 @@
 # Architecture
 
 Single reference for what c-PAL's software does and how it's built. Covers
-[KAN-47](https://c-pal.atlassian.net/browse/KAN-47)
-([project-bootstrap.md, 1.2](https://github.com/fmguimaraes/cto-tools/blob/main/docs/project-bootstrap.md)).
+[KAN-47](https://c-pal.atlassian.net/browse/KAN-47).
 
 No Confluence or other prior-art doc was found to source the objective from;
 the summary below is inferred from the codebase (commercial site content,
@@ -29,7 +28,6 @@ The other repos are supporting pieces, not part of its runtime.
 | `cpaltracker.web` | **Primary system.** Ingests device readings, authenticates clients, serves the live map and history dashboard, lets MAIN-contract clients configure devices. | PHP ≥ 8.1 (deployed version unconfirmed, see [its docs](../../cpaltracker.web/docs/architecture.md#language--runtime)), MySQL via PDO, server-rendered pages + vanilla JS; Leaflet (map) and Chart.js (charts) loaded from CDN (unpkg / cdnjs, jsdelivr fallback). Session-based auth, re-checked against the DB on every request. Runs behind a Traefik reverse proxy (TLS terminated upstream; app trusts `X-Forwarded-Proto` only because Traefik is the sole trusted proxy). |
 | `cpaltracker-react` | **In progress (KAN-60).** New, standalone React/TS UI consuming `cpaltracker.web`'s `/api/v1` (KAN-116) — additive, no backend/DB change, `cpaltracker.web`'s PHP pages keep running unmodified alongside it. | React 18.3 + TypeScript 5.5 (Vite 5), React Router v6, Zustand, Tailwind CSS 4, centralized design-token theming (light/dark, desktop-first); Vitest + Testing Library (unit), Playwright (E2E). Decision record: [`react-frontend-stack-decision.md`](react-frontend-stack-decision.md). |
 | `c-PAL.web` | Commercial/marketing site. Independent deployment — does not read or write `cpaltracker.web`'s data. | Static HTML/CSS/JS, one small PHP endpoint (`track.php`) appending click events to a local CSV. |
-| `cto-tools` | Optional delivery tooling: lifecycle automation, Jira scripts, Claude Code skills and hooks (engineering standards live in [`../engineering/`](../engineering/README.md)). Dev-time only, not deployed. | Python (Jira scripts), Markdown. |
 | `cpal.docs` | Documentation — single source of truth for specs, requirements and process (this doc included). | Markdown. |
 | `cpal.global` | Umbrella repo; pins the above as git submodules, holds shared `.env` and cross-cutting config. | — |
 
