@@ -280,9 +280,14 @@ serve traffic unchanged the entire time.
   ta, hr, m, g, tm }`, plus batch/lot hooks `{ c, from, to, cust, lot, per, nb }`.
   The exact `/api/v1` response shape is the KAN-116 contract (see Risks R-1).
 - Global announcement message and per-contract latest message:
-  `{ date, contenu }` (date pre-formatted or formattable to `dd/mm/YYYY HH:mm`).
+  `GET /api/v1/messages/global.php` and `GET /api/v1/messages/contract.php?contractId=…`
+  (KAN-165 backend exception — see
+  `architecture/react-frontend-stack-decision.md` §14), each responding
+  `{ message: { date, contenu } | null }`, `date` as ISO-8601 UTC.
   *(CB-5, CB-7, CB-8)*
-- Client logo availability flag + logo image endpoint. *(CB-4)*
+- Client logo availability flag (`GET /api/v1/clients/logo-flag.php`,
+  `{ hasLogo: boolean }`, KAN-165 backend exception, §14) + logo image
+  endpoint (`GET /api/v1/clients/logo.php`, KAN-124). *(CB-4)*
 
 **Outputs (UI only):**
 

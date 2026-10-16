@@ -637,7 +637,64 @@ gaps found in later Live Tracking stories (KAN-160/162/165/168) or other
 epics still default to "log and defer," unless a similarly explicit
 authorization is given for that specific gap too.
 
-## 14. Related Documentation
+## 14. New backend endpoints: messages/logo-flag (KAN-165)
+
+KAN-165 (Messaging, Branding & History Dashboard Navigation) hit the same
+kind of gap §13 describes, for three data needs: a global announcement
+(FR11), a per-contract latest message (FR12), and a client-logo-exists
+flag (FR13). None of the three is exposed by any existing `/api/v1`
+endpoint — only the logo image bytes are (`GET /api/v1/clients/logo.php`,
+KAN-124).
+
+**What was checked before concluding this was a real gap:** `api/openapi.yaml`'s
+full path list (no `messages` or `*-flag` path of any kind exists);
+`auth.php`'s `cpal_dernier_message_global()`, `cpal_derniers_messages_par_contrat()`,
+and `cpal_a_un_logo()` — all three already exist, DB-backed, and are
+already called by `index.php` (`#messageGlobal`, `#messageContrat`'s JS
+payload, and the `<img class="logo-client">` gate respectively) — this is
+exactly §13's situation again: the underlying data and its access-control
+logic already exist and are already in production use, just never
+exposed over `/api/v1`.
+
+**Decision:** given the explicit product-owner authorization for this
+case too ("create a backend for it that doesn't degrade monolith"),
+answered the same way as KAN-158's, add three new files following the
+exact same conventions as every other `/api/v1` endpoint (`contracts/list.php`
+most directly): `GET /api/v1/messages/global.php`, `GET /api/v1/messages/contract.php?contractId=…`,
+`GET /api/v1/clients/logo-flag.php`. Each calls one of the three existing
+helper functions above, unmodified, and does nothing with their result
+beyond the same JSON-shaping `cpal_api_contracts_list_row()` already
+established for the equivalent concern. `messages/contract.php` reuses
+`cpal_contrat_autorise()` for authorization, same as `devices/positions.php`'s
+`contractId` filter — including that same endpoint's uniform-404
+anti-enumeration rule (never distinguishing "doesn't exist" from "exists
+but not yours").
+
+One behavior worth recording explicitly: `cpal_dernier_message_global()`,
+`cpal_derniers_messages_par_contrat()`, and `cpal_a_un_logo()` all
+already catch their own `PDOException` and fail safe (`null`/`[]`/`false`
+respectively) rather than letting it propagate — this is pre-existing
+behavior in `auth.php`, not something introduced here. It means none of
+these three new endpoints has a reachable 503 path for a DB failure on
+the reused helper's own query; a failure there surfaces as "no message"/
+"no logo" instead, matching exactly what `index.php` already does today
+when the same query fails for the legacy page.
+
+**Why this is "additive, no monolith disruption":** `git show --stat`
+confirms only new files were touched (three endpoints, three PHPUnit test
+files, an addition-only diff to `openapi.yaml`); no existing SQL was
+written — all three reuse an existing, unmodified `auth.php` helper; no
+existing page or endpoint was touched; each new endpoint is reachable
+only at a URL nothing currently calls. The full pre-existing PHPUnit suite
+(344 tests total, including this story's 22 new ones) passes; `php -l`
+and a YAML-parse check on the OpenAPI addition are both clean.
+
+Logged, like §13, as a deliberate narrow exception — not a precedent.
+Future gaps in the remaining Live Tracking story (KAN-168) or other
+epics still default to "log and defer" unless a similarly explicit
+authorization is obtained for that specific gap too.
+
+## 15. Related Documentation
 
 - Feeds: KAN-60 and its child epics (Core, Auth & Session, Password Recovery
   & Account Management, Live Tracking, History Dashboard, Device Pilotage,
