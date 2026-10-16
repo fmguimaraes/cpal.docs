@@ -694,7 +694,62 @@ Future gaps in the remaining Live Tracking story (KAN-168) or other
 epics still default to "log and defer" unless a similarly explicit
 authorization is obtained for that specific gap too.
 
-## 15. Related Documentation
+## 15. CSP & security-header hardening (KAN-177)
+
+§6 flagged a known residual risk of the bearer-in-memory token decision: an
+in-memory JS variable is readable by any script running in-page, unlike an
+`httpOnly` cookie. KAN-177 is the scheduled owner of mitigating that via
+CSP/security headers, filed rather than left as a dangling note.
+
+**What this repo can actually configure.** `cpaltracker-react` has no
+serving layer of its own — `npm run build` only produces static files;
+whoever hosts them (not yet decided/built) owns the real HTTP response
+headers. True headers (`X-Frame-Options`, `X-Content-Type-Options`,
+`Strict-Transport-Security`) and the CSP directives a `<meta>` element
+cannot carry per spec (`frame-ancestors`, `sandbox`, reporting) are **out
+of scope here** and deferred to that hosting layer once it exists — not
+implemented, not faked via a meta tag that would silently do nothing.
+
+**What was implemented:** a Vite plugin
+(`vite-plugin-security-headers.ts`, wired into `vite.config.ts`,
+`apply: 'build'` only — the dev server's HMR client needs eval/inline-
+script leeway this would otherwise block, and dev was never the exposed
+surface) injects two `<meta>` tags into the built `index.html`:
+
+- `Content-Security-Policy`: `default-src 'self'; script-src 'self';
+  style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src
+  'self' <api origin>; object-src 'none'; base-uri 'self'; form-action
+  'self'`. `script-src 'self'` with no `unsafe-inline`/`unsafe-eval` is the
+  direct mitigation for §6's residual risk — a built Vite app has no inline
+  `<script>` and no `eval`, so this is free functionally and closes the
+  main script-injection path to the in-memory token. `style-src
+  'unsafe-inline'` stays because this codebase sets `style={{ ... }}`
+  extensively (inline style *attributes*, a far lower-severity relaxation
+  than script injection — no code execution). `img-src ... blob:` is
+  required by `ClientLogo` (KAN-165), which renders the fetched logo via a
+  `blob:` object URL. `connect-src`'s API origin is derived at build time
+  from the same `VITE_API_BASE_URL` env var `client.ts` already reads
+  (KAN-60 FR2's convention — switching environments is that value, never a
+  code change; the CSP connect-src tracks it automatically, not a second
+  place to update).
+- `referrer`: `strict-origin-when-cross-origin`, so the full `/live-tracking`
+  etc. path (session-adjacent, though not itself secret) isn't leaked to a
+  cross-origin `Referer` header on outbound navigation/requests.
+
+Verified: `vite-plugin-security-headers.test.ts` unit-tests the plugin's
+transform directly (CSP shape, connect-src derivation, the unset/malformed-
+env fallback, the referrer meta); a production build's `dist/index.html`
+was inspected to confirm the tags render with the correct origin; the full
+Playwright suite (which builds for production and serves via `vite
+preview`, not the dev server) passes under the real injected CSP,
+confirming it doesn't break anything functionally.
+
+Logged, like §13/§14, as this story's complete scope — not a claim that
+every security header a production deployment would want is now covered;
+the hosting-layer headers above remain a follow-up for whoever sets up
+that layer.
+
+## 16. Related Documentation
 
 - Feeds: KAN-60 and its child epics (Core, Auth & Session, Password Recovery
   & Account Management, Live Tracking, History Dashboard, Device Pilotage,
