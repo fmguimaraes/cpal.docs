@@ -268,8 +268,12 @@ serve traffic unchanged the entire time.
 
 - Authenticated user/session context (role, client scope) via the Core auth
   client — consumed, not stored by this feature. *(CB-1 state: role, client id)*
-- Visible contracts list: at least `{ contratId, contratRef, contratType,
-  clientId, clientNom? }`. *(CB-2; `T_CONTRATS`/`T_CLIENTS` via API)*
+- Visible contracts list, via `GET /api/v1/contracts/list.php` (KAN-158,
+  added for this story — see Risks R-1): `{ contracts: [{ contractId,
+  contractRef, contractType, clientId?, clientName? }] }`. `clientId`/
+  `clientName` are present only for an admin caller — omitted from every
+  row entirely for a non-admin, enforced server-side by the endpoint
+  itself. *(CB-2; `T_CONTRATS`/`T_CLIENTS` via `cpal_contrats_visibles()`)*
 - Device last-known positions for a contract. The presentation layer expects, per
   device row, the shape established by `map_timeline.js` (CB-14/CB-18, §4 of
   `Live-Tracking.md`): `{ c (ChipID), t (epoch ms), p (1 = has position), la, lo,
@@ -352,14 +356,29 @@ intentionally left empty until that row moves to *Applies*.
 
 ## 14. Risks & Mitigations
 
-- **R-1 — `/api/v1` may not expose a last-known-position endpoint.** The consolidated
-  readiness note and `Live-Tracking.md` GAP-1/GAP-3 confirm no live positions flow
-  exists in the legacy code, and the row/hook shape is defined only inline in
-  `map_timeline.js`. *Mitigation:* treat the exact positions endpoint/shape as an
-  open question against KAN-116; if it is missing, log a **separate backend story**
-  — do not work around it in the frontend (NFR2, stack §5). If no suitable read
-  exists at build time, the feature falls back to the alternative framing (a clearly
-  labelled placeholder/empty live view) rather than inventing an endpoint.
+- **R-1 — `/api/v1` may not expose a last-known-position endpoint.** Resolved,
+  not real: `GET /api/v1/devices/positions.php` (KAN-121) already exists,
+  is bearer-authenticated, and is scoped server-side via
+  `cpal_contrats_visibles()`/`cpal_contrat_autorise()` — confirmed by
+  reading `tracking_logic.php` and the endpoint itself before KAN-158 began
+  (see `react-frontend-stack-decision.md` for the full citation trail).
+  What *was* genuinely missing, found during KAN-158: no endpoint listed a
+  user's authorized **contracts** (as opposed to positions), and no
+  endpoint anywhere returned a client name — `positions.php`'s no-filter
+  branch only covers contracts that already have at least one positioned
+  device, which cannot serve as a general-purpose contract selector.
+  *Resolution (deviation from the "log a separate backend story, never
+  work around it" default below):* the product owner explicitly
+  authorized one new, additive-only endpoint for this specific gap —
+  `GET /api/v1/contracts/list.php` (KAN-158) — built by reusing
+  `cpal_contrats_visibles()` exactly as `index.php`'s own selector and
+  `positions.php` already do, with no change to any existing file's
+  behavior. See `react-frontend-stack-decision.md` for the full design
+  rationale and the PHPUnit coverage added alongside it. The epic's
+  general "no backend change" constraint and this spec's own default
+  mitigation (log and defer) still apply to every *other* gap found in
+  this feature area — this was a one-off, explicitly authorized exception,
+  not a change to that rule.
 - **R-2 — Users expecting "real-time".** The legacy "LIVE" naming (CB-12) sets a
   false expectation the product never delivered. *Mitigation:* label the view as a
   refreshable snapshot with an explicit "last updated" time; never call it

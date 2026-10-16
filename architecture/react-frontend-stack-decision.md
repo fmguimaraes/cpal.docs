@@ -568,7 +568,76 @@ No code changes resulted from this audit — every area was already compliant
 from the stories that built it. This mirrors the actual, not merely
 designed-in-advance, pattern KAN-157 found for Auth & Session (§9).
 
-## 13. Related Documentation
+## 13. New backend endpoint: GET /api/v1/contracts/list.php (KAN-158)
+
+This epic's constraint, stated identically everywhere else in this
+document and every story so far, is "no backend/DB change." KAN-158 (Live
+Tracking's contract selector) hit a gap that constraint can't route around
+by itself: the feature's first AC requires an authenticated user's
+contract list, with a client name shown to admins only, and no existing
+`/api/v1` endpoint provides that.
+
+**What was checked before concluding this was a real gap** (not assumed):
+read `api/openapi.yaml`'s full path list, the PHP behind every endpoint
+that touches contracts/clients/devices/positions
+(`api/v1/devices/positions.php`, `api/v1/contracts/history.php`,
+`api/v1/account.php`), `auth.php`'s `cpal_contrats_visibles()`/
+`cpal_contrat_autorise()`/`cpal_is_admin()`, and the legacy `index.php`
+contract `<select>` (which already does exactly this, in a page the new
+React route doesn't replace yet). Findings:
+- `GET /api/v1/devices/positions.php` (KAN-121) exists, is scoped
+  correctly, and resolves this epic's R-1 risk — it was never actually
+  missing.
+- Nothing lists contracts on their own. The positions endpoint's no-filter
+  branch only returns contracts with at least one positioned device
+  (`cpal_tracking_positions_courantes()`'s own join), so a contract with
+  devices that have never reported a position would silently vanish from
+  a selector built on it — wrong for FR1/FR2, which require the full
+  authorized list regardless of whether it currently has live data.
+- No endpoint anywhere returns a client name. `cpal_contrats_visibles()`
+  itself always selects `cl.Nom AS ClientNom` in its SQL (admin or not) —
+  the admin-only *disclosure* of that name is a decision `index.php`'s
+  Twig/PHP view makes at render time (`cpal_is_admin()` gates whether the
+  `(ClientNom)` suffix is printed), never a property of any data the
+  client-side app could consume safely as-is.
+
+**Decision:** given the explicit product-owner authorization for this one
+case ("create a backend for it that doesn't degrade monolith"), add
+exactly one new file, `api/v1/contracts/list.php`, following every
+convention `positions.php`/`history.php` already established (bearer auth
+via `cpal_api_require_auth()`, same CORS/preflight helpers, same
+`{error:{code,message}}` shape, same `CPAL_API_TESTING` testability
+pattern) rather than inventing a new one. It calls
+`cpal_contrats_visibles($pdo, $u)` — the exact same, unmodified function
+`index.php` and `positions.php` already call — and the only new logic is
+moving the admin-only client-name disclosure from render time to response
+time: the handler's own `array_map` omits `clientId`/`clientName` from
+each row entirely for a non-admin caller, rather than returning them and
+trusting the frontend not to render them (this project's hard rule: no
+client-held role used for authorization/disclosure — KAN-158's own ACs
+state this explicitly).
+
+**Why this is "additive, no monolith disruption"** rather than the kind of
+backend change this project otherwise refuses: no existing file's
+behavior changed (confirmed via `git show` — three files touched:
+the new endpoint, its new PHPUnit test, and an addition-only diff to
+`openapi.yaml`); no existing SQL query was written — the handler reuses
+`cpal_contrats_visibles()` as-is; no existing page (`index.php`,
+`dashboard.php`, `pilotage.php`) was touched; the new endpoint is reachable
+only at a URL nothing currently calls, so it cannot regress any current
+traffic. 321 pre-existing PHPUnit tests plus 7 new ones for this endpoint
+pass; `php -l` and `composer validate --strict` on the OpenAPI addition
+are both clean.
+
+This is logged as a deliberate, narrow exception to the epic's general
+"no backend change" rule — not a precedent for skipping the "log a
+separate backend story" default this project otherwise follows (stack
+§5, every other GAP in this epic and the Password Recovery epic). Future
+gaps found in later Live Tracking stories (KAN-160/162/165/168) or other
+epics still default to "log and defer," unless a similarly explicit
+authorization is given for that specific gap too.
+
+## 14. Related Documentation
 
 - Feeds: KAN-60 and its child epics (Core, Auth & Session, Password Recovery
   & Account Management, Live Tracking, History Dashboard, Device Pilotage,
