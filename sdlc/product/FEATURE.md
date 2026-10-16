@@ -1,133 +1,115 @@
-1. Feature Name
+# Feature: <Feature Name>
 
-(Give the feature a short, precise, unambiguous name.
-Avoid vague terms. Choose a name the whole team can instantly recognize.)
+<!-- Copy this file to the features folder as BACKLOG-<Feature-Name>.md.
+     How a feature becomes an epic and stories: README.md in this folder.
+     Every instruction below is an HTML comment; delete it once the section is written. -->
 
-2. Problem / Pain Point
+## 1. Feature Name
 
-(Describe the real problem this feature solves.
-Who experiences this pain?
-What happens today without this feature?
-Why is this important for the user AND for the product?)/
+<!-- A short, precise, unambiguous name. Avoid vague terms. Choose a name the
+     whole team can instantly recognize. -->
 
-3. Goal / Outcome (Success Definition)
+## 2. Problem / Pain Point
 
-(What does success look like when this feature is working perfectly?
-Describe the outcome from the user’s perspective, not the internal implementation.
-This section defines “what good looks like.”)
+<!-- The real problem this feature solves. Who experiences this pain? What
+     happens today without this feature? Why does it matter for the user AND
+     for the product? -->
 
-4. User Stories (Primary Scenarios)
+## 3. Goal / Outcome (Success Definition)
 
-(List 3–5 user stories representing real workflows this feature must support.
-Use the structure:
-“As a [user persona], I want [action], so that [benefit].”
-Keep them concrete and realistic.)
+<!-- What success looks like when this feature works perfectly, from the user's
+     perspective, not the internal implementation. This defines "what good
+     looks like". -->
 
-5. In Scope (What WILL be delivered)
+## 4. User Stories (Primary Scenarios)
 
-(List exactly what is included in this feature.
-Use bullet points.
-Each item must be measurable, testable, and unambiguous.
-Include UI screens, backend behaviors, validations, transformations, and integrations.)
+<!-- 3–5 user stories representing real workflows this feature must support:
+     "As a [user persona], I want [action], so that [benefit]."
+     Keep them concrete and realistic. -->
 
-6. Out of Scope (What WILL NOT be delivered)
+## 5. In Scope (What WILL be delivered)
 
-(List explicitly what is not included in this iteration of the feature.
-This protects against scope creep and sets clear expectations.
-Be explicit: formats not supported, workflows not included, UX not implemented, etc.)
+<!-- Exactly what is included, as bullet points. Each item measurable, testable
+     and unambiguous. Include UI screens, backend behaviors, validations,
+     transformations and integrations. -->
 
-7. User Flow / UX Breakdown
+## 6. Out of Scope (What WILL NOT be delivered)
 
-*(Describe step-by-step what the user does and what the system does.
-This should read like a screenplay:
+<!-- What is explicitly not included in this iteration. Protects against scope
+     creep. Be explicit: formats not supported, workflows not included, UX not
+     implemented. -->
 
-User does X
+## 7. User Flow / UX Breakdown
 
-System responds with Y
+<!-- Step by step, what the user does and what the system does. Reads like a
+     screenplay:
+       1. User does X
+       2. System responds with Y
+       3. User selects Z
+     This is the section developers rely on most. -->
 
-User selects Z
-This is the section developers rely on most.)*
+## 8. Functional Requirements (FRs)
 
-8. Functional Requirements (FRs)
+<!-- Numbered behaviors the system MUST support, each a single binary, testable
+     requirement with a unique sequential ID (FR1, FR2, …). The IDs are used for
+     traceability into the epic and stories; every FR must appear in at least
+     one story.
+     Example: "FR3. The system SHALL validate uploaded files and reject invalid metadata." -->
 
-(Numbered list of behaviors the system MUST support.
-Each FR should describe a single requirement in a binary, testable way.
-Each FR MUST have a unique sequential ID (FR1, FR2, ...) — these IDs are used for traceability into Epics and User Stories. Every FR listed here MUST appear in at least one User Story.
-Example: "FR3. System SHALL validate .h5ad files and reject invalid metadata.")
+## 9. Non-Functional Requirements (NFRs)
 
-9. Non-Functional Requirements (NFRs)
+<!-- Performance, security, compliance, reliability, usability. Unique
+     sequential IDs (NFR1, NFR2, …); every NFR must appear in at least one story.
+     Examples:
+       NFR1. Upload supports files up to 100 MB.
+       NFR2. All data stays in EU cloud regions.
+       NFR3. UI responds within 300 ms.
+     These make implicit expectations explicit. -->
 
-(Requirements related to performance, security, compliance, reliability, usability.
-Each NFR MUST have a unique sequential ID (NFR1, NFR2, ...) — these IDs are used for traceability into Epics and User Stories. Every NFR listed here MUST appear in at least one User Story.
-Examples:
-– NFR1. Upload must support files up to 100 MB
-– NFR2. All data must remain in EU/France cloud regions
-– NFR3. UI must respond within <300 ms
-These protect you from "implicit expectations.")
+## 10. Data Inputs & Outputs
 
-10. Data Inputs & Outputs
+<!-- Input formats, schemas and fields; what data comes in, how it's
+     transformed, and what comes out. -->
 
-(List the input formats, schemas, fields, and the expected output formats or structures.
-Describe what data comes in, how it’s transformed, and what comes out.
-Critical for anything touching analytics or ML.)
+## 11. Integration Points
 
-11. Integration Points
+<!-- Every service, API, component or external system this feature interacts
+     with: read/write behavior, data flow direction, dependencies. -->
 
-(List all services, APIs, components, or external systems this feature interacts with.
-Include read/write behavior, data flow direction, and dependencies.
-This avoids hidden complexity.)
+## 11a. Software Items
 
-11a. Software Items (IEC 62304 §5.3 — MANDATORY)
+<!-- Regulated software only (IEC 62304 §5.3). Otherwise delete this section.
+     The software items this feature touches, by UID from the project's software
+     item registry, with a one-line "what changes in it":
+       - SI-015 (Billing service) — new invoice-status field
+       - SI-034 (Billing UI) — invoice list gains a status filter
+     A feature maps many-to-many onto items; never create one item per feature.
+     A missing item is added to the registry first, then referenced here. -->
 
-(List the software items this feature touches, by UID from the Software Item Registry
-`04 - architecture/software-items.md` — IDs and a one-line "what changes in it", never a
-copy of the registry row. A feature is a requirements-axis object and maps many-to-many
-onto items; do NOT invent "one item per feature".
-Format:
-– SI-015 (Evidence & governance) — new evidence-type field sourcing rules
-– SI-034 (Evidence UI) — declaration form gains per-field scope selector
-If the feature needs an item that does not exist yet, add it to the registry FIRST (same
-SSoT rule as requirements), then reference it here. Stories created from this feature
-each declare the subset of these items they change; unit-test IDs and E2E tags carry the
-item UID; the review gate checks the diff touched only declared items.)
+## 12. Edge Cases & Constraints
 
-12. Edge Cases & Constraints
+<!-- Unusual or extreme conditions the feature must handle safely: corrupted
+     files, missing data, empty datasets, timeouts, user cancellation. -->
 
-(Describe unusual or extreme conditions the feature must handle safely.
-Examples: corrupted files, missing metadata, empty datasets, timeouts, user cancellation.
-This prevents bugs and rework later.)
+## 13. Metrics / KPIs
 
-13. Metrics / KPIs
+<!-- How success is measured. Examples:
+       - Upload success rate > 95%
+       - Median processing time < 15 s -->
 
-(Define how success will be measured.
-Examples:
-– Upload success rate > 95%
-– Median UMAP compute time < 15s
-– AI responses with citations > 90%
-These make the feature measurable and accountable.)
+## 14. Risks & Mitigations
 
-14. Risks & Mitigations
+<!-- Technical, UX, compliance and performance risks, and how each is mitigated. -->
 
-(List potential risks (technical, UX, compliance, performance) and how you plan to mitigate them.
-Shows foresight and reduces surprises during development.)
+## 15. Acceptance Criteria (Definition of Done)
 
-15. Acceptance Criteria (Definition of Done)
+<!-- A binary checklist of when this feature is complete, with unique IDs.
+     Every item is yes/no. Example:
+       - [ ] AC1. Supports upload of .csv and .xlsx
+       - [ ] AC2. Shows a clear error for files with missing columns
+       - [ ] AC3. All FRs and NFRs validated -->
 
-(Binary checklist indicating exactly when this feature is considered complete.
-Every item must be yes/no.
-Example:
-[ ] Supports upload of .mtx and .h5ad
-[ ] Displays UMAP
-[ ] Handles missing metadata gracefully
-[ ] All FRs and NFRs validated)
+## 16. Future Extensions (Optional)
 
-16. Future Extensions (Optional, Not Required Now)
-
-(List enhancements intentionally postponed.
-Keeps the MVP focused while documenting the long-term vision.
-Prevents stakeholders from trying to inject future features into the current scope.)
-
-
-
-
-
+<!-- Enhancements intentionally postponed. Keeps the first version focused while
+     recording the longer-term direction. -->

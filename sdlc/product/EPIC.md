@@ -1,11 +1,10 @@
 # Epic Template
 
-> **SSoT rule (authoritative — see [SDLC.md Workflow 2](../../../cto-tools/SDLC.md#workflow-2--epic-creation) steps 2 and 3):**
-> Requirement **text** lives in exactly one place: the Feature specification.
-> The epic doc and the Jira description reference requirements **by ID only**.
-> Do NOT copy FR/NFR/AC prose, schemas, or pseudo-code into this document —
-> duplicated requirement text drifts from the feature spec and there is no
-> mechanism to reconcile it.
+> **Single source of truth:** requirement **text** lives in exactly one place, the
+> feature spec. The epic doc and the tracker description reference requirements
+> **by ID only**. Do NOT copy FR/NFR/AC prose, schemas or pseudo-code into this
+> document: duplicated requirement text drifts from the spec and nothing
+> reconciles it. The full flow is in [`README.md`](README.md).
 
 ## Authoring Rules
 
@@ -16,17 +15,14 @@ Write as the Technical Leader defining an epic for the platform.
 - Avoid jargon and buzzwords; be assertive, not verbose.
 - Expand from the initial input, but change the wording as little as possible to
   keep it authentic.
-- Sections below map to the required Jira fields: Subject, Business Case,
-  Description, Requirement References, KPIs, Dependencies. Jira tooling and the
-  assignment policy are in [`../JIRA-REFERENCE.md`](../../../cto-tools/JIRA-REFERENCE.md).
+- Sections below map to the tracker's epic fields: Subject, Business Case,
+  Description, Requirement References, KPIs, Dependencies.
 
-## Jira
+## Tracker
 
-<!-- Jira is the sole tracker. Qualify keys as `KAN-…`. -->
-
-| Field | Value | Note |
-| --- | --- | --- |
-| Key | `KAN-…` | epic (authoritative — sprint mechanics) |
+| Field | Value |
+| --- | --- |
+| Key | `KAN-…` |
 
 ## Subject
 <!-- The epic title -->
@@ -37,16 +33,16 @@ Write as the Technical Leader defining an epic for the platform.
 ## Description
 <!-- Short, actionable, and objective description -->
 
-## Requirement References (SSoT = Feature doc)
+## Requirement References
 <!-- IDs ONLY, with a link to the feature spec. No requirement text. Example:
 
-Feature spec: [`IN-PROGRESS-Feature-Name.md`](features/IN-PROGRESS-Feature-Name.md)
+Feature spec: [`IN-PROGRESS-Feature-Name.md`](../features/IN-PROGRESS-Feature-Name.md)
 — 17 FRs, 14 NFRs, 15 ACs. This epic references requirements by ID only;
-requirement text lives solely in the feature doc.
+requirement text lives solely in the feature spec.
 -->
 
 ## KPIs
-<!-- Copy from feature doc Metrics/KPIs section -->
+<!-- Copy from the feature spec's Metrics/KPIs section -->
 -
 
 ## Dependencies
@@ -55,20 +51,19 @@ requirement text lives solely in the feature doc.
 
 ## Child Stories
 
-<!-- Table tracking all user stories created for this epic. "Software Items" = the SI UIDs
-     (04 - architecture/software-items.md) the story changes — IDs only; the union across
-     stories must equal the feature doc's "Software Items" section. -->
-| Jira | Story | Pts | Covered Requirements | Software Items |
+<!-- One row per story. "Software Items" applies to regulated software only
+     (IEC 62304): the SI UIDs the story changes; the union across stories must
+     equal the feature spec's Software Items section. Delete the column otherwise. -->
+| Key | Story | Pts | Covered Requirements | Software Items |
 | --- | --- | --- | --- | --- |
 
-<!-- Follow with: *Total: N points across M stories. All stories pointed and assigned
-     to Jira active sprint <id>.* -->
+<!-- Follow with: *Total: N points across M stories.* -->
 
 ## Requirement Traceability
 
-<!-- MANDATORY: Every FR, NFR, and AC ID from the feature doc MUST map to at least one
-     User Story. After creating all stories, fill this table and verify 100% coverage.
-     IDs only — no requirement text (that would violate the SSoT rule). -->
+<!-- MANDATORY: every FR, NFR and AC ID from the feature spec maps to at least one
+     story. Fill after creating the stories and verify 100% coverage.
+     IDs only — no requirement text. -->
 
 | Requirement | Story key(s) |
 | --- | --- |
@@ -82,10 +77,9 @@ requirement text lives solely in the feature doc.
      100% structural coverage.* -->
 
 ## Related Documentation
-- Feature spec: [`<Feature-Name>.md`](features/<Feature-Name>.md)
-- Task-tracking policy: [SDLC — Single source of truth](../README.md#single-source-of-truth-cpaldocs)
+- Feature spec: [`<Feature-Name>.md`](../features/<Feature-Name>.md)
 
-## Jira Link
-<!-- Required: link to the Jira epic + its sprint window. Example:
-- Epic: [KAN-12]($JIRA_URL/browse/KAN-12) — sprint S3, <start> → <end>
+## Tracker Link
+<!-- Link to the Jira epic and its sprint window. Example:
+- Epic: [KAN-12](https://c-pal.atlassian.net/browse/KAN-12) — sprint S3, <start> → <end>
 -->

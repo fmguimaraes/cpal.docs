@@ -3,6 +3,11 @@
 How work is organised, tracked, built and reviewed across the c-PAL repositories.
 This document is the reference; other repos point here rather than restating it.
 
+The rules every change follows — code standards and the Review Gate, contribution,
+testing, documentation — are in [`../engineering/`](../engineering/README.md).
+Product templates and the feature → epic → story flow are in
+[`product/`](product/README.md). Both are complete without `cto-tools`.
+
 Relative links below assume the repos are checked out together inside `cpal.global`
 (see [Repository topology](#repository-topology)).
 
@@ -17,7 +22,7 @@ are side by side.
 ```
 cpal.global/                 umbrella repo — CLAUDE.md, .gitmodules, shared .env (gitignored)
 ├── cpal.docs/               documentation — single source of truth (this repo)
-├── cto-tools/               shared scripts & dev rules used by more than one project
+├── cto-tools/               delivery tooling (optional; not needed to read, build or test)
 ├── c-PAL.web/               public website (static HTML/CSS/JS)
 ├── cpaltracker.web/         c-PAL tracker web app (PHP)
 └── cpaltracker-react/       React/TS rebuild of cpaltracker.web's UI (KAN-60)
@@ -27,7 +32,7 @@ cpal.global/                 umbrella repo — CLAUDE.md, .gitmodules, shared .e
 |---|---|---|
 | `cpal.global` | `git@github.com:fmguimaraes/cpal.global.git` | Umbrella; pins a commit of every submodule |
 | `cpal.docs` | `git@github.com:fmguimaraes/cpal.docs.git` | Specs, requirements, process docs (SSOT) |
-| `cto-tools` | `git@github.com:fmguimaraes/cto-tools.git` | Cross-project scripts, code standards, Claude Code hooks |
+| `cto-tools` | `git@github.com:fmguimaraes/cto-tools.git` | Optional delivery tooling: lifecycle automation, Jira scripts, Claude Code hooks |
 | `c-PAL.web` | `git@github.com:GCO147/c-PAL.web.git` | Product / marketing website |
 | `cpaltracker.web` | `git@github.com:GCO147/cpaltracker.web.git` | Tracker application |
 | `cpaltracker-react` | `git@github.com:fmguimaraes/cpaltracker-react.git` | React/TS rebuild of `cpaltracker.web`'s UI (KAN-60), consuming its `/api/v1` (KAN-116). **Temporarily hosted under `fmguimaraes`**, not `GCO147` like the other product repos — the Jira account used here has no repo-create permission on `GCO147`; transfer with `gh repo transfer` once granted. |
@@ -65,10 +70,14 @@ git submodule add <git-url> <dir> && git commit -m "Add <dir> as submodule"
 
 ---
 
-## Shared tooling: `cto-tools`
+## Delivery tooling: `cto-tools` (optional)
 
-Anything used by more than one project goes in `cto-tools` rather than being
-duplicated per repo. Today it holds:
+`cto-tools` is the tooling used to *deliver* work into c-PAL: lifecycle automation,
+Jira scripts, Claude Code hooks and agents. It defines no rule c-PAL is held to —
+those are in [`../engineering/`](../engineering/README.md), seeded from
+`cto-tools/seed/` and owned here. Without `cto-tools` checked out, every spec,
+standard, template and test in c-PAL still works; only the automation below is
+missing. Today it holds:
 
 | Path | What it is |
 |---|---|
@@ -77,7 +86,6 @@ duplicated per repo. Today it holds:
 | [`AGILE-PRACTICES.md`](../../cto-tools/AGILE-PRACTICES.md) | Sprint cadence, definition of "current sprint", mandatory sprint embark |
 | [`JIRA-REFERENCE.md`](../../cto-tools/JIRA-REFERENCE.md) | Jira scripts, REST endpoints, custom fields, ADF, sprint API |
 | [`lifecycle-agents.md`](../../cto-tools/lifecycle-agents.md) | Which agent and model run each lifecycle action; review gate rules; human vs agent gates |
-| [`docs/code-standards.md`](../../cto-tools/docs/code-standards.md) | Full code standards behind the Review Gate (design, clean code, DRY, testing, OWASP Top 10) |
 | [`config/sdlc.json`](../../cto-tools/config/sdlc.json) | Default process toggles; c-PAL's values are in [`cpal.global/config/sdlc.json`](../../config/sdlc.json) |
 | [`scripts/jira/`](../../cto-tools/scripts/jira/) | Jira REST CRUD scripts |
 | [`scripts/hooks/context-guard.py`](../../cto-tools/scripts/hooks/context-guard.py) + [`.claude/settings.json`](../../cto-tools/.claude/settings.json) | Context guard — token-saving Claude Code hook ([docs](../../cto-tools/docs/context-guard.md)) |
@@ -174,6 +182,7 @@ The cto-tools docs are project-agnostic and use placeholders
 | `<frontend-repo>` | `c-PAL.web` (public site), `cpaltracker.web` (tracker app, PHP — front and back in one repo), `cpaltracker-react` (KAN-60 React/TS rebuild of `cpaltracker.web`'s UI, consuming its `/api/v1`; standalone repo, additive, no backend change) |
 | `<backend-repo>` | `cpaltracker.web` |
 | `<compute-repo>`, `<infra-repo>`, `<e2e-repo>`, `<tooling-repo>` | none yet |
+| `<engineering-dir>` | `cpal.docs/engineering/` |
 | `<templates-dir>` | `cpal.docs/sdlc/product/` |
 | `<features-dir>` | `cpal.docs/features/` |
 | `<epics-dir>` | `cpal.docs/epics/` |
@@ -226,7 +235,9 @@ When a missing piece is adopted, move its row to **Applies** in this table.
 
 ### Product templates
 
-Requirement docs are written from these templates, kept in `cpal.docs`:
+Requirement docs are written from these templates, kept in `cpal.docs`. How they
+fit together (inventory, epic, stories, traceability check) is in
+[`product/README.md`](product/README.md).
 
 | Template | Used in | Holds |
 |---|---|---|
@@ -262,7 +273,7 @@ The merge path is set by `pr` in [`cpal.global/config/sdlc.json`](../../config/s
 | `pr` | Path |
 |---|---|
 | `true` | branch → PR → review → CI → merge |
-| `false` | review the local diff against the Review Gate → merge directly to `main` |
+| `false` | review the local diff against the [Review Gate](../engineering/code-standards.md#review-gate-blocking) → merge directly to `main` |
 
 Read the flag once per unit of work; don't switch path mid-task. New process
 toggles go into `cpal.global/config/sdlc.json` (defaults in cto-tools), not into prose.
@@ -274,27 +285,14 @@ Commit the submodule, push, bump the pointer in `cpal.global`, close the ticket.
 
 ## Git conventions
 
-- Commit message: `<JIRA-KEY> - <message>` when a ticket exists. Maintenance without
-  a ticket uses `docs:` / `chore:` / `ci:` / `fix(ci):`.
-- **No `Co-Authored-By` or AI-attribution lines** in commits or PR descriptions;
-  commits are authored by the person who approved them.
-- Every merged branch is deleted locally and remotely; `main` is never deleted.
-- Check `git status` / `git diff` before switching or deleting branches; stash or
-  branch unrelated uncommitted work, never check out over it.
-- Secrets never enter git; `.env` is gitignored at every level.
+In [`../engineering/contributing.md`](../engineering/contributing.md): branch and
+commit naming, merge path, submodule pushes, feature flags.
 
 ---
 
 ## Code standards & Review Gate
 
-Every change must pass the blocking Review Gate in
-[`cto-tools/CLAUDE.md`](../../cto-tools/CLAUDE.md#review-gate-must--block-on-any-failure):
-short focused methods, shallow nesting, SRP, injected dependencies, no business
-logic in UI components, unit tests for new behaviour, no committed secrets,
-parameterized queries, server-side access control and validation.
-
-The elaboration (GoF patterns, SOLID, naming, error handling, DRY, testing rules,
-OWASP Top 10 mapping) is in
-[`cto-tools/docs/code-standards.md`](../../cto-tools/docs/code-standards.md).
-That file is the authority for code standards; this doc does not duplicate it.
-
+In [`../engineering/code-standards.md`](../engineering/code-standards.md): the
+blocking Review Gate checklist and the design, clean code, DRY, testing and OWASP
+Top 10 rules behind it. App repos record where they diverge in their own docs
+(for example [`cpaltracker.web/docs/design-and-standards.md`](../../cpaltracker.web/docs/design-and-standards.md)).

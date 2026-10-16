@@ -10,5 +10,8 @@ text (see [`sdlc/README.md`](sdlc/README.md)).
   components and stack, how they connect.
 - [Features](features/) — feature specs (W1), e.g.
   [Pharma demo dataset tooling](features/pharma-demo-dataset.md).
-- [SDLC](sdlc/README.md) — repo topology, delivery workflow, git
-  conventions, Review Gate.
+- [Engineering standards](engineering/README.md) — code standards and the
+  Review Gate, contribution rules, testing strategy, documentation rules.
+- [Product templates](sdlc/product/README.md) — feature, epic and story
+  templates, and how a feature becomes traceable stories.
+- [SDLC](sdlc/README.md) — repo topology, delivery workflow, Jira, tooling.
