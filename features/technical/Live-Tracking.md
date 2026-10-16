@@ -1,7 +1,7 @@
 # Technical-Feature: Live Tracking
 
 > Reverse-engineered current behavior. See
-> [`TECH-FEATURE.md`](../../sdlc/product/TECH-FEATURE.md) for the authoring
+> [`TECH-FEATURE.md`](../../engineering/product/TECH-FEATURE.md) for the authoring
 > rules this document follows. Produced for KAN-129 (epic KAN-126, "Technical
 > Feature Discovery — cpaltracker.web"), feeding the planned React UI rebuild
 > (KAN-60).

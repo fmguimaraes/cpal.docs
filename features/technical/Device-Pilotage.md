@@ -1,7 +1,7 @@
 # Technical-Feature: Device Pilotage
 
 > Reverse-engineered current behavior, per
-> [`sdlc/product/TECH-FEATURE.md`](../../sdlc/product/TECH-FEATURE.md). Written
+> [`engineering/product/TECH-FEATURE.md`](../../engineering/product/TECH-FEATURE.md). Written
 > for KAN-131 (epic KAN-126, Technical Feature Discovery — cpaltracker.web),
 > feeding the planned React UI rebuild (KAN-60).
 

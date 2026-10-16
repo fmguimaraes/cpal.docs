@@ -1,7 +1,7 @@
 # Feature: React Device Pilotage
 
 > Forward-looking product spec, per
-> [`sdlc/product/FEATURE.md`](../sdlc/product/FEATURE.md). Feeds KAN-60 (React
+> [`engineering/product/FEATURE.md`](../engineering/product/FEATURE.md). Feeds KAN-60 (React
 > UI rebuild of `cpaltracker.web`) as the **Device Pilotage** feature-area child
 > epic. This is a new, standalone React frontend consuming the existing
 > KAN-116 `/api/v1` REST layer — **no** backend, API-contract or database change.

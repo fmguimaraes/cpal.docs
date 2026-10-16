@@ -3,7 +3,7 @@
 > Forward-looking product spec for the **new** React/TypeScript implementation of
 > `cpaltracker.web`'s forgot-password, reset-password and self-service account
 > flows, delivered as a child epic of **KAN-60** (React UI rebuild). Written per
-> [`FEATURE.md`](../sdlc/product/FEATURE.md).
+> [`FEATURE.md`](../engineering/product/FEATURE.md).
 >
 > This spec is forward-looking: it states what the **new React UI MUST do**. It
 > does **not** restate requirement text — the authoritative reverse-engineered

@@ -77,7 +77,10 @@ requirement text lives solely in the feature spec.
      100% structural coverage.* -->
 
 ## Related Documentation
-- Feature spec: [`<Feature-Name>.md`](../features/<Feature-Name>.md)
+<!-- Link the feature spec this epic delivers, e.g.
+- Feature spec: [`Feature-Name.md`](../features/Feature-Name.md)
+-->
+- Feature spec:
 
 ## Tracker Link
 <!-- Link to the Jira epic and its sprint window. Example:

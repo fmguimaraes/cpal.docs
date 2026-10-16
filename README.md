@@ -12,6 +12,6 @@ text (see [`sdlc/README.md`](sdlc/README.md)).
   [Pharma demo dataset tooling](features/pharma-demo-dataset.md).
 - [Engineering standards](engineering/README.md) — code standards and the
   Review Gate, contribution rules, testing strategy, documentation rules.
-- [Product templates](sdlc/product/README.md) — feature, epic and story
+- [Product templates](engineering/product/README.md) — feature, epic and story
   templates, and how a feature becomes traceable stories.
 - [SDLC](sdlc/README.md) — repo topology, delivery workflow, Jira, tooling.

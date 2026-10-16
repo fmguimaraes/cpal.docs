@@ -6,7 +6,7 @@ This document is the reference; other repos point here rather than restating it.
 The rules every change follows — code standards and the Review Gate, contribution,
 testing, documentation — are in [`../engineering/`](../engineering/README.md).
 Product templates and the feature → epic → story flow are in
-[`product/`](product/README.md).
+[`../engineering/product/`](../engineering/product/README.md).
 
 Relative links below assume the repos are checked out together inside `cpal.global`
 (see [Repository topology](#repository-topology)).
@@ -117,14 +117,14 @@ Scripts and tools that call the Jira API read credentials from the gitignored
 
 Requirement docs are written from these templates. How they fit together
 (inventory, epic, stories, traceability check) is in
-[`product/README.md`](product/README.md).
+[`../engineering/product/README.md`](../engineering/product/README.md).
 
 | Template | Holds |
 |---|---|
-| [`product/FEATURE.md`](product/FEATURE.md) | The feature spec — the only place requirement text lives (FR/NFR IDs, ACs, edge cases, KPIs) |
-| [`product/TECH-FEATURE.md`](product/TECH-FEATURE.md) | **Technical-Feature**: reverse-engineered current behavior (CB-n), gaps (GAP-n) and suggested improvements (IMP-n) extracted *from* existing code — used when an epic's job is to inventory an existing system (e.g. [KAN-126](https://c-pal.atlassian.net/browse/KAN-126), seeding the KAN-60 React rebuild) rather than to implement something new |
-| [`product/EPIC.md`](product/EPIC.md) | Epic doc: requirement references by ID, Child Stories table, Requirement Traceability table |
-| [`product/STORY.md`](product/STORY.md) | Story description: subject, feature area, covered requirement IDs, Given/When/Then ACs |
+| [`engineering/product/FEATURE.md`](../engineering/product/FEATURE.md) | The feature spec — the only place requirement text lives (FR/NFR IDs, ACs, edge cases, KPIs) |
+| [`engineering/product/TECH-FEATURE.md`](../engineering/product/TECH-FEATURE.md) | **Technical-Feature**: reverse-engineered current behavior (CB-n), gaps (GAP-n) and suggested improvements (IMP-n) extracted *from* existing code — used when an epic's job is to inventory an existing system (e.g. [KAN-126](https://c-pal.atlassian.net/browse/KAN-126), seeding the KAN-60 React rebuild) rather than to implement something new |
+| [`engineering/product/EPIC.md`](../engineering/product/EPIC.md) | Epic doc: requirement references by ID, Child Stories table, Requirement Traceability table |
+| [`engineering/product/STORY.md`](../engineering/product/STORY.md) | Story description: subject, feature area, covered requirement IDs, Given/When/Then ACs |
 
 The `Software Items` sections (FEATURE §11a, EPIC/STORY columns) only apply to
 regulated software (IEC 62304); c-PAL leaves them empty.
@@ -135,12 +135,12 @@ regulated software (IEC 62304); c-PAL leaves them empty.
 
 ### 1. Specify
 Write or update the feature spec in `cpal.docs/features/` from
-[`product/FEATURE.md`](product/FEATURE.md); every requirement gets a stable id
+[`engineering/product/FEATURE.md`](../engineering/product/FEATURE.md); every requirement gets a stable id
 (`FR<n>`, `NFR<n>`, `AC<n>`).
 
 ### 2. Plan
 Create the Epic and its User Stories in Jira and their docs in `cpal.docs/epics/`
-([flow](product/README.md)). Tickets link to the `cpal.docs` ids; they do not
+([flow](../engineering/product/README.md)). Tickets link to the `cpal.docs` ids; they do not
 restate requirements. Label by area (`front`, `back`, `infra`).
 
 ### 3. Build

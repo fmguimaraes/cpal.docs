@@ -90,7 +90,7 @@ Coverage: all 10 FRs and 4 NFRs mapped to at least one story.
 ## Related Documentation
 
 - Feature spec: [`Technical-Feature-Discovery.md`](../features/Technical-Feature-Discovery.md)
-- Doc-type template: [`product/TECH-FEATURE.md`](../sdlc/product/TECH-FEATURE.md)
+- Doc-type template: [`engineering/product/TECH-FEATURE.md`](../engineering/product/TECH-FEATURE.md)
 - Task-tracking policy: [SDLC — Single source of truth](../sdlc/README.md#single-source-of-truth-cpaldocs)
 - Feeds into: KAN-60 (UI Refactor epic)
 

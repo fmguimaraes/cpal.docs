@@ -9,9 +9,7 @@ Read these before your first change.
 | [`contributing.md`](contributing.md) | How a change gets from a branch to `main`: workflow, naming, PR rules, feature flags |
 | [`testing.md`](testing.md) | What to test, at which level, and how end-to-end tests are written |
 | [`documentation.md`](documentation.md) | Where each kind of doc lives and how docs stay in step with the code |
-
-Product templates and the feature → epic → story flow are in
-[`../sdlc/product/`](../sdlc/product/README.md).
+| [`product/`](product/README.md) | Feature, technical-feature, epic and story templates, and how a feature becomes traceable stories |
 
 An app repo may diverge from these standards (for example, a legacy codebase that
 can't yet meet one rule). It says so in its own docs, naming the rule and the

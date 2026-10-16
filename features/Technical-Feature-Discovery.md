@@ -19,7 +19,7 @@ new UI.
 
 Every existing page/capability in `cpaltracker.web` is documented as a
 **Technical-Feature** (reverse-engineered current behavior, gaps, and
-suggested improvements — see `cpal.docs/sdlc/product/TECH-FEATURE.md`),
+suggested improvements — see `cpal.docs/engineering/product/TECH-FEATURE.md`),
 grouped by feature area, with 100% of the codebase's visible behavior
 cited to at least one Technical-Feature doc. The final deliverable is a
 single consolidated coverage list (current behavior + gaps + suggested
@@ -43,7 +43,7 @@ requirement input for KAN-60's story-splitting.
 5. In Scope (What WILL be delivered)
 
 - One Technical-Feature doc per feature area (see §11a-equivalent grouping
-  below), each following `product/TECH-FEATURE.md`: Current Behavior
+  below), each following `engineering/product/TECH-FEATURE.md`: Current Behavior
   (CB-n, cited), Current Data Model & Contracts, Current Integration
   Points, Edge Cases Already Handled, Gaps (GAP-n), Suggested Improvements
   (IMP-n), Open Questions, Coverage Checklist.

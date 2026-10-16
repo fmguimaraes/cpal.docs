@@ -70,8 +70,8 @@ since no text is duplicated.
 ## Rules that hold throughout
 
 - Requirement text is written once, in the feature spec. Everything else
-  references it by ID ([single source of truth](../../engineering/documentation.md#single-source-of-truth)).
+  references it by ID ([single source of truth](../documentation.md#single-source-of-truth)).
 - When implementation shows the spec is wrong, the spec is amended first
-  ([docs change with the code](../../engineering/documentation.md#docs-change-with-the-code)).
+  ([docs change with the code](../documentation.md#docs-change-with-the-code)).
 - An epic is accepted by a person, after the stories are done and the integrated
   feature is verified against its acceptance criteria.

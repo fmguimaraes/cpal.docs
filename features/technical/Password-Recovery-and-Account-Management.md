@@ -2,7 +2,7 @@
 
 > Reverse-engineered current behavior of `cpaltracker.web`'s forgot-password,
 > reset-password, and self-service account pages, extracted per
-> [`TECH-FEATURE.md`](../../sdlc/product/TECH-FEATURE.md). Written under
+> [`TECH-FEATURE.md`](../../engineering/product/TECH-FEATURE.md). Written under
 > **KAN-128** (epic **KAN-126**, "Technical Feature Discovery —
 > cpaltracker.web"), feeding the planned React UI rebuild (**KAN-60**).
 

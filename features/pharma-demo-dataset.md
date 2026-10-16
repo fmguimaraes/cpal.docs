@@ -1,6 +1,6 @@
 # Pharma demo dataset tooling
 
-Feature spec (W1, [`FEATURE.md`](../sdlc/product/FEATURE.md) template). Epic:
+Feature spec (W1, [`FEATURE.md`](../engineering/product/FEATURE.md) template). Epic:
 [KAN-67 New Use Case - Pharma](https://c-pal.atlassian.net/browse/KAN-67).
 Related: [KAN-28](https://c-pal.atlassian.net/browse/KAN-28) (first, manual load of
 the dataset), [KAN-73](https://c-pal.atlassian.net/browse/KAN-73) (load the Pharma

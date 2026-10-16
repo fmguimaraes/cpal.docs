@@ -2,7 +2,7 @@
 
 > Reverse-engineered current behavior of `insert_data.php`. Produced under
 > KAN-133 (epic KAN-126, "Technical Feature Discovery — cpaltracker.web"),
-> following `cpal.docs/sdlc/product/TECH-FEATURE.md`. Read-only analysis —
+> following `cpal.docs/engineering/product/TECH-FEATURE.md`. Read-only analysis —
 > no application code was modified to produce this doc.
 
 ## 1. Feature Area
