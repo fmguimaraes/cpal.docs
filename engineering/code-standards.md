@@ -16,6 +16,9 @@ failed item blocks the merge.
 - [ ] No secrets committed; parameterized queries only.
 - [ ] Server-side access control on every endpoint; deny-by-default; server-side
       input validation.
+- [ ] Frontend: UI changes use the kit and page patterns named in
+      [ui-guidelines.md](ui-guidelines.md); no hard-coded colors, spacing or
+      one-off components; new kit items are in the showcase.
 
 The sections below explain each rule.
 
