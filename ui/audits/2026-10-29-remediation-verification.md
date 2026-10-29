@@ -3,6 +3,7 @@
 SDLC W4 end, before W5 human acceptance. Verification only: no product code was modified.
 
 **Update 2026-10-29 (final verification, KAN-217).** Re-run on HEAD `7624eab` (KAN-229) with a clean tree. R-1 (`/change-password` shell) and R-2 (CSP blocks the pre-paint script) are fixed and re-verified; F-1, F-17, F-41, K-3 and FR12 are closed. The first-pass text below is kept; changed cells are marked "(update)". New: contrast recomputed ([`2026-10-29-contrast.md`](2026-10-29-contrast.md): 6 findings), pilotage with 5000 devices measured (§6), vitest and E2E run (§5).
+**Update 2 2026-10-29 (KAN-217 contrast fixes and windowed mobile pilotage).** The contrast fixes made in the reference kit (`cpaltracker.ui-reference` `24d578e`) are copied unmodified into the app (`src/ui`, `src/styles`, `src/index.css`; `diff -r` empty). The app's own global rules that used to sit in `src/index.css` (KAN-171 reduced motion, mobile `h1` size, solid focus outline) moved unchanged to `src/app.css`, imported after it, so `index.css` can stay identical to the reference. Contrast re-run: **0 failures apart from the 4 exempt disabled buttons**, at 1440 and 390 px ([`2026-10-29-contrast.md`](2026-10-29-contrast.md)). The pilotage list at 390 px is now the kit `MobileList`, windowed above 50 devices (§6). Cells changed by this pass are marked "(update 2)".
 Baseline: [`2026-10-28-audit.md`](2026-10-28-audit.md) @ `407bc61`. Feature:
 [`IN-PROGRESS-UI-Remediation.md`](../../features/IN-PROGRESS-UI-Remediation.md) §13 and §15.
 
@@ -26,13 +27,13 @@ Counts from `src/`, excluding `src/ui` and test files, same method as the audit.
 | `npm run lint` (guideline rules are errors outside the kit) | not run (no config) | exit 0, 0 problems | 0, blocking | met |
 | `npm run lint:fixtures` | n/a | exit 0, all 7 rules report (FR10-raw-element, radix-import, inline-style, arbitrary-length, arbitrary-color, color-literal, jsx-a11y/alt-text) | pass | met |
 | `npm run typecheck` | n/a | exit 0 | pass | met |
-| Kit identical to reference (`diff -r src/ui ../cpaltracker.ui-reference/src/ui`) | no kit | identical, no output | identical | met |
+| Kit identical to reference (`diff -r src/ui ../cpaltracker.ui-reference/src/ui`) | no kit | identical, no output. **Update 2:** also `src/styles` and `src/index.css` identical to the reference after the KAN-217 sync | identical | met |
 | Conforming pages (structure) | 0/9 | 8/9 by structure; `/change-password` normal mode renders outside the shell (R-1). **Update: 9/9**, `/change-password` is in the shell (header, sidebar nav, theme toggle, skip link); first-connection mode (`mustChangePassword`) stays shell-less by design | 9/9 | met (update) |
-| Major findings open | 41 | first pass: F-41 / FR12 (R-1), F-17 (R-2). **Update: 0 open**; contrast findings F1 to F7 are new, in [`2026-10-29-contrast.md`](2026-10-29-contrast.md) | 0 in scope | met for the audit list (update), new contrast findings open |
+| Major findings open | 41 | first pass: F-41 / FR12 (R-1), F-17 (R-2). **Update: 0 open**; contrast findings F1 to F7 are new, in [`2026-10-29-contrast.md`](2026-10-29-contrast.md). **Update 2: contrast findings fixed** (F1 to F5, F7, T1 to T3), only the exempt disabled buttons (F6) remain below threshold | 0 in scope | met (update 2) |
 | Pages with a console error at runtime | not measured | 9/9 (R-2, same error). **Update: 0/9** app errors (36 runs; only the mocked 401 on auth pages and the mocked logo 404 appear) | 0 | met (update) |
 | `npx tsc -b` | n/a | not run. **Update: exit 0** | pass | met |
-| `npx vitest run` | not run | **Update: 64 files, 478 tests, all passed** | pass | met |
-| E2E (`scripts/e2e-isolated.sh 4220`), full suite | not run | **Update: 138 passed, 0 failed, 0 flaky, twice in a row (1.3 min each)**; the new `pilotage-virtualization.spec.ts` (4 tests) is on top, 4 passed | pass | met |
+| `npx vitest run` | not run | **Update: 64 files, 478 tests, all passed.** Update 2: 64 files, 480 tests (2 new `MobileList` cases in `DeviceList.test.tsx`), all passed | pass | met |
+| E2E (`scripts/e2e-isolated.sh 4220`), full suite | not run | **Update: 138 passed, 0 failed, 0 flaky, twice in a row (1.3 min each)**; the new `pilotage-virtualization.spec.ts` (4 tests) is on top, 4 passed. **Update 2 (`scripts/e2e-isolated.sh 4240`, commit `e8f2436`): 142 passed (138 + the 4 virtualization tests), 0 failed, twice in a row**; two flaky tests that already fail on HEAD appeared in other runs, see §5 | pass | met |
 
 ## 2. Findings status
 
@@ -75,7 +76,7 @@ rules and the kit being identical to the reference (see §5).
 | F-10 | Closed | S: 0 raw elements, 0 inline style, lint blocking and passing |
 | F-11, F-12, F-20 | Closed | S: `tokens.css` is the reference one; 0 hard-coded colors. R: brand orange/charcoal palette in all shots |
 | F-13 | Closed | S: `--warning` defined in both themes (`tokens.css:51`, `:122`) |
-| F-14, F-15 | Closed for the palette; **new contrast findings** (update) | Recomputed: [`2026-10-29-contrast.md`](2026-10-29-contrast.md), 350 token pairs (10 below threshold, none on background or card text roles) and 397 runtime rows. Findings F1 to F7 are kit or third-party combinations, not the F-14/F-15 palette defects |
+| F-14, F-15 | Closed for the palette; **new contrast findings** (update) | Recomputed: [`2026-10-29-contrast.md`](2026-10-29-contrast.md), 350 token pairs (10 below threshold, none on background or card text roles) and 397 runtime rows. Findings F1 to F7 are kit or third-party combinations, not the F-14/F-15 palette defects. **Update 2: fixed**; re-run 328 token pairs and 378 (1440) / 280 (390) runtime rows, 0 below threshold apart from the 4 exempt disabled buttons |
 | F-16 | Closed | S: `color-scheme: dark` / `light` in `tokens.css` |
 | F-17 | Closed (update) | R: toggle works and `data-theme` equals the requested theme in all 36 refreshed runs. Pre-paint: `theme-init.js` applies the stored theme before the bundle (probe above, bundle aborted). Flash itself not measured as a paint timeline; the mechanism is verified |
 | F-18 | Closed | R: CSP `img-src 'self' data: blob: https://tile.openstreetmap.org` in the built `index.html`; both maps requested `tile.openstreetmap.org` tiles with no CSP block; with tiles aborted the live map shows the notice "Les tuiles de la carte n'ont pas pu être chargées. Les marqueurs restent exacts." and the marker stays. See header note in §3 |
@@ -168,13 +169,13 @@ Closed since the first pass: R-1, R-2, the unit tests and the E2E suite not run 
 
 Still not verified:
 
-- Map basemap look: tiles mocked with a 1x1 PNG, so the real OSM raster, the dark and light tile filters, tooltip and attribution theming (F-19, F-47) were not seen. Contrast finding F2 (attribution link) depends on it.
+- Map basemap look: tiles mocked with a 1x1 PNG, so the real OSM raster, the dark and light tile filters, tooltip and attribution theming (F-19, F-47) were not seen. The attribution no longer depends on them (update 2: opaque card backdrop, F2 fixed). Contrast finding F2 (attribution link) depends on it.
 - Client logo: the mock returns 404 (placeholder path) or a 1x1 PNG; a real logo was not seen.
 - Loading and error states on each page (F-38), history with 10 series, the transfer form submission against a real API (the E2E suite covers it with mocks).
 - The `mustChangePassword` first-connection layout was probed (no sidebar, redirect to `/change-password`) but not reviewed visually.
-- Keyboard focus: 12 Tab stops per route sampled for ring contrast (one failure, F7); no full keyboard walk of dialogs and the drawer.
-- Contrast at 390 px, hover, error and toast states, tooltips (see the contrast doc, "Not covered").
-- Pilotage at 390 px is paginated, not virtualized (§6); a decision is needed if 5000 devices on a phone matters.
+- Keyboard focus: 12 Tab stops per route sampled for ring contrast (one failure, F7; update 2: fixed, all 26 pass); no full keyboard walk of dialogs and the drawer.
+- Hover, error and toast states, tooltips (see the contrast doc, "Not covered"). Contrast at 390 px: sampled in update 2 (drawer closed), same result as 1440.
+- ~~Pilotage at 390 px is paginated, not virtualized (§6).~~ Update 2: windowed (kit `MobileList`), every device reachable by scrolling, §6.
 - Pre-paint theme flash was verified by mechanism (script runs before the bundle), not as a measured paint timeline.
 - AC2 (reference showcase and guideline doc updates) was not checked.
 - `curl -sI` does not show CSP because it is a meta tag (see §3).
@@ -183,20 +184,24 @@ Still not verified:
 
 HEAD `7624eab`, clean tree. `npx tsc -b`: exit 0. `npx vitest run`: 64 files, 478 tests, 0 failed. `npm run lint`: exit 0, no problems. `npm run lint:fixtures`: exit 0, all 7 rules reported. `scripts/e2e-isolated.sh 4220`, twice: 138 passed, 0 failed each time. Plus `e2e/pilotage-virtualization.spec.ts`: 4 passed (not in the 138).
 
+**Update 2 (KAN-217 sync and windowed mobile list).** Tree under test: `cpaltracker-react` commit `e8f2436` ("KAN-217 - contrast fixes and windowed mobile pilotage list") checked out alone in a separate worktree. The shared checkout had unrelated uncommitted edits from parallel work (for example `src/routes/Login.tsx`, which fails KAN-171 FR12 "soft-shadow card"), so it was not used for the final runs. `npx tsc -b`: exit 0. `npx vitest run`: 64 files, 480 tests, 0 failed. One run under heavy host load (load average 46) had `TransferForm.test.tsx` cases time out at 5 s; the re-run passed. `npm run lint`: exit 0. `npm run lint:fixtures`: exit 0, all 7 rules reported. `scripts/e2e-isolated.sh 4240`, full suite on `e8f2436`: **142 passed, 0 failed, twice in a row**. Earlier runs on the same changes had 1 failure each in one of two tests. Both tests are also flaky on HEAD `d551e4b` without these changes, measured on an untouched worktree: `live-tracking.spec.ts:104` (the tooltip closes between two assertions; 5 of 30 repeats fail on HEAD) and `KAN-169-transfer-form-history.spec.ts:137` (calendar day button detached; 7 of 80 repeats fail on HEAD). They were not fixed here because they belong to other stories' specs; flagged.
+
 ## 6. Pilotage with 5000 devices (update, F-33)
 
 Spec: `cpaltracker-react/e2e/pilotage-virtualization.spec.ts`, scenarios in `cpal.docs/manual-e2e/KAN-217-Pilotage-Virtualization.md`. Screenshots: `2026-10-29/shots/pilotage-virtualized-*.png`.
 
 | Check | 1440 px (dark and light) | 390 px (dark and light) |
 |---|---|---|
-| Rows in the DOM | **19 of 5000** (`data-virtualized="true"`), stays below 100 at the end of the list | **20 of 5000** cards at load; **5000 after paging to the end** (not virtualized) |
-| Last device reachable | by scrolling the table container to the end: `CHIP-4999` mounted and visible | only through "Afficher plus" 249 times (about 15 s for the 249 clicks, 5000 `li` mounted at the end); not by scroll |
+| Rows in the DOM | **19 of 5000** (`data-virtualized="true"`), stays below 100 at the end of the list | first pass: 20 of 5000 at load, 5000 after paging to the end. **Update 2: windowed** (`data-windowed="true"`), at most **24 cards** mounted at any point of a scripted scroll to the end (asserted below 60); count "5000 sur 5000" |
+| Last device reachable | by scrolling the table container to the end: `CHIP-4999` mounted and visible | first pass: only through "Afficher plus" 249 times (about 15 s). **Update 2: by scrolling the page**: `CHIP-4999` in the viewport, `CHIP-0000` unmounted, no "Afficher plus" (about 5 s for the scripted scroll, 2 frames per step) |
 | Sticky header | `thead` is `position: sticky`, offset 0 to 1 px from the container top at mid-scroll | not applicable (cards) |
-| Selection | works; survives scrolling away and back; default first device selected | works (`aria-pressed`) |
+| Selection | works; survives scrolling away and back; default first device selected | works (`aria-pressed`); update 2: also on `CHIP-4999` after scrolling to it |
 | Sorting | "Device" header: ascending then descending, `aria-sort` correct, `CHIP-4999` first when descending | no sort control on cards |
 | Test ids | `pilotage-device-<id>`, `-select`, `-last-seen`, `pilotage-device-list`, `pilotage-contract-selector` unchanged | same, plus `pilotage-device-list` is the `ul` |
 | Console errors | 0 | 0 |
 | No horizontal scroll | n/a | 0 px overflow |
 | Scroll smoothness | 121 frames over a 120-step scripted scroll of the full 5000 rows: median 16.7 ms, p95 16.7 to 33.4 ms, max 33.4 to 49.9 ms, 0 frames above 50 ms (4 runs, headless Chromium) | n/a |
 
-Finding: the 390 px list is paginated, not virtualized. With 5000 devices the first view is fine (20 cards) but reaching the end mounts 5000 cards and takes about 15 s of clicking in the test. Not a defect against the current spec (AC4 asks for count and "Afficher plus"); flagged for a decision.
+Finding (first pass, closed in update 2): the 390 px list is paginated, not virtualized. With 5000 devices the first view is fine (20 cards) but reaching the end mounts 5000 cards and takes about 15 s of clicking in the test. Not a defect against the current spec (AC4 asks for count and "Afficher plus"); flagged for a decision.
+
+**Update 2 (KAN-217):** the 390 px list is the kit `MobileList` with `windowThreshold` and `pageSize` equal to the table's threshold (50): up to 50 devices every card is shown with the count (no "Afficher plus"); above 50 the list is windowed against the page scroll. Testids (`pilotage-device-list` on the `ul`, `pilotage-device-<id>` on each `li`, `-select`, `-last-seen`), selection (`aria-pressed`, `bg-accent`) and the count text ("{n} sur {total}") are unchanged. The "Afficher plus" paging is removed because the window makes it redundant. Specs: `pilotage-virtualization.spec.ts` V2 @SI-227-7 and `KAN-227-pilotage-list-form.spec.ts` AC4 @SI-227-4 updated (scenarios in `manual-e2e/KAN-217-Pilotage-Virtualization.md` and `manual-e2e/KAN-217-Pilotage.md`, feature §12). Screenshots `2026-10-29/shots/pilotage-virtualized-*-390.png` regenerated.

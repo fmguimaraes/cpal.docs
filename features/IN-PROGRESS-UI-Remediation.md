@@ -361,6 +361,14 @@ The theme preference stays in `localStorage` under `cpaltracker:theme`; the valu
       opens the field's calendar and clicks day DD (5 sites). The page clock is fixed to
       2026-06-01 in a `beforeEach`, so the calendar opens on June 2026.
     - The expected flash, history and error texts are unchanged.
+  - `e2e/KAN-227-pilotage-list-form.spec.ts` AC4 @SI-227-4 (KAN-217, F-33): at 390 px the
+    pilotage list is the kit `MobileList` windowed above 50 devices, with no 20-card paging.
+    With 25 devices the test expects 25 cards and "25 sur 25" and no "Afficher plus", instead
+    of 20 cards, "20 sur 25" and a click on "Afficher plus". Testids, selection and the count
+    text format are unchanged.
+  - `e2e/pilotage-virtualization.spec.ts` V2 @SI-227-7 (KAN-217, F-33): the 390 px case expects
+    the windowed list (`data-windowed="true"`, fewer than 60 cards mounted, "5000 sur 5000") and
+    reaches `CHIP-4999` by scrolling the page, instead of clicking "Afficher plus" 249 times.
 - **Specs added by this feature** (new files, not edits): `KAN-223-theme-before-first-paint`,
   `KAN-224-app-shell` (incl. AC6/AC7: `/change-password` inside the shell in normal mode,
   shell-less in first-connection mode), `KAN-226-history-reference-page` (incl. @SI-226-10:
@@ -375,7 +383,8 @@ The theme preference stays in `localStorage` under `cpaltracker:theme`; the valu
   monolith endpoint (`cpal_pilotage_date_sql`, same as the monolith datetime-local fields);
   `cpaltracker.web/api/openapi.yaml` request fields `startDate`/`endDate` updated; flag for W5.
 - Accepted for W5 review (reference commit af63d57): new kit-driven French strings
-  '{n} sur {total}', 'Afficher plus', '(jour)', '(heure)', 'Historique des transferts', and
+  '{n} sur {total}', 'Afficher plus' (no longer shown on pilotage since KAN-217: the list is
+  windowed above 50 devices and shows every card below), '(jour)', '(heure)', 'Historique des transferts', and
   'Se déconnecter' in the user menu.
 - Accepted for W5 review: map and chart series colors now follow visible-device order, so they
   change when a device is filtered out (K-7).
