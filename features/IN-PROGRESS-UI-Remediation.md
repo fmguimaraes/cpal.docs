@@ -43,8 +43,9 @@ still pass (with the explicitly listed spec adjustments in §12).
   K-5, K-6, K-7, K-8, K-9, K-10.
 - **Major layout:** F-1, F-2, F-3, F-4, F-5, F-6, F-7, F-8, F-9.
 - **Major UI:** F-10 to F-36, F-38 to F-41. F-37 partly (transfer layout only, see §6).
-- **Minor:** F-42, F-43, F-44, F-46, F-47, F-48, and the document-title part of F-45,
-  batched in one area (FR16).
+- **Minor:** F-42, F-43, F-44, F-46, F-47, F-48, and the document-title part of F-45.
+  F-42 closes with FR4, F-46 with FR11, F-47 with FR8; the rest (F-43, F-44, F-45
+  title, F-48) are batched in one area (FR16).
 
 ## 6. Out of Scope (What WILL NOT be delivered)
 
@@ -58,7 +59,9 @@ still pass (with the explicitly listed spec adjustments in §12).
 - **F-49 language mix**: decided (X-COPY, 2026-10-29): not a defect. No copy is
   translated or rewritten; each page keeps the language it has in the monolith, and the
   restyle must leave every user-visible string (and so every text-based E2E locator)
-  unchanged.
+  unchanged. Strings the restyle has to add (empty-state reasons, toasts replacing
+  flashes, eyebrows, skip link, tile notice, 404, `document.title`) are written in the
+  language the page already uses, never in the reference's language by default.
 - **Route renaming** to the reference's `/app/*` paths: paths stay as in
   `src/auth/paths.ts` (`/live-tracking`, `/history`, `/pilotage`, ...), and nav testids
   stay `nav-home`, `nav-live-tracking`, `nav-history`, `nav-pilotage` (the reference's
@@ -75,16 +78,16 @@ FR5 (CSP) has no dependency and can ship immediately.
 
 | # | Area | FRs | Findings closed | Pattern / kit items (paths in `cpaltracker.ui-reference/`) |
 |---|---|---|---|---|
-| 0 | OSM tiles in production (hotfix, independent) | FR5 | F-18 | `vite-plugin-security-headers.ts`; tile notice from `src/ui/map/FleetMap.tsx` lands with area 5 |
+| 0 | OSM tiles in production (hotfix, independent) | FR5 | F-18 | `vite-plugin-security-headers.ts`; tile notice from `src/ui/map/FleetMap.tsx` lands with areas 5 and 6 |
 | 1 | Kit gaps in the reference + guideline doc | FR1, FR2 | K-1, K-3..K-10 | `src/ui/status.tsx`, `src/ui/map/*`, `src/ui/timeline.tsx`, `src/ui/health-grid.tsx`, `src/ui/patterns/app-shell.tsx`, `src/ui/patterns/theme-toggle.tsx`, `src/ui/data-table.tsx`, `src/ui/charts/use-chart-theme.ts`, `index.html` |
 | 2 | Stack upgrade in the app | FR3 | K-2 | React 19, react-leaflet 5, react-leaflet-cluster, kit dependencies |
-| 3 | Tokens, theme, kit and lint port | FR4 | F-10, F-11, F-12, F-13 (token), F-14 (token), F-15, F-16, F-17 (mechanism), F-20, F-42 | `src/styles/tokens.css`, `src/index.css`, `src/app/theme.tsx`, `src/ui/**`, `src/lib/utils.ts`, `src/hooks/use-mobile.ts`, `eslint.config.js`, `lint-fixtures/` |
+| 3 | Tokens, theme, kit and lint port | FR4 | F-10 (lint, report mode), F-11, F-12, F-13 (token), F-14 (token), F-15 (token), F-16 (token), F-17 (mechanism), F-20, F-42, F-43 (token) | `src/styles/tokens.css`, `src/index.css`, `src/app/theme.tsx`, `src/ui/**`, `src/lib/utils.ts`, `src/hooks/use-mobile.ts`, `eslint.config.js`, `lint-fixtures/` |
 | 4 | Shell, header, content width | FR6, FR7 | F-1, F-2, F-3, F-4, F-5, F-17 (toggle), F-25, F-26, F-27 | NAV-SHELL `src/ui/patterns/app-shell.tsx`, `src/ui/sidebar.tsx`, NAV-HEADER `src/ui/patterns/page-header.tsx`, `eyebrow.tsx`, `theme-toggle.tsx`, `public/logo-cpal-*.png` |
 | 5 | Live tracking onto PAT-SPLIT | FR8 | F-6, F-19, F-23, F-24 (live), F-47 | `src/showcase/patterns/LiveTracking.tsx`, `live/*`, `src/ui/map/*`, `src/ui/charts/donut-chart.tsx`, `src/ui/stat.tsx` |
 | 6 | History onto the reference History page | FR9 | F-7, F-13, F-21, F-24 (timeline), F-30 (history), F-39, F-40 | `src/showcase/patterns/History.tsx`, `history/data.ts`, `src/ui/patterns/{time-picker,filter-bar}.tsx`, `src/ui/{stat,widget-card,table,alert}.tsx`, `src/ui/charts/time-series-chart.tsx` |
-| 7 | Pilotage onto PAT-LIST + PAT-FORM | FR10 | F-8, F-22, F-30 (transfer), F-33, F-36, F-37 (layout only) | `src/showcase/patterns/Devices.tsx`, `devices/*`, `Settings.tsx`, `forms/*`, `src/ui/{data-table,status,timeline,select,date-time-field}.tsx` |
+| 7 | Pilotage onto PAT-LIST + PAT-FORM | FR10 | F-8, F-22, F-30 (transfer), F-33, F-36 (device list), F-37 (layout only) | `src/showcase/patterns/Devices.tsx`, `devices/*`, `Settings.tsx`, `forms/*`, `src/ui/{data-table,status,timeline,select,date-time-field}.tsx` |
 | 8 | Auth and account onto PAT-AUTH / PAT-SETTINGS | FR11, FR12 | F-9, F-25 (auth), F-41, F-46 | `src/showcase/patterns/{Login,ForgotPassword,Settings}.tsx`, `auth/*`, `src/ui/{form,field,input,input-group}.tsx` |
-| 9 | Cross-page sweep, lint blocking, minor batch | FR13, FR14, FR15, FR16 | F-14, F-15, F-16, F-28, F-29, F-31, F-32, F-34, F-35, F-38 (whatever remains after 4-8), F-43, F-44, F-45 (title), F-48 | `src/ui/{button,form,field,input,checkbox,radio-group,select,toggle-group,alert,empty,skeleton,spinner,sonner,card}.tsx`, `src/showcase/patterns/{States,NotFound}.tsx`, `states/*` |
+| 9 | Cross-page sweep, lint blocking, minor batch | FR13, FR14, FR15, FR16 | F-14, F-15, F-16, F-28, F-29, F-31, F-32, F-34, F-35, F-36, F-38 (whatever remains after 4-8), F-43, F-44, F-45 (title), F-48 | `src/ui/{button,form,field,input,checkbox,radio-group,select,toggle-group,alert,empty,skeleton,spinner,sonner,card}.tsx`, `src/showcase/patterns/{States,NotFound}.tsx`, `states/*` |
 
 ## 8. Functional Requirements (FRs)
 
@@ -139,8 +142,8 @@ change), then layout, then UI, then minor. `ref:` = `cpaltracker.ui-reference/`.
     map-tile-filter, shadow-overlay, shadow-media; `color-scheme` per theme; Arial /
     Georgia / mono stacks) and `src/index.css` SHALL carry the reference `@theme inline`
     bridge and Leaflet rules. `src/theme/tokens.css`, `src/theme/chartColors.ts` and,
-    once unused, `src/theme/breakpoints.ts` SHALL be removed (closes F-11, F-12, F-13
-    token part, F-14 token part, F-15, F-16, F-20, F-42, token part of F-43).
+    once unused, `src/theme/breakpoints.ts` SHALL be removed (closes F-11, F-12, F-20,
+    F-42; token parts of F-13, F-14, F-15, F-16, F-43).
   - Until every consumer is migrated, the legacy names read by tests (`--color-bg`,
     `--color-primary`, `--color-primary-hover`, ...) SHALL remain as aliases of the new
     roles in one marked block, removed in FR16.
@@ -202,8 +205,8 @@ change), then layout, then UI, then minor. `ref:` = `cpaltracker.ui-reference/`.
   `Select`, settings as a PAT-FORM section per `Settings.tsx` (one column, ≤ 800 px,
   action bar), transfer as an inline PAT-FORM card in two columns using
   `Select` and `DateTimeField`, transfer history as `Timeline` with a `Badge` for
-  ongoing (closes F-8, F-22, F-30 transfer part, F-33 device and transfer parts, F-36,
-  F-37 layout part).
+  ongoing (closes F-8, F-22, F-30 transfer part, F-33 device and transfer parts, F-36
+  device-list part, F-37 layout part).
 - **FR11. Auth on PAT-AUTH.** `/login`, `/forgot-password`, `/reset-password` SHALL use
   `ref:src/showcase/patterns/auth/AuthLayout.tsx` (logo, form column, footer, stacked
   at 390 px), `Form*` + `Input` / `InputGroup` (password show/hide), full-width primary
@@ -223,7 +226,7 @@ change), then layout, then UI, then minor. `ref:` = `cpaltracker.ui-reference/`.
   `aria-invalid`, one announcement), `border-input` boundaries, `ring-ring` focus,
   selectors via `RadioGroup` / `Select` / `ToggleGroup` with arrow-key navigation,
   checkboxes via `Checkbox`. The FR4 lint structure rules SHALL then be switched to
-  blocking (closes F-10, F-14, F-15, F-16, F-28, F-29, F-34).
+  blocking (closes F-10, F-28, F-29, F-34; control parts of F-14, F-15, F-16).
 - **FR14. Feedback and states everywhere.** Every data view SHALL have loading =
   `Skeleton` shaped like the content, empty = one `Empty` with reason and next step,
   error = `Alert variant="danger"` with a retry, per
