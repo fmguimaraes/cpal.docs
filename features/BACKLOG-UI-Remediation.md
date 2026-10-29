@@ -268,8 +268,8 @@ blue palette is replaced, not extended):
 | Role | Dark | Light | Reason |
 |---|---|---|---|
 | background / card | `#1a1d22` / `#22252e` | `#f5f2ed` / `#eee6d4` | Brand (F-11) |
-| primary / primary-text | `#dd8c3e` / orange | `#c57a30` / `#915923` | Orange text on light needs 4.5:1 (F-15) |
-| ring | `#dd8c3e` | `#915923` | 3:1 on every surface (F-15) |
+| primary / primary-text | `#dd8c3e` / orange | `#c57a30` / `#85511f` | Orange text on light needs 4.5:1 (F-15) |
+| ring | `#dd8c3e` | `#85511f` | 3:1 on every surface (F-15) |
 | input | `#686e7f` | `#938267` | 3:1 control boundary (F-14) |
 | warning | `#e3c34f` | `#755c00` | Was undefined; yellow, not orange (F-13, F-22) |
 | media | `#0e0f12` | `#1a1d22` | Map frame (F-19) |
