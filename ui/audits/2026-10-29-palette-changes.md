@@ -92,3 +92,31 @@ Dark: background `#1A1D22`, card `#22252E`, sidebar `#20232B`, foreground `#F3F2
 
 - Token pairs above are recomputed from the tokens.
 - A runtime sampling of the rendered app (computed colors per route and theme) is in [`2026-10-29-contrast.md`](2026-10-29-contrast.md) once the fix pass finishes.
+
+## Fixes from the runtime contrast audit
+
+Source: [`2026-10-29-contrast.md`](2026-10-29-contrast.md) (F1 to F7, T1 to T3). Operator pre-approved palette work (KAN-217). Fixed in the reference kit first (`cpaltracker.ui-reference`), component level where possible; three token changes, each the smallest that passes, same hue. F6 (disabled buttons) is exempt and unchanged.
+
+### Token changes
+
+| Token | Theme | Old | New | Why | Result |
+|---|---|---|---|---|---|
+| `--input` (control border) | Dark | `#686E7F` | `#71788A` | T3: 2.63 on secondary and accent, 2.97 on muted | 3.03 secondary/accent, 3.42 muted, 3.47 card, 3.83 background. Hue 224 to 223, lightness +4 % |
+| `--ring-media` (new role) | Dark / Light | none | `#DD8C3E` / `#A8692A` | F7: the light ring `#85511F` is 2.57 on the dark map frame | Light 3.80 on the frame, 4.1 on the light land tile; dark 7.21. Reuses existing palette values (orange, light chart-1) |
+| `--primary-soft` (derived) | Both | 12 % primary over **transparent** | 12 % primary over **`--card`**, opaque (`color-mix(in srgb, …)`) | T2: a translucent fill let the surface decide; primary-text fell to 4.17 over secondary (dark) and under 3:1 over the map frame (selected marker, light) | Same color as before on cards. Primary-text on it 4.78 (dark) / 4.74 (light) on every surface |
+
+### Component-level fixes (no token value changed)
+
+| ID | Fix | Result |
+|---|---|---|
+| F1 | Sidebar group label: `text-sidebar-foreground/70` to `text-sidebar-foreground` | 6.92 dark, 5.95 light |
+| F2 | Leaflet attribution: opaque `--card` backdrop, text `--body`, links `--primary-text` (OSM attribution kept visible) | Text 6.74 / 5.74, link 5.75 / 5.29, independent of the tiles |
+| F3 | Dark translucent field fill (`bg-input/30`, hover `/50`) removed from Select, NativeSelect, Input, Textarea, InputGroup, InputOTP and the Command search field; placeholder sits on the surface | Placeholder 5.85 on background, 5.30 on card, 4.63 on secondary (was 3.88) |
+| F4 | Checked Checkbox and Radio border, Slider thumb border: `--primary` to `--primary-text` (same as `--primary` in dark) | Light 5.89 background, 5.29 card (was 2.73) |
+| F5 | Unchecked Switch track: `dark:bg-input/80` removed, solid `--input`; checked Switch gets a `--primary-text` border | Dark 3.47 on card (was 2.42); checked light 5.29 |
+| F7 | Inside any `bg-media` frame `--ring` is `--ring-media`; the map container's ring is drawn inside its clipped edge | Light 3.80 / 4.1, dark 7.21 |
+| T1 | Inside `bg-primary-soft` and a checked choice field, `--muted-foreground` reads as `--body` | 5.61 dark, 5.14 light (was 3.84 to 4.41) |
+
+Same defect class, found while fixing: dark invalid control border `border-destructive/50` (2.81) made solid (7.34); light inactive Tab text `foreground/60` (3.99) now `--muted-foreground` (4.62 on the tab list).
+
+Verified at runtime on the reference showcase (Playwright, both themes, 1440 and 390, OSM tiles mocked with a light land tile) and recomputed from the tokens.
