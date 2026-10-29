@@ -57,6 +57,10 @@ Feature spec: [`UI-Bootstrap.md`](../features/UI-Bootstrap.md) — 13 FRs, 5 NFR
 
 *Total: 105 points across 16 stories.*
 
+All 16 stories are Done. KAN-201 went to the operator after three review bounces. Its
+last blocker was the light-theme orange text, which was 4.14:1 over its soft fill. The
+operator approved the fix (`#915923` → `#85511F`, focus ring included) on 2026-10-29.
+
 ## Requirement Traceability
 
 | Requirement | Story key(s) |
