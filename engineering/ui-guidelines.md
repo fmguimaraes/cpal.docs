@@ -132,8 +132,8 @@ Inventory IDs are explained in the Inventory section.
 | Dashboard tile with menu and period | `WidgetCard` (`@/ui/widget-card`) | |
 | Key number (DAT-STAT) | `Stat` (`@/ui/stat`; `goodDirection`, `change`, `accent` for the one orange KPI) | Hand-built KPI |
 | List rows | `Item*` (`@/ui/item`), `NumberedList` | |
-| Tabular data (DAT-TABLE) | `DataTable` (`@/ui/data-table`; sorting, selection, row menu, density, pagination); `Table*` only for static tables | Raw `<table>` |
-| Timeline / feed (DAT-TIMELINE) | `Timeline`, `ActivityTimeline` (`@/ui/timeline`) | |
+| Tabular data (DAT-TABLE) | `DataTable` (`@/ui/data-table`; sorting, selection, row menu, density, pagination; `labels` for the page language; `rowProps` for the app's own row attributes such as `data-testid`, `aria-selected` or a selection class, applied after the defaults with `className` merged; `containerProps` on the root); `Table*` only for static tables | Raw `<table>`; testids on an inner cell element to work around the row |
+| Timeline / feed (DAT-TIMELINE) | `Timeline`, `ActivityTimeline` (`@/ui/timeline`; per item `badge` after the title, e.g. a `Badge` for an ongoing entry, and `testId`; `formatTime` and `label` for the page language) | A dot-and-line list composed by hand |
 | Fleet overview grid | `HealthGrid` (`@/ui/health-grid`) | |
 | Chart (DAT-CHART) | `TimeSeriesChart`, `DonutChart`, `RankedBars`, `BarChart`, `Sparkline` from `@/ui/charts`; `label` is required | Plotly directly |
 | Map (DAT-MAP) | `FleetMap` from `@/ui/map` | Leaflet directly |
@@ -146,7 +146,7 @@ Inventory IDs are explained in the Inventory section.
 | Long table (K-6) | `DataTable` virtualizes rows above `virtualizeThreshold` (default 100): fixed row height, cells truncate, no pagination in that mode | Paginating or rendering thousands of DOM rows |
 | More than 5 series (K-7) | `seriesStyle(i)` / `useChartTheme` (`@/ui/charts`): colour cycles `--chart-1..5`, each further pass changes dash and marker; `FleetMap` markers use the same index (`MapDevice.series`) | A sixth colour; colour as the only cue |
 | Track playback (K-8) | `TrackPlayback` + `useTrackPlayback(points)` (`@/ui/map`): instant slider, step/play/pause, trail switch, fit-to-track, as the companion of `FleetMap` | A custom player outside the kit |
-| Theme before first paint | Inline script in `index.html` reads `cpaltracker:theme` (`light`/`dark`/`system`, default dark) and sets `html[data-theme]`; `ThemeProvider` (`@/app/theme`) keeps it in sync | Setting the theme only after React mounts (flash of the wrong theme) |
+| Theme before first paint | Same-origin classic script `public/theme-init.js`, loaded from the `<head>` of `index.html` with `<script src="/theme-init.js">` (render-blocking, before the app bundle), reads `cpaltracker:theme` (`light`/`dark`/`system`, default dark) and sets `html[data-theme]`; `ThemeProvider` (`@/app/theme`) keeps it in sync. The production CSP stays `script-src 'self'` | Setting the theme only after React mounts (flash of the wrong theme); an inline `<script>` in `index.html` (blocked by the CSP), or a CSP hash / `'unsafe-inline'` to let it run |
 | Disclosure | `Accordion`, `Collapsible` | |
 | Scroll region | `ScrollArea` | |
 

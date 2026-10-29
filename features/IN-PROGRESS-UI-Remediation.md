@@ -316,18 +316,69 @@ The theme preference stays in `localStorage` under `cpaltracker:theme`; the valu
 - **Selectors and roles tests depend on:** the history map container keeps the class
   `timeline-map` (KAN-176 reads `.timeline-map .leaflet-tile-pane`); messages unit
   tests query by `role=alert`/`role=status` keep that role on the rendered element.
-- **Spec edits allowed (NFR1):** `e2e/KAN-176-design-system-theming-stack-compliance.spec.ts:231,248`
-  assert the old Plotly paper colors `rgb(29, 33, 38)` / `rgb(244, 245, 247)` and are
-  updated to the new `--card` values; `e2e/KAN-167-design-tokens-theme-breakpoints.spec.ts`
-  reads `--color-bg/primary/primary-hover` and is moved to the new role names when the
-  FR4 aliases are removed (FR16). The breakpoint probe in KAN-167 passes with Tailwind
-  defaults (450 / 700 / 900 / 1024 px). Theme-toggle specs (`hello-world.spec.ts`,
-  KAN-167, KAN-173) pass unchanged thanks to K-10.
+- **Spec edits allowed (NFR1).** These are the only edits to specs that existed before this
+  feature. Each one keeps the spec's intent and changes only how it reaches or reads the
+  element. The theme-toggle specs (`hello-world.spec.ts`, KAN-173 theme part) pass unchanged
+  thanks to K-10. The KAN-167 breakpoint probe passes with Tailwind defaults (450 / 700 / 900 /
+  1024 px).
+  - `e2e/KAN-167-design-tokens-theme-breakpoints.spec.ts` (KAN-223, FR4/FR16): the token reader
+    reads `--background` / `--primary` / `--primary-text` instead of `--color-bg` /
+    `--color-primary` / `--color-primary-hover`. The light check `primaryHover != primary` became
+    `primaryText != ''`. The dark check `darkTokens.primaryHover != darkTokens.primary` became
+    `darkTokens.primaryText != lightTokens.primaryText`. The removed aliases have no hover token.
+  - `e2e/KAN-176-design-system-theming-stack-compliance.spec.ts` (KAN-223/KAN-226, FR4/FR9):
+    the dark and light chart checks read the background of `history-chart-ta
+    [data-slot="card"]` (the `WidgetCard`) instead of `.main-svg`. The kit chart paper is
+    transparent. The expected values change from `rgb(29, 33, 38)` / `rgb(244, 245, 247)` to
+    the new `--card` values `rgb(34, 37, 46)` (dark) / `rgb(238, 230, 212)` (light).
+  - `e2e/history-timeline-map.spec.ts` (KAN-226, FR9, F-22):
+    - The marker colour check reads each marker's `className` and expects `ring-success`,
+      instead of the inline `style.background` = `rgb(46, 125, 50)`.
+    - The slider is moved by focusing `timeline-slider` and pressing `Home`, instead of
+      `fill(String(T0))`. The kit `Slider` is not an `<input>`.
+    - The tooltip hover targets `.leaflet-marker-icon > div` instead of `.leaflet-marker-icon`.
+    - The end-of-replay check reads `aria-valuenow` = `String(shortT1)` instead of
+      `toHaveValue(String(shortT1))`.
+  - `e2e/logout-session.spec.ts` (KAN-224, FR6): both tests click `user-menu` before
+    `logout-button`. Sign out now exists once, in the shell user menu, and the home page no
+    longer has its own button. The assertions are unchanged.
+  - `e2e/KAN-159-device-list-eligibility.spec.ts`, `e2e/KAN-163-settings-form.spec.ts`,
+    `e2e/KAN-166-settings-submission.spec.ts`, `e2e/KAN-169-transfer-form-history.spec.ts`,
+    `e2e/KAN-173-technical-foundation-audit.spec.ts` (KAN-227, FR10): the contract choice is the
+    kit `Select`. Every `pilotage-contract-option-{id}` click is preceded by a click on
+    `pilotage-contract-selector`, which opens the list (4 + 5 + 5 + 6 + 4 = 24 sites). In
+    KAN-159, the `toHaveText('REF-012')` check opens the selector first. The access-error check
+    reopens the selector and expects `pilotage-contract-option-99` to have
+    `aria-selected="false"` instead of `aria-checked="false"`. A Select option is `role=option`,
+    not `role=radio`.
+  - `e2e/KAN-169-transfer-form-history.spec.ts` (KAN-227, FR10): the transfer target is the kit
+    `Select` and the dates are `DateTimeField`.
+    - `transfer-target-option-34` `toHaveText('REF-034-STD')` opens `transfer-field-target`
+      first.
+    - Each `transfer-field-target.selectOption('34')` became a click on `transfer-field-target`,
+      then a click on `transfer-target-option-34` (4 sites).
+    - Each `transfer-field-startDate/endDate.fill('2026-06-DD')` became `pickJune2026Day()`. It
+      opens the field's calendar and clicks day DD (5 sites). The page clock is fixed to
+      2026-06-01 in a `beforeEach`, so the calendar opens on June 2026.
+    - The expected flash, history and error texts are unchanged.
+- **Specs added by this feature** (new files, not edits): `KAN-223-theme-before-first-paint`,
+  `KAN-224-app-shell` (incl. AC6/AC7: `/change-password` inside the shell in normal mode,
+  shell-less in first-connection mode), `KAN-226-history-reference-page` (incl. @SI-226-10:
+  UTC chart axis in a non-UTC browser), `KAN-227-pilotage-list-form` and
+  `KAN-229-cleanup-not-found-titles`.
 - Mapped device colors beyond five devices cycle with a dash/symbol variant (K-7);
   markers and chart traces use the same index.
 - Tiles unreachable: `bg-media` frame, markers still drawn, inline notice (EC3).
 - Showcase snapshots that move because of an FR1 kit change are updated in the same
   story.
+- Decision (operator delegated, 2026-10-29): transfer dates use AAAA-MM-JJTHH:MM, matching the
+  monolith endpoint (`cpal_pilotage_date_sql`, same as the monolith datetime-local fields);
+  `cpaltracker.web/api/openapi.yaml` request fields `startDate`/`endDate` updated; flag for W5.
+- Accepted for W5 review (reference commit af63d57): new kit-driven French strings
+  '{n} sur {total}', 'Afficher plus', '(jour)', '(heure)', 'Historique des transferts', and
+  'Se déconnecter' in the user menu.
+- Accepted for W5 review: map and chart series colors now follow visible-device order, so they
+  change when a device is filtered out (K-7).
 
 ## 13. Metrics / KPIs
 
