@@ -3,7 +3,7 @@
 ## 1. Feature Name
 
 UI Bootstrap — cpaltracker: tokens, kit, page patterns, showcase and visual guideline,
-delivered as a standalone **reference UI** (`cpal.global/cpaltracker-ui-reference`).
+delivered as a standalone **reference UI** (`cpal.global/cpaltracker.ui-reference`).
 
 ## 2. Problem / Pain Point
 
@@ -186,7 +186,7 @@ traces to the brand; "why changed" for every non-brand value is a comment in
 
 ## 11. Integration Points
 
-- `cpal.global/cpaltracker-ui-reference` (new, local repo): `src/styles/tokens.css`,
+- `cpal.global/cpaltracker.ui-reference` (new, local repo): `src/styles/tokens.css`,
   `src/index.css`, `src/ui/`, `src/ui/patterns/`, `src/showcase/`,
   `eslint.config.js`, `e2e/`.
 - `cpal.docs`: `engineering/ui-guidelines.md`, `engineering/code-standards.md`.

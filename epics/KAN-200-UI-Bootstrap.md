@@ -16,7 +16,7 @@ cpaltracker-react has no shared visual system: colors, spacing and components dr
 
 ## Description
 
-Deliver a standalone reference UI (`cpal.global/cpaltracker-ui-reference`) on the same stack as cpaltracker-react: tokens in light and dark, a themed kit, the page patterns with mock data, a showcase, the guideline doc, lint rules, a Review Gate item and Playwright snapshots. It does not change cpaltracker-react and uses mock data only.
+Deliver a standalone reference UI (`cpal.global/cpaltracker.ui-reference`) on the same stack as cpaltracker-react: tokens in light and dark, a themed kit, the page patterns with mock data, a showcase, the guideline doc, lint rules, a Review Gate item and Playwright snapshots. It does not change cpaltracker-react and uses mock data only.
 
 ## Requirement References
 

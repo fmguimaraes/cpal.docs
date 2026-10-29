@@ -23,7 +23,8 @@ cpal.global/                 umbrella repo — CLAUDE.md, .gitmodules, shared .e
 ├── cpal.docs/               documentation — single source of truth (this repo)
 ├── c-PAL.web/               public website (static HTML/CSS/JS)
 ├── cpaltracker.web/         c-PAL tracker web app (PHP)
-└── cpaltracker-react/       React/TS rebuild of cpaltracker.web's UI (KAN-60)
+├── cpaltracker-react/       React/TS rebuild of cpaltracker.web's UI (KAN-60)
+└── cpaltracker.ui-reference/ Reference UI: tokens, kit, page patterns (KAN-200)
 ```
 
 | Repo | Remote | Role |
@@ -33,6 +34,7 @@ cpal.global/                 umbrella repo — CLAUDE.md, .gitmodules, shared .e
 | `c-PAL.web` | `git@github.com:GCO147/c-PAL.web.git` | Product / marketing website |
 | `cpaltracker.web` | `git@github.com:GCO147/cpaltracker.web.git` | Tracker application |
 | `cpaltracker-react` | `git@github.com:fmguimaraes/cpaltracker-react.git` | React/TS rebuild of `cpaltracker.web`'s UI (KAN-60), consuming its `/api/v1` (KAN-116). **Temporarily hosted under `fmguimaraes`**, not `GCO147` like the other product repos — the Jira account used here has no repo-create permission on `GCO147`; transfer with `gh repo transfer` once granted. |
+| `cpaltracker.ui-reference` | `git@github.com:fmguimaraes/cpaltracker.ui-reference.git` | Reference UI and showcase for the visual guideline (KAN-200): the yardstick for every frontend change |
 
 ### Working with the umbrella
 

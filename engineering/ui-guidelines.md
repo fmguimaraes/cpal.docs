@@ -2,13 +2,13 @@
 
 The rules every screen of the c-PAL tracker UI follows. The kit is in
 `src/ui`, the page patterns in `src/ui/patterns`, the tokens in
-`src/styles/tokens.css`. The reference app is `cpaltracker-ui-reference` (`npm run dev`):
+`src/styles/tokens.css`. The reference app is `cpaltracker.ui-reference` (`npm run dev`):
 its showcase routes (`/guideline/*`) show every item, its pattern routes (`/app/*`,
 `/login`) are the yardstick. If your screen looks or behaves differently from the
 reference pattern it is based on, the screen is wrong, or the reference needs a
 change first (rule 5). This doc decides; the showcase shows.
 
-Paths below are relative to `cpaltracker-ui-reference/`. The kit is imported as
+Paths below are relative to `cpaltracker.ui-reference/`. The kit is imported as
 `@/ui/<file>`, for example `import { Button } from '@/ui/button'`. There is no barrel.
 
 ## Rules that always apply

@@ -15,7 +15,7 @@ inline styles, no navigation on a phone, and a production CSP that blocks every 
 tile. Report: [`ui/audits/2026-10-28-audit.md`](../ui/audits/2026-10-28-audit.md).
 
 The guideline is [`engineering/ui-guidelines.md`](../engineering/ui-guidelines.md); the
-yardstick is `cpaltracker-ui-reference` (kit `src/ui`, patterns `src/ui/patterns`,
+yardstick is `cpaltracker.ui-reference` (kit `src/ui`, patterns `src/ui/patterns`,
 pages `src/showcase/patterns`, tokens `src/styles/tokens.css`). This feature follows
 [`UI-Bootstrap.md`](UI-Bootstrap.md), which built that reference.
 
@@ -39,7 +39,7 @@ still pass (with the explicitly listed spec adjustments in §12).
 
 ## 5. In Scope (What WILL be delivered)
 
-- **Kit gaps** (fixed in `cpaltracker-ui-reference` first, rule 5): K-1, K-2, K-3, K-4,
+- **Kit gaps** (fixed in `cpaltracker.ui-reference` first, rule 5): K-1, K-2, K-3, K-4,
   K-5, K-6, K-7, K-8, K-9, K-10.
 - **Major layout:** F-1, F-2, F-3, F-4, F-5, F-6, F-7, F-8, F-9.
 - **Major UI:** F-10 to F-36, F-38 to F-41. F-37 partly (transfer layout only, see §6).
@@ -71,7 +71,7 @@ Delivery order; each line is a feature area for W1. Areas 1-3 are the foundation
 must land first; areas 4-8 can run in parallel once area 3 is merged; area 9 closes.
 FR5 (CSP) has no dependency and can ship immediately.
 
-| # | Area | FRs | Findings closed | Pattern / kit items (paths in `cpaltracker-ui-reference/`) |
+| # | Area | FRs | Findings closed | Pattern / kit items (paths in `cpaltracker.ui-reference/`) |
 |---|---|---|---|---|
 | 0 | OSM tiles in production (hotfix, independent) | FR5 | F-18 | `vite-plugin-security-headers.ts`; tile notice from `src/ui/map/FleetMap.tsx` lands with area 5 |
 | 1 | Kit gaps in the reference + guideline doc | FR1, FR2 | K-1, K-3..K-10 | `src/ui/status.tsx`, `src/ui/map/*`, `src/ui/timeline.tsx`, `src/ui/health-grid.tsx`, `src/ui/patterns/app-shell.tsx`, `src/ui/patterns/theme-toggle.tsx`, `src/ui/data-table.tsx`, `src/ui/charts/use-chart-theme.ts`, `index.html` |
@@ -87,12 +87,12 @@ FR5 (CSP) has no dependency and can ship immediately.
 ## 8. Functional Requirements (FRs)
 
 Kit gaps first (rule 5: the reference and its showcase change first, in their own
-change), then layout, then UI, then minor. `ref:` = `cpaltracker-ui-reference/`.
+change), then layout, then UI, then minor. `ref:` = `cpaltracker.ui-reference/`.
 
 ### Kit gaps
 
 - **FR1. Kit decoupled from mock data and completed for the app.** In
-  `cpaltracker-ui-reference`, the kit SHALL (each change shown in the showcase,
+  `cpaltracker.ui-reference`, the kit SHALL (each change shown in the showcase,
   snapshots updated in the same change):
   - own its device-status type (the four D3 states `ok | warning | alert | offline`
     and their labels) in `src/ui/status.tsx`, and `src/ui/health-grid.tsx`,
@@ -279,7 +279,7 @@ The theme preference stays in `localStorage` under `cpaltracker:theme`; the valu
 
 ## 11. Integration Points
 
-- `cpaltracker-ui-reference`: FR1 (kit gaps, showcase, snapshots) before any port.
+- `cpaltracker.ui-reference`: FR1 (kit gaps, showcase, snapshots) before any port.
 - `cpaltracker-react`: `src/App.tsx`, `src/chrome/*` (removed), `src/theme/*`
   (removed), `src/store/themeStore.ts` (replaced), `src/index.css`, `index.html`,
   `vite-plugin-security-headers.ts` (+ test), `eslint.config.js`, `package.json`,
