@@ -137,10 +137,16 @@ Inventory IDs are explained in the Inventory section.
 | Fleet overview grid | `HealthGrid` (`@/ui/health-grid`) | |
 | Chart (DAT-CHART) | `TimeSeriesChart`, `DonutChart`, `RankedBars`, `BarChart`, `Sparkline` from `@/ui/charts`; `label` is required | Plotly directly |
 | Map (DAT-MAP) | `FleetMap` from `@/ui/map` | Leaflet directly |
-| Navigation shell (NAV-SHELL) | `AppShell` (`@/ui/patterns/app-shell`) | A per-page layout |
+| Navigation shell (NAV-SHELL) | `AppShell` (`@/ui/patterns/app-shell`); the app passes `sections` (paths + `testId`s), `userMenu` (account link, sign out), `logo` (client-logo slot) and optional copy and hooks (`skipToContentLabel`, `navigationLabel`, `sidebarTriggerLabel`, `themeLabels`, `sidebarTestId`, `navTestId`; `userMenu.testId`, `userMenu.signOut` = `{ label, onSelect, pending, testId }` for an async sign-out, omitted when signed out); it renders the skip-to-content link and the single `<main id="main-content">` | A per-page layout, a second `<main>`, a nav hard-coded in the kit |
 | Page header (NAV-HEADER) | `PageHeader` + `Eyebrow` (`@/ui/patterns/page-header`, `eyebrow`) | Hand-built titles |
 | Breadcrumb, tabs, pagination | `Breadcrumb*`, `Tabs*`, `Pagination*`; `PageHeader` `breadcrumb` prop | |
-| Theme / viewport switch | `ThemeToggle`, `ViewportToggle` (`useViewport()`) | |
+| Theme / viewport switch | `ThemeToggle` (`data-testid="theme-toggle"`: one click flips the resolved theme light/dark; `data-testid="theme-system"` next to it returns to system), `ViewportToggle` (`useViewport()`) | A group that needs two clicks to flip |
+| Device status type (K-1) | `DeviceStatus`, `StatusDevice`, `statusLabel`, `countByStatus` from `@/ui/status`: the kit owns the type; the app maps its own data to it | A status union redefined per app or per page |
+| Typed date entry (K-5) | `TypedDateField` + `parseTypedDate` (`@/ui/typed-date-field`): strict `YYYY-MM-DD` text field with `min`/`max` and overridable `TypedDateMessages` (app language) | Raw `type="date"`; a second parser |
+| Long table (K-6) | `DataTable` virtualizes rows above `virtualizeThreshold` (default 100): fixed row height, cells truncate, no pagination in that mode | Paginating or rendering thousands of DOM rows |
+| More than 5 series (K-7) | `seriesStyle(i)` / `useChartTheme` (`@/ui/charts`): colour cycles `--chart-1..5`, each further pass changes dash and marker; `FleetMap` markers use the same index (`MapDevice.series`) | A sixth colour; colour as the only cue |
+| Track playback (K-8) | `TrackPlayback` + `useTrackPlayback(points)` (`@/ui/map`): instant slider, step/play/pause, trail switch, fit-to-track, as the companion of `FleetMap` | A custom player outside the kit |
+| Theme before first paint | Inline script in `index.html` reads `cpaltracker:theme` (`light`/`dark`/`system`, default dark) and sets `html[data-theme]`; `ThemeProvider` (`@/app/theme`) keeps it in sync | Setting the theme only after React mounts (flash of the wrong theme) |
 | Disclosure | `Accordion`, `Collapsible` | |
 | Scroll region | `ScrollArea` | |
 
@@ -154,9 +160,9 @@ and starts with `PageHeader`.
 |---|---|---|---|
 | PAT-AUTH | `/login`, `/forgot-password` | Auth pages, no shell | Single column |
 | PAT-HOME | `/` | Reference index | Cards stack |
-| PAT-DASH | `/app/overview` | KPI row (`Stat`), charts and lists in `WidgetCard`, `TimePicker` in the header | Tiles stack one per row |
+| PAT-DASH | `/app/overview`, `/app/history` | KPI row (`Stat`), charts and lists in `WidgetCard`, `TimePicker` in the header; `/app/history` adds a `FilterBar` and the typed date entry | Tiles stack one per row |
 | PAT-SPLIT | `/app/live` | Map + panel (`FleetMap`, selection synced with the list) | Panel below the map |
-| PAT-LIST | `/app/devices`, `/app/history` | `PageHeader`, `FilterBar`/search, `DataTable`, pagination | Table scrolls horizontally; filters wrap |
+| PAT-LIST | `/app/devices` | `PageHeader`, `FilterBar`/search, `DataTable`, pagination | Table scrolls horizontally; filters wrap |
 | PAT-DETAIL | `/app/devices/:id` | Header with breadcrumb and actions, sections, charts | Sections stack |
 | PAT-FORM / PAT-SETTINGS | `/app/settings` | Form sections, one action bar | Single column |
 | PAT-STATES / PAT-ERROR | `/app/states`, `*` | Loading, empty, error, 404 | |
