@@ -42,10 +42,14 @@ Paths below are relative to `cpaltracker.ui-reference/`. The kit is imported as
   headers, empty states and login. Page padding and section gaps come from the pattern.
 - **X-LINKS (D2).** Links are text-colored and underlined. Orange links are forbidden;
   orange is for the primary action, active nav and key numbers.
-- **X-COPY (open).** The language is not decided. The Application nav keeps the
-  monolith's French labels; showcase chrome is English. Until decided: one language per
-  screen, sentence case, verb-first button labels ("Save changes", not "OK"), errors say
-  what happened and what to do. Do not mix languages inside a screen.
+- **X-COPY (decided 2026-10-29).** No page is translated: each page keeps the language
+  it has in the monolith (`cpaltracker.web`). A restyle moves components, never words.
+  The kit ships no default copy: every label, placeholder and message is passed in by
+  the page, so a French page stays French and an English page stays English. The
+  reference app's own copy (nav in French, login in English) mirrors the monolith and is
+  illustrative only. For *new* copy, follow the language of the screen it lands on; one
+  language per screen, sentence case, verb-first button labels, errors say what happened
+  and what to do.
 - **X-FORMAT.** Dates and times through `date-fns`, never hand-built strings; 24 h
   clock; temperatures in °C with one decimal and a space-free unit (`21.4°C`); numbers
   with thousands separators; device ids as stored (`CP-0412`). Relative time ("5 min

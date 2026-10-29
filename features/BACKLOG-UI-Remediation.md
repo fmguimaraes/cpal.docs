@@ -55,8 +55,10 @@ still pass (with the explicitly listed spec adjustments in §12).
 - **F-45 home content** (replacing the HelloWorld connectivity page with a PAT-DASH
   overview, `ref:src/showcase/patterns/Overview.tsx`): needs a product decision and
   data the API does not expose yet. The page is restyled (shell, header, kit) only.
-- **F-49 language mix**: depends on the open X-COPY decision. Until decided, no copy is
-  translated; each screen keeps its current language.
+- **F-49 language mix**: decided (X-COPY, 2026-10-29): not a defect. No copy is
+  translated or rewritten; each page keeps the language it has in the monolith, and the
+  restyle must leave every user-visible string (and so every text-based E2E locator)
+  unchanged.
 - **Route renaming** to the reference's `/app/*` paths: paths stay as in
   `src/auth/paths.ts` (`/live-tracking`, `/history`, `/pilotage`, ...), and nav testids
   stay `nav-home`, `nav-live-tracking`, `nav-history`, `nav-pilotage` (the reference's
@@ -367,6 +369,5 @@ The theme preference stays in `localStorage` under `cpaltracker:theme`; the valu
 
 - F-37 confirmation dialogs and transfer-as-dialog, after the product decision.
 - F-45 home page as PAT-DASH overview (`ref:src/showcase/patterns/Overview.tsx`).
-- F-49 copy in one language once X-COPY is decided.
 - Route move to `/app/*` if decided.
 - Next audit with a runtime crawl and screenshots in `ui/audits/<date>/shots/`.

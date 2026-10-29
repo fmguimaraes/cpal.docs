@@ -72,9 +72,9 @@ what, and the constraints every screen keeps. Evidence and the detailed reasonin
   (contrast-corrected). Primary button: orange fill, charcoal text, both themes.
 - **Logo:** the canonical files only, never redrawn. Off-white and white variants
   are still to be supplied.
-- **Language:** to decide. The app mixes French (navigation: "Accueil", "Suivi en
-  direct") and English (login title "Sign in"). The guideline's copy rules (X-COPY,
-  X-FORMAT) need one answer.
+- **Language (decided 2026-10-29):** no page is translated; each page keeps the
+  language it has in the monolith (French navigation: "Accueil", "Suivi en direct";
+  English login title "Sign in"). The kit carries no default copy. See X-COPY.
 - **Desktop first** (stack decision §4); phone width best-effort.
 - **No behavior change** while restyling: the existing E2E tests and their
   `data-testid`s keep passing.

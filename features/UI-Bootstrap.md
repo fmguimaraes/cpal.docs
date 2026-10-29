@@ -117,7 +117,7 @@ and `cpal.docs/ui/reference/reference.md` (decisions D1–D11).
 - FR9. The guideline doc SHALL state, for each common need, which kit item or
   pattern to use, with do/don't rules, and SHALL cover X-COLOR (orange signals, never
   decorates; status colors only for state), X-TYPE (Georgia only for big numbers),
-  X-DENSITY (D5), X-LINKS (D2), X-COPY (language, open), X-FORMAT (dates, numbers,
+  X-DENSITY (D5), X-LINKS (D2), X-COPY (no translation: each page keeps its monolith language), X-FORMAT (dates, numbers,
   °C), X-A11Y, X-MOTION, X-ICONS (lucide only), X-LOGO.
 - FR10. Lint rules SHALL fail the lint script for raw interactive elements, direct
   `radix-ui`/`@radix-ui/*` imports, inline `style` and arbitrary length Tailwind
