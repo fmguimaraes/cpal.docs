@@ -1,7 +1,8 @@
 # Compact measure charts with enriched summaries
 
 Feature spec (W1, [`FEATURE.md`](../engineering/product/FEATURE.md) template). Epic:
-[KAN-??? TBD](https://c-pal.atlassian.net/browse/KAN-???).
+[KAN-230](../epics/KAN-230-Compact-Measurement-Charts.md) (provisional key — real
+Jira creation blocked this session, see that doc's Tracker section).
 Related: [KAN-104](https://c-pal.atlassian.net/browse/KAN-104) (Pharma demo dataset,
 used as the test dataset), [KAN-34](https://c-pal.atlassian.net/browse/KAN-34)
 (`T_REGLAGES` content, source of thresholds).
@@ -10,8 +11,16 @@ Stories:
 
 | Story | Area | Covers |
 |---|---|---|
-| KAN-??? Enrich measure series in the dashboard API | Backend | FR1–FR9, NFR1–NFR4 |
-| KAN-??? Compact measure tiles and expand modal | Front end | FR10–FR17, NFR5–NFR6 |
+| KAN-231 (provisional) Enrich measure series in the History API | Backend | FR1–FR9, NFR1–NFR4 |
+| KAN-232 (provisional) Compact measure tiles and expand modal on /history | Front end | FR10–FR17, NFR5–NFR6 |
+
+**Integration note (supersedes §11 below):** this feature targets the `/history`
+route (`cpaltracker-react`'s `HistoryCharts.tsx`), fed by `cpaltracker.web`'s
+`GET /api/v1/contracts/history.php/{contractId}`
+(`history_logic.php::cpal_history_mesures()`) — not the legacy device
+dashboard's `api_dashboard.php`/`dashboard.php`. See
+[KAN-230](../epics/KAN-230-Compact-Measurement-Charts.md) for the corrected
+integration points.
 
 Screenshots attached to the ticket:
 
