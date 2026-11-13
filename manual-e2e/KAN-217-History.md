@@ -1,11 +1,12 @@
 # KAN-217 / KAN-226 - History on the reference History page (manual E2E scenarios)
 
-Spec: `cpaltracker-react/e2e/KAN-226-history-reference-page.spec.ts` (10 tests, 9 scenarios, all automated). Mocked `/api/v1`, contract REF-012 with two devices (CHIP-A has no mass reading).
+Spec: `cpaltracker-react/e2e/KAN-226-history-reference-page.spec.ts` (12 tests, 10 scenarios, all automated; contract and remembered-contract scenarios also in `history-dashboard.spec.ts`). Mocked `/api/v1`, contract REF-012 with two devices (CHIP-A has no mass reading).
 
 | ID | Tag | Scenario | automation |
 |----|-----|----------|------------|
-| AC1 | @SI-226-1 | The header holds the `TimePicker`; picking `7 j` re-fetches with a day-granular `start`/`end`. The typed entry (`date-range-start`, placeholder `AAAA-MM-JJ`) sits next to it and a malformed date shows the French error with no request. | playwright |
-| AC2 | @SI-226-2 | `FilterBar` shows `Contrat = REF-012`; unchecking a device adds `Appareils = 1 sur 2`; removing each chip resets the selection (contract chip clears the contract). | playwright |
+| AC1 | @SI-226-1 | The header holds the `TimePicker`, the only period control (operator decision 2026-10-29: no typed Du/Au entry, no "période du … au …" sentence); picking `7 j` re-fetches with a day-granular `start`/`end`. | playwright |
+| AC2 | @SI-226-2 | One header row (operator decision 2026-10-29): sr-only h1 `Historique`, the contract `Select` (`history-contract-selector`, "Choisir un contrat"), the device `FilterBar` immediately to its right, the `TimePicker` on the far right; at 390 px it wraps with no horizontal overflow. Unchecking a device adds the header chip `Appareils = 1 sur 2`; removing it re-checks every device. | playwright |
+| AC2b | — | The first contract loads by default; the last chosen contract is remembered for the session (`sessionStorage`) and restored on reload; a `?contrat_id=` deep link wins (`history-dashboard.spec.ts`). | playwright |
 | AC3 | @SI-226-3 | The Stat row (measurements, devices, min/max temperature) is shown and the text summary `N appareil(s), M mesure(s)` is gone. | playwright |
 | AC4 | @SI-226-4 | The map is a `WidgetCard` titled `Chronologie`, keeps `.timeline-map`; the kit slider moves the instant by keyboard, the trail switch and play button work. | playwright |
 | AC5 | @SI-226-5 | Map markers carry kit state classes (`ring-success`, `ring-offline`), no inline colour. | playwright |

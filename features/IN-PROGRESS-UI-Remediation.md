@@ -118,8 +118,8 @@ change), then layout, then UI, then minor. `ref:` = `cpaltracker.ui-reference/`.
     fit-to-track) as a `FleetMap` companion built from `Slider`, `Button`, `Switch`,
     `ButtonGroup` (K-8);
   - keep `data-testid="theme-toggle"` on a control whose single click flips the
-    resolved theme light ↔ dark, with `system` offered next to it (or in the user
-    menu) under `theme-system` (K-10).
+    resolved theme light ↔ dark, and no other control next to it (operator decision 2026-10-29: no `system`
+    button and no desktop/mobile switch in the top bar) (K-10).
 - **FR2. Guideline doc aligned.** `engineering/ui-guidelines.md` SHALL map
   `/app/history` to the pattern the reference History page actually implements
   (dashboard-shaped: `Stat`, `WidgetCard`, `TimePicker`, `FilterBar`) and list the
@@ -307,7 +307,7 @@ The theme preference stays in `localStorage` under `cpaltracker:theme`; the valu
   `live-tracking-*`, `device-filter`, `device-filter-show-all`, `device-filter-*`,
   `marker-tooltip-*`, `global-message`. History: `history-*` (dashboard, contract
   selector and options, sampling banner, access, fetch error and dismiss, charts,
-  chart-ta/hr/m, no-measurements), `date-range-*`, `device-checklist-*`,
+  chart-ta/hr/m, no-measurements, time-range-error, header-filters), `device-checklist-*`,
   `selection-summary*`, `lot-hook-*`, `timeline-*`. Pilotage: `pilotage-*`,
   `settings-*` (incl. `settings-form-flash` with `data-flash-kind`), `transfer-*`
   (incl. `transfer-flash-ok/ko`, `transfer-target-option-{id}`,
@@ -388,6 +388,60 @@ The theme preference stays in `localStorage` under `cpaltracker:theme`; the valu
   'Se déconnecter' in the user menu.
 - Accepted for W5 review: map and chart series colors now follow visible-device order, so they
   change when a device is filtered out (K-7).
+- **Operator decision 2026-10-29: History duplicates removed — contract Select in header,
+  TimePicker only; typed Du/Au entry removed.** One control per concern, all in the
+  `PageHeader` row of `src/routes/HistoryDashboard.tsx`:
+  - Contract: the kit `Select` (placeholder "Choisir un contrat", labels "REF (Client)")
+    replaces the header `FilterBar` contract chip and the radiogroup of contract buttons below
+    the header. `history-contract-selector` is on the trigger, `history-contract-option-{id}` on
+    each item; picking goes through the same `selectContract` / access-error path.
+  - Period: the header `TimePicker` is the only control. The sentence "Contrat … — période du …
+    au …" and the typed `DateRangePicker` (Du/Au + Appliquer) are removed;
+    `src/history/DateRangePicker.tsx` and its test are deleted (`dateRange.ts` stays: the
+    TimePicker path validates through `validateDateRangeInputs`). The `date-range-*` testids no
+    longer exist on the page.
+  - Remembered contract (same decision): the last contract shown is stored in
+    `sessionStorage['cpaltracker:history-contract']` (best effort, try/catch). On load a valid
+    `?contrat_id=` deep link wins, else the stored contract if still in the list, else the first
+    contract. "No selection" now only occurs with zero contracts or after an access rejection;
+    a rejected contract is removed from storage.
+  - No visible title (same decision): the h1 "Historique" stays, sr-only (`[&_h1]:sr-only` on
+    the `PageHeader`); `document.title` is unchanged. The row holds the contract Select, the
+    device `FilterBar` immediately to its right (portalled from `HistoryReadyPanel` into
+    `history-header-filters`, same `selected` state as the checklist, shown only once the
+    history is ready) and the `TimePicker` on the far right; it wraps at 390 px with no overflow.
+  - Spec edits (intent kept):
+    - `e2e/history-dashboard.spec.ts`: every `history-contract-option-{id}` click is preceded by
+      a click on `history-contract-selector` (2 sites). "No data panels before a selection"
+      became "the first contract is loaded by default" (two contracts, both options listed).
+      "Selecting a contract" picks the second contract (13) and checks its history request.
+      The two `history-dashboard-ready` `toContainText('REF-012')` checks (they read the removed
+      period sentence) read the header Select text instead. The access-error check expects the
+      trigger to show its placeholder instead of `aria-checked="false"`. New test: the
+      contract is remembered across a reload and a deep link still wins.
+    - `e2e/history-charts.spec.ts` (3 sites), `e2e/history-timeline-map.spec.ts` (3 sites): the
+      option click is preceded by a click on `history-contract-selector`.
+    - `e2e/KAN-226-history-reference-page.spec.ts`: `openReady` opens the selector first.
+      @SI-226-1 asserts that `date-range-picker`/`date-range-start` and the period sentence are
+      absent instead of asserting the typed field and its `AAAA-MM-JJ` placeholder. The
+      @SI-226-1 "typed entry keeps its French validation" test is deleted (it only exercised the
+      removed typed field; the message stays unit-tested in `dateRange.test.ts`). The @SI-226-2
+      "FilterBar shows the contract and the device selection as chips" test became three: header
+      row order (Select, device FilterBar, TimePicker, sr-only h1), 390 px wrap without
+      overflow, and the header device chip mirroring the checklist. The "remove the Contrat
+      chip clears the selection" step is deleted (the contract is no longer a chip).
+    - `e2e/KAN-176-design-system-theming-stack-compliance.spec.ts`: the option click is preceded
+      by the selector click; `mockToReadyState` no longer waits for `date-range-picker`. The
+      FR8 over-span test picks a start 14 months back in the TimePicker calendar and expects
+      `history-time-range-error` ("1 an") with no request. The FR5 happy path applies the "7 j"
+      preset and checks the request range and the picker label instead of typing
+      2026-09-01/2026-09-30 and reading the removed sentence. Deleted: the FR6 reversed-range
+      and FR7 malformed-date tests — the calendar cannot produce either, so they only
+      exercised the removed typed fields (still covered by `src/history/dateRange.test.ts`).
+    - Unit: `src/routes/HistoryDashboard.test.tsx` (Select-driven, default/remembered/deep-link/
+      rejected-storage/storage-throws, sr-only h1, header FilterBar position),
+      `src/history/HistoryReadyPanel.test.tsx` (FilterBar portalled into a slot), and
+      `src/history/DateRangePicker.test.tsx` deleted with its component.
 
 ## 13. Metrics / KPIs
 
