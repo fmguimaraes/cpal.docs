@@ -26,6 +26,9 @@ spec disagree, this spec wins.
 Reference images are available at
 `cpal.global/cpal.docs/ui/features/compact-measurement-charts`.
 
+This feature is to be implemented on the dashboard page at
+`http://localhost:5174/history`.
+
 ## 1. Feature name
 
 Compact measure charts: small dashboard tiles showing a measure's latest value,
