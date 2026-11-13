@@ -8,9 +8,9 @@
 
 | Field | Value |
 | --- | --- |
-| Key | `KAN-230` (provisional — real Jira creation blocked: the Atlassian connector in this
-session is authenticated to `quietstage.atlassian.net`, not `c-pal.atlassian.net`.
-Create the real Epic/Stories in KAN and replace this key once authorized.) |
+| Key | `KAN-250` — created via `scripts/jira.py` (the connector in this session was
+authenticated to `quietstage.atlassian.net`, not `c-pal.atlassian.net`, so Jira
+issues were created with a direct REST client instead). |
 
 ## Subject
 Compact measure charts with enriched summaries
@@ -63,8 +63,8 @@ there instead.
 
 | Key | Story | Pts | Covered Requirements | Software Items |
 | --- | --- | --- | --- | --- |
-| KAN-231 (provisional) | Enrich measure series in the History API | — | FR1–FR9, NFR1–NFR4 | — |
-| KAN-232 (provisional) | Compact measure tiles and expand modal on /history | — | FR10–FR17, NFR5–NFR6 | — |
+| KAN-251 | Enrich measure series in the History API | — | FR1–FR9, NFR1–NFR4 | — |
+| KAN-252 | Compact measure tiles and expand modal on /history | — | FR10–FR17, NFR5–NFR6 | — |
 
 *Total: 2 stories (points TBD on real Jira creation).*
 
@@ -72,29 +72,29 @@ there instead.
 
 | Requirement | Story key(s) |
 | --- | --- |
-| FR1 | KAN-231 |
-| FR2 | KAN-231 |
-| FR3 | KAN-231 |
-| FR4 | KAN-231 |
-| FR5 | KAN-231 |
-| FR6 | KAN-231 |
-| FR7 | KAN-231 |
-| FR8 | KAN-231 |
-| FR9 | KAN-231 |
-| FR10 | KAN-232 |
-| FR11 | KAN-232 |
-| FR12 | KAN-232 |
-| FR13 | KAN-232 |
-| FR14 | KAN-232 |
-| FR15 | KAN-232 |
-| FR16 | KAN-232 |
-| FR17 | KAN-232 |
-| NFR1 | KAN-231 |
-| NFR2 | KAN-231 |
-| NFR3 | KAN-231 |
-| NFR4 | KAN-231 |
-| NFR5 | KAN-232 |
-| NFR6 | KAN-232 |
+| FR1 | KAN-251 |
+| FR2 | KAN-251 |
+| FR3 | KAN-251 |
+| FR4 | KAN-251 |
+| FR5 | KAN-251 |
+| FR6 | KAN-251 |
+| FR7 | KAN-251 |
+| FR8 | KAN-251 |
+| FR9 | KAN-251 |
+| FR10 | KAN-252 |
+| FR11 | KAN-252 |
+| FR12 | KAN-252 |
+| FR13 | KAN-252 |
+| FR14 | KAN-252 |
+| FR15 | KAN-252 |
+| FR16 | KAN-252 |
+| FR17 | KAN-252 |
+| NFR1 | KAN-251 |
+| NFR2 | KAN-251 |
+| NFR3 | KAN-251 |
+| NFR4 | KAN-251 |
+| NFR5 | KAN-252 |
+| NFR6 | KAN-252 |
 
 Coverage: all 17 FRs and 6 NFRs mapped to at least one story. 100% structural
 coverage.
@@ -103,4 +103,4 @@ coverage.
 - Feature spec: [`Compact-measurement-charts.md`](../features/Compact-measurement-charts.md)
 
 ## Tracker Link
-- Epic: KAN-230 (provisional, not yet created in Jira — see Tracker table above)
+- Epic: KAN-250
