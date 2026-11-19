@@ -1,7 +1,7 @@
 # Feature: Pulse
 
 > Feature spec (W1, [`FEATURE.md`](../engineering/product/FEATURE.md) template) for the
-> **Pulse** page of the React app (`cpaltracker-react`). Epic: KAN-270 (stories KAN-272 to KAN-281), see [`KAN-270-Pulse-Live-Contract-Dashboard.md`](../epics/KAN-270-Pulse-Live-Contract-Dashboard.md).
+> **Pulse** page of the React app (`cpaltracker-react`). Epic: KAN-270 (v1: story KAN-272 only, see [Scope v1](#scope-v1-trimmed-2026-11-19); KAN-273 to KAN-281 retired to the v2 backlog), see [`KAN-270-Pulse-Live-Contract-Dashboard.md`](../epics/KAN-270-Pulse-Live-Contract-Dashboard.md).
 >
 > Sources:
 > - Confluence COC « 2026-11-18 - dashboard » §6 (Onglet Pulse), §3 (arbitrages), §8.3–8.4
@@ -15,14 +15,40 @@
 > - DB objects already built: `cpaltracker.web/docker/mysql/init/03-dashboard.sql`
 >   (`V_PULSE`, `V_ANOMALIES_OUVERTES`, `T_DDLOT.Statut`).
 >
-> Sibling specs: [`BACKLOG-Anomaly-Workflow.md`](BACKLOG-Anomaly-Workflow.md) (the anomaly
-> drawer and its read/write endpoints) and [`BACKLOG-Trends.md`](BACKLOG-Trends.md).
+> Sibling specs: [`IN-PROGRESS-Anomaly-Workflow.md`](IN-PROGRESS-Anomaly-Workflow.md) (the anomaly
+> drawer and its read/write endpoints) and [`IN-PROGRESS-Trends.md`](IN-PROGRESS-Trends.md).
 > Precedents this spec builds on, cited by ID and never restated:
 > [`React-Live-Tracking.md`](React-Live-Tracking.md) (LT-FRn),
 > [`React-History-Dashboard.md`](React-History-Dashboard.md) (HD-FRn),
 > [`Compact-measurement-charts.md`](Compact-measurement-charts.md) (CMC-FRn, KAN-250/251/252).
 >
 > Single source of truth: requirement text (FR/NFR/AC/EC IDs, KPIs) lives only here.
+
+---
+
+## Scope v1 (trimmed 2026-11-19)
+
+Owner rule: Pulse v1 is the existing Live Tracking page and components plus each device's lot (lot number, product, remaining weight) and a lot filter. No timeline, no charts, no replay. Deferred requirements stay in this spec (SSoT), are not deleted or renumbered, and are deferred to v2. The DB part (`03-dashboard.sql`) is done (cpaltracker.web commit 173a3b9); production rollout is KAN-259.
+
+| Story | What the user sees | Requirements |
+|---|---|---|
+| KAN-272 Pulse — Live Tracking with lot information (5 pts) | A `/pulse` page with a sidebar entry, laid out like Live Tracking: map of the contract's devices with lot number, product and remaining weight in the tooltip, and a lot filter that narrows the map. Backed by `contracts/pulse.php` reading `V_PULSE`. | FR1–FR13, FR24, FR34, FR35; NFR1, NFR2, NFR5, NFR8, NFR10, NFR11, NFR12 |
+
+Reduced requirements (FR text unchanged):
+- FR24: only the part where the lot filter narrows the map is in v1 (no hook-period range, no focus-on-device range behaviour).
+- FR34: reduced to "same layout as Live Tracking"; the 8/4 split with charts and the full-width timeline bar are v2.
+
+Moved to the Anomaly epic: FR28 (the opener of the anomalies drawer on Pulse) to KAN-261; with it, AC18 and EC19. NFR6 (production GRANTs) to KAN-259.
+
+Deferred to v2:
+- FR14–FR19: date range, replay, shared cursor (timeline bar).
+- FR20–FR22: stacked measure charts.
+- FR31–FR33: History API `measures`/`chipIds` parameters and the History non-regression they implied; only needed by the charts and range mode.
+- FR23, FR25–FR27: device filter list and lot/device filter combinations; lot-to-range logic.
+- FR29, FR30: per-device anomaly counts and their refresh.
+- NFR3, NFR4, NFR7, NFR9: latency budget, series rendering budget, dedicated accessibility pass, dedicated test inventory (each story still ships its own PHPUnit/Vitest tests).
+
+ACs and ECs follow their FR: an AC or EC whose referenced FRs are all deferred is deferred, otherwise it belongs to the story of its FR (or follows the moved FR). Where a kept AC/EC also mentions a deferred part (range mode, charts, device filter, anomaly counts), only the kept part is in v1: AC9 (no FR30 refresh of the alert light), AC17 (lot narrows the map only), AC21 (Live Tracking layout), AC32 (EC22 deferred), AC26 (NFR6 part moved), AC31 and EC2 (no range mode to offer), EC4 (no device filter), EC8 and EC9 (hook windows only, no range). AC14 (charts), AC19 and AC20 (History parameters, History untouched) are deferred even though they cite FR34 or NFR1.
 
 ---
 
@@ -107,7 +133,7 @@ are unchanged.
   subset; without them the response is unchanged (FR31, FR32).
 - A customer-lot filter and a device filter (FR23–FR27).
 - The anomaly entry point: contract alert light and per-device anomaly count, opening the
-  drawer specified in `BACKLOG-Anomaly-Workflow.md` (FR28–FR30).
+  drawer specified in `IN-PROGRESS-Anomaly-Workflow.md` (FR28–FR30).
 - PHPUnit, Vitest and Playwright coverage; OpenAPI update (NFR9, NFR11).
 
 ## 6. Out of Scope (What WILL NOT be delivered)
@@ -121,12 +147,12 @@ are unchanged.
 - **Several contracts at once** (Confluence: "devices des contrats actifs du client"): Pulse
   shows the one contract chosen in the sidebar. See §16 and OQ2.
 - **The anomaly drawer itself** (detail, map, status change, comment, PDF): specified in
-  `BACKLOG-Anomaly-Workflow.md`. Pulse only opens it.
+  `IN-PROGRESS-Anomaly-Workflow.md`. Pulse only opens it.
 - **Profile menu work**: messages list and badge, "Mes contrats", `T_MESSAGE_LU`
   (owner decision 2026-11-19 §C4).
 - **Outgoing notifications** (mail, SMS, webhook), **geofencing, dwell time, ETA**, **CSV/API
   export**, **PDF** (Confluence §3, postponed).
-- **Trends** (quadrants, consumption velocity): `BACKLOG-Trends.md`.
+- **Trends** (quadrants, consumption velocity): `IN-PROGRESS-Trends.md`.
 - **Realtime push or auto-polling**: refresh is manual (2–3 readings per device per day,
   Confluence §3). No socket transport (LT-NFR10 applies).
 - **Closing a lot** (`T_DDLOT.Statut = 'closed'`) from Pulse: belongs to Trends.
@@ -306,7 +332,7 @@ are unchanged.
 - **FR28.** Pulse SHALL show a **contract alert light** from `V_ANOMALIES_OUVERTES` for the
   selected contract: red when `NbDetectees > 0`, orange when only `NbEnCours > 0`, off
   otherwise, always with a text label and the counts (detected / in progress / awaiting
-  closure). Activating it SHALL open the anomaly drawer of `BACKLOG-Anomaly-Workflow.md`
+  closure). Activating it SHALL open the anomaly drawer of `IN-PROGRESS-Anomaly-Workflow.md`
   scoped to the contract. The read endpoint and the drawer are owned by that spec.
 - **FR29.** Each device SHALL show its anomaly count (in the tooltip and the device filter
   list): in snapshot mode the count of its non-closed anomalies; in range mode the count of
@@ -407,7 +433,7 @@ are unchanged.
 | Snapshot | `V_PULSE` (same rows as `V_LAST_POSITION`, read from `T_DATA` directly, active contracts, lot hooked at the reading via `T_DDLOT_DEVICE_HIST`, owner-only `T_DDLOT` fields) |
 | Lots and hook windows | `T_DDLOT` × `T_DDLOT_DEVICE_HIST` for the contract (FR7) |
 | Series | `V_DATA_WITH_CLIENT` through `cpal_history_mesures_avec_summaries()` (existing) |
-| Anomaly light and counts | `V_ANOMALIES_OUVERTES`, `V_ANOMALIES_STATUT`, via endpoints of `BACKLOG-Anomaly-Workflow.md` |
+| Anomaly light and counts | `V_ANOMALIES_OUVERTES`, `V_ANOMALIES_STATUT`, via endpoints of `IN-PROGRESS-Anomaly-Workflow.md` |
 | User choices | start/end dates, lot, device subset, cursor instant (client state only) |
 
 **Outputs**
@@ -428,14 +454,14 @@ are unchanged.
   (policy entry for `g`, device subset).
 - **Database** (read only): `V_PULSE`, `T_DDLOT`, `T_DDLOT_DEVICE_HIST`, `T_CONTRATS`,
   `V_DATA_WITH_CLIENT`; anomaly views through the sibling spec.
-- **Anomaly workflow** (`BACKLOG-Anomaly-Workflow.md`): Pulse depends on its contract
+- **Anomaly workflow** (`IN-PROGRESS-Anomaly-Workflow.md`): Pulse depends on its contract
   summary and anomaly list endpoints and on its drawer component (open with a contract,
   device and period; emits "status changed").
 - **`cpaltracker-react`**: router (`App.tsx`), shell (`AppShellLayout`, `DocumentTitle`,
   `paths.ts`), `ContractProvider`, map and chart kit, History and Live Tracking modules
   (see the reuse map).
 - **OpenStreetMap tiles** (third party, read).
-- **Trends** (`BACKLOG-Trends.md`): none in this iteration; a future link from a lot to its
+- **Trends** (`IN-PROGRESS-Trends.md`): none in this iteration; a future link from a lot to its
   Trends position is §16.
 
 ### Reuse map
@@ -611,10 +637,10 @@ Item Registry exists.
   (proposal 0.05 g)? Draw the `GH` threshold when a rule exists?
 - **OQ6. Relationship with Suivi en direct.** Pulse's snapshot covers Suivi en direct's map;
   keep both pages, or plan a later retirement (a separate decision, never in this feature)?
-- **OQ7. Anomaly counts per device and period.** Confirm that `BACKLOG-Anomaly-Workflow.md`
+- **OQ7. Anomaly counts per device and period.** Confirm that `IN-PROGRESS-Anomaly-Workflow.md`
   provides a list or count endpoint filterable by contract, device and `EventDate` range,
   and a drawer that opens with those filters; FR29 depends on it.
-  **Resolved 2026-11-19:** yes. `BACKLOG-Anomaly-Workflow.md` FR24 (`summary.php?contractId=`
+  **Resolved 2026-11-19:** yes. `IN-PROGRESS-Anomaly-Workflow.md` FR24 (`summary.php?contractId=`
   returns per-device counts) and FR1/FR20 (the drawer and `list.php` take `chipId`,
   `custLotNumber` and `period`) cover it, delivered by KAN-261 and KAN-265.
 - **OQ8. Closed lots in the lot filter.** Keep `closed` lots selectable (useful for
@@ -657,5 +683,7 @@ OQ10 and adoption is measured from server logs (§13).
 | A5 | Timeline bar and shared cursor | FR14–FR19, NFR4 (render), NFR12, EC12, EC13, EC15, EC21, EC22 | Two dates, play/pause, controlled instant shared with charts |
 | A6 | Stacked measure charts | FR20–FR22, FR33, EC18 | Four charts with summary headers; History left at three measures |
 | A7 | Lot and device filters | FR23–FR27, EC8–EC10, EC14 | Lot → device and hook range; `chipIds` refetch; OQ8 |
-| A8 | Anomaly entry point | FR28–FR30, EC19 | Depends on `BACKLOG-Anomaly-Workflow.md` (KAN-261, KAN-265); OQ7 resolved |
+| A8 | Anomaly entry point | FR28–FR30, EC19 | Depends on `IN-PROGRESS-Anomaly-Workflow.md` (KAN-261, KAN-265); OQ7 resolved |
 | A9 | Quality and non-regression | NFR1, NFR7, NFR9, all ACs as verification | Accessibility pass, full test suites, Playwright primary flow |
+
+> **Scope v1 note (2026-11-19):** this feature-area split is the full (v1 + v2) analysis and is kept as is. The stories actually delivered in v1 are listed in [Scope v1](#scope-v1-trimmed-2026-11-19): a single story, KAN-272, covering A1 (without NFR3), A3 (reduced) and A4 (plus the lot filter narrowing the map from A7). A2, A5, A6, the rest of A7 and A9 are deferred to v2; A8 moved to the Anomaly epic.

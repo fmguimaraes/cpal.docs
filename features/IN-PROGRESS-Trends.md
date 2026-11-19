@@ -20,11 +20,45 @@ Sources:
   `cpaltracker.web/docker/mysql/init/01-schema.sql` (`T_DDLOT`, `trg_ddlot_bu`,
   `T_DDLOT_DEVICE_HIST`, `FN_EVENT_DATE`, `V_DDLOT_DATA`).
 
-Sibling specs (same dashboard, separate features): `BACKLOG-Pulse.md` (map of last
-positions) and `BACKLOG-Anomaly-Workflow.md` (anomaly drawer and status workflow).
+Sibling specs (same dashboard, separate features): `IN-PROGRESS-Pulse.md` (map of last
+positions) and `IN-PROGRESS-Anomaly-Workflow.md` (anomaly drawer and status workflow).
 
 **For Gaël's validation:** §10.3 lists every place where the calculation as built
 deviates from, or makes precise, the Confluence text. §17 lists the open points.
+
+## Scope v1 (trimmed 2026-11-19)
+
+Owner rule (2026-11-19): Trends v1 is a page that reads a table seeded with fixed (hardcoded) values, one row per lot, with no calculation; the computed pipeline already built in `03-dashboard.sql` §6 (`T_LOT_CONSO_SNAP`, `sp_lot_conso_refresh`, `ev_lot_conso_weekly`, `V_TRENDS`) is kept locally but is v2 and is not rolled out to production in v1 (rollout of the DB part is KAN-259). Requirement text below is unchanged (SSoT); deferred requirements are not deleted or renumbered.
+
+| Story | What the user sees | Requirements |
+|---|---|---|
+| KAN-256 Trends page — from a hardcoded table (5 pts, no deps) | A new `/trends` page with a nav entry: a quadrant scatter (Plotly used directly) and a table of lots with a risk badge, sortable. cpaltracker.web: a seeded table with fixed rows plus `contracts/trends.php` reading it. cpaltracker-react: route, nav entry, `src/trends/*` with a DataTable. | FR15–FR17, FR25, FR26, FR28–FR33, FR38, FR39; NFR5, NFR7, NFR8 |
+
+Hardcoded table columns (the fields the page displays): lot, customer lot number, product, balance (kg), reference velocity, required velocity, risk score `z`, risk, expiry date, contract. One row per lot, seeded by SQL, read as-is by the endpoint: `z` and the risk are stored values, not computed.
+
+Reductions of kept requirements (FR text not rewritten):
+
+- FR15–FR17: the endpoint reads the hardcoded table, not `V_TRENDS`; the FR17 payload is limited to the columns above (one stored `z`, no periods, no two-grid structure).
+- FR28–FR30: the scatter is plotted with Plotly directly, not a kit `ScatterChart` component. Axes as designed: x = days to expiry (from the stored expiry date), y = the stored `z`; nothing is computed server-side. Risk colour and shape, bands, tooltip and click-to-row stay.
+- FR29: every row of the table is placed; there is no minimum-history rule (no period counts in the table).
+- FR31–FR33: the table shows the columns above; one value per lot, no unit, method or grid selection; sort by risk then days to expiry.
+- FR32: the risk badge shows icon and text from the stored risk; the "reason" cells for non-placed rows do not apply.
+- FR38: states reduced to loading, error, no contract, STD and no lot (no "no snapshot yet").
+- FR39: kit components and tokens only for everything except the Plotly chart; no new kit component.
+
+Deferred to v2:
+
+- FR1–FR14 and D1–D17: the computed pipeline (data model, weekly refresh, `V_TRENDS`, deviations to validate) — built locally, not rolled out.
+- FR18: both grids/methods in one call — the hardcoded table has one value per lot.
+- FR19: OpenAPI entry for the close endpoint.
+- FR20–FR24 and FR37: closing a lot (endpoint, audit, UI).
+- FR27: week/month and means/medians toggles (and the unit toggle) — one value per lot.
+- FR34, FR35, FR36: product-unit conversion, missing-grid badge, per-row snapshot date.
+- FR40: method note popover.
+- NFR1–NFR4, NFR6, NFR10, NFR11: refresh duration, MariaDB check, endpoint performance, toggle latency, close-endpoint rules, E2E tests, idempotent refresh.
+- NFR9: production script for the computed objects; v1 rollout of the hardcoded table only is KAN-259.
+
+ACs and ECs follow their FR: an AC/EC whose referenced FRs are all deferred is deferred; otherwise it belongs to the story of its FR (KAN-256), reduced as above. Kept in v1: AC8, AC13, AC14, AC16–AC19, AC23, AC25, AC26, AC29; EC1, EC10, EC19, EC21, EC22. ECs on the calculation (EC2–EC9, EC11–EC14), on closing (EC17, EC18), on grids and snapshots (EC15, EC16) and EC20 are deferred. Where an AC mixes kept and deferred parts, only the kept part applies in v1 (for example AC8 without the FR18 part, AC16 without the monthly view, AC19 without the reasons, AC23 without the no-snapshot state, AC25 without the kit component and showcase, AC29 for the kept requirements only). Retired stories are in the Jira backlog with prefix "[Reporté v2]" and label `reporte-v2`.
 
 ## 1. Feature Name
 
@@ -126,7 +160,7 @@ else in the app changes.
   and are not listed (EC7, OQ8).
 - Profile menu, messages, "Mes contrats" panel (owner decision C4).
 - Exports (CSV, API), notifications (mail, SMS, webhook).
-- Pulse (`BACKLOG-Pulse.md`) and the anomaly workflow (`BACKLOG-Anomaly-Workflow.md`).
+- Pulse (`IN-PROGRESS-Pulse.md`) and the anomaly workflow (`IN-PROGRESS-Anomaly-Workflow.md`).
 - Display roles per population (Confluence §2: one dashboard for everyone).
 - Rights per site or region.
 - Behavior tracking / product analytics: c-PAL has no analytics or funnel
@@ -736,6 +770,8 @@ SDLC has no behavior-tracking step; the close action's audit-log line (FR23) is 
 only usage signal (KPIs in §13).
 
 ## Proposed feature areas
+
+> v1 scope was trimmed on 2026-11-19: see "Scope v1" at the top. Only KAN-256 is kept (FR15–FR17, FR25, FR26, FR28–FR33, FR38, FR39); areas A1–A9 below are the original split, the rest is deferred to v2.
 
 | # | Area | Requirements | Notes |
 |---|---|---|---|

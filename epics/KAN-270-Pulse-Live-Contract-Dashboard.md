@@ -32,7 +32,7 @@ strictly additive. The database objects (`V_PULSE`, `V_ANOMALIES_OUVERTES`,
 `cpaltracker.web/docker/mysql/init/03-dashboard.sql` and are not part of any story.
 
 ## Requirement References
-Feature spec: [`BACKLOG-Pulse.md`](../features/BACKLOG-Pulse.md) — 35 FRs (FR1–FR35),
+Feature spec: [`IN-PROGRESS-Pulse.md`](../features/IN-PROGRESS-Pulse.md) (v1 scope: see its "Scope v1" section) — 35 FRs (FR1–FR35),
 12 NFRs (NFR1–NFR12), 33 ACs (AC1–AC33), 22 edge cases (EC1–EC22). This epic references
 requirements by ID only; requirement text lives solely in the feature spec. Open
 questions OQ1–OQ10 are recorded in the spec; the stories that depend on one say so.
@@ -46,156 +46,144 @@ questions OQ1–OQ10 are recorded in the spec; the stories that depend on one sa
   share that use `chipIds`, over the first month.
 - Zero authorization leaks (NFR2).
 
+## Scope v1 (2026-11-19)
+Epic trimmed to one story, KAN-272 (5 points): Live Tracking layout plus lot information and a lot filter. Timeline, charts, replay, History parameters and the device filter are deferred to v2; the anomaly drawer opener moved to KAN-261. The Description above is the full (v2) vision.
+
 ## Dependencies
-- `cpaltracker.web/docker/mysql/init/03-dashboard.sql` (built, uncommitted at the time of
-  writing; shared by Pulse, Trends and Anomaly Workflow).
-- Anomaly Workflow feature ([`BACKLOG-Anomaly-Workflow.md`](../features/BACKLOG-Anomaly-Workflow.md)):
-  owns `anomalies/summary.php`, the anomaly list endpoint and the drawer that KAN-280 consumes.
-- Trends feature ([`BACKLOG-Trends.md`](../features/BACKLOG-Trends.md)): also adds a route and
-  nav entry; both touch `App.tsx`, `paths.ts`, `AppShellLayout.tsx` (see KAN-274).
-- Production GRANTs for `cpal_web` (block 9 of `03-dashboard.sql`) on the MariaDB 10.11 VPS.
+- `cpaltracker.web/docker/mysql/init/03-dashboard.sql` (built and pushed, cpaltracker.web commit 173a3b9; shared by Pulse, Trends and Anomaly Workflow).
+- Anomaly Workflow feature ([`IN-PROGRESS-Anomaly-Workflow.md`](../features/IN-PROGRESS-Anomaly-Workflow.md)):
+  owns `anomalies/summary.php`, the anomaly list endpoint and the drawer; the drawer opener on Pulse is FR28, moved to KAN-261.
+- Trends feature ([`IN-PROGRESS-Trends.md`](../features/IN-PROGRESS-Trends.md)): also adds a route and
+  nav entry; both touch `App.tsx`, `paths.ts`, `AppShellLayout.tsx` (handled inside KAN-272).
+- Production GRANTs for `cpal_web` (block 9 of `03-dashboard.sql`) on the MariaDB 10.11 VPS (rollout is KAN-259).
 
 ## Child Stories
 
-Software Items do not apply to c-PAL (spec §11a), so the column is omitted. The
-Depends-on and Owns columns drive parallel scheduling: stories with no unmet dependency
-can run at once; stories sharing a file are noted.
+Software Items do not apply to c-PAL (spec §11a), so the column is omitted. v1 scope was trimmed on 2026-11-19 (see "Scope v1" in the spec): one vertical slice, backend + UI + its own tests.
 
 | Key | Story | Pts | Depends on | Repos / files owned | Covered Requirements |
 | --- | --- | --- | --- | --- | --- |
-| KAN-272 | Pulse snapshot endpoint | 8 | — | `cpaltracker.web`: `api/v1/contracts/pulse.php` and new `pulse_logic.php` (new), `tests/Api` Pulse tests (new), `api/openapi.yaml` (pulse path only), VPS migration/GRANT release note | FR4–FR8, NFR2, NFR3, NFR5, NFR6, NFR11 (part) |
-| KAN-273 | History opt-in measures and chipIds | 8 | — | `cpaltracker.web`: `api/v1/contracts/history.php`, `history_logic.php`, `history_enrichment.php`, `tests/History` (new tests), `api/openapi.yaml` (history parameters only) | FR31, FR32, NFR1 (API), NFR4 (memory), NFR11 (part) |
-| KAN-274 | Pulse route and nav entry | 2 | — | `cpaltracker-react`: `src/App.tsx`, `src/auth/paths.ts`, `src/chrome/AppShellLayout.tsx`, `src/chrome/DocumentTitle.tsx`, placeholder `src/routes/Pulse.tsx` (shared files with Trends: merge or sequence with its route story) | FR1, FR2 |
-| KAN-275 | Pulse page shell and API client | 5 | KAN-274 | `cpaltracker-react`: `src/routes/Pulse.tsx`, new `src/pulse/PulsePage.tsx` (layout, states), new `src/api/pulse.ts`, `src/api/history.ts` (optional `measures`/`chipIds`), `MeasureKey` widening | FR3, FR33, FR34, FR35, NFR8 |
-| KAN-276 | Pulse snapshot map | 8 | KAN-275, KAN-272 | `cpaltracker-react`: new `src/pulse/SnapshotMap*`, `usePulseSnapshot`, refresh and last-updated | FR9–FR13, NFR10 |
-| KAN-277 | Pulse timeline bar and shared cursor | 13 | KAN-275, KAN-276, KAN-273 | `cpaltracker-react`: new `src/pulse/TimelineBar*`, range state and cursor hook, `src/history/TimelineMap.tsx` (optional controlled-instant prop only) | FR14–FR19, NFR4 (render), NFR12 |
-| KAN-278 | Pulse stacked measure charts | 8 | KAN-275, KAN-277 | `cpaltracker-react`: new `src/pulse/PulseCharts*`, `src/history/chartData.ts` (`ChartField` widened with `g`), History kept at three measures | FR20–FR22, FR33 (History non-regression) |
-| KAN-279 | Pulse lot and device filters | 13 | KAN-277, KAN-272, KAN-273 | `cpaltracker-react`: new `src/pulse/filters/*` (lot search, device filter, lot-to-range and hook-window logic), Vitest for the pure logic | FR23–FR27 |
-| KAN-280 | Pulse anomaly entry point | 5 | KAN-276, KAN-279, KAN-261 (anomalies summary + list endpoints), KAN-265 (anomaly drawer) | `cpaltracker-react`: new `src/pulse/AnomalyLight*`, per-device counts in tooltip and device filter | FR28–FR30 |
-| KAN-281 | Pulse quality and non-regression | 8 | KAN-272 … KAN-280 | `cpaltracker-react`: `e2e/pulse.spec.ts` (new), accessibility fixes inside `src/pulse/*`; full PHPUnit, Vitest, Playwright runs | NFR1, NFR7, NFR9 |
+| KAN-272 | Pulse — Live Tracking with lot information | 5 | — | `cpaltracker.web`: `api/v1/contracts/pulse.php` (reads `V_PULSE`), PHPUnit Pulse tests, `api/openapi.yaml` (pulse path only). `cpaltracker-react`: route `/pulse` and nav entry (`src/App.tsx`, `src/auth/paths.ts`, `src/chrome/AppShellLayout.tsx`, `src/chrome/DocumentTitle.tsx`), `src/routes/Pulse.tsx`, `src/api/pulse.ts`, Pulse page reusing `src/live-tracking` components, lot filter, Vitest tests | FR1–FR13, FR24, FR34, FR35; NFR1, NFR2, NFR5, NFR8, NFR10, NFR11, NFR12 |
+| KAN-273 … KAN-281 | [Reporté v2] — backlog (KAN-273, KAN-274, KAN-275, KAN-276, KAN-277, KAN-278, KAN-279, KAN-280, KAN-281) | — | — | Retired; label `reporte-v2` | Deferred requirements, see traceability |
 
-*Total: 78 points across 10 stories.*
+*Total: 5 points across 1 story.*
 
-Suggested schedule: wave 1 KAN-272, KAN-273, KAN-274 in parallel; wave 2 KAN-275;
-wave 3 KAN-276; wave 4 KAN-277; wave 5 KAN-278 and KAN-279 in parallel (both compose into
-`PulsePage.tsx`; coordinate that file); wave 6 KAN-280; wave 7 KAN-281.
+Moved out of this epic: FR28 (anomalies drawer opener on Pulse), with AC18 and EC19, to KAN-261 (Anomaly epic); NFR6 (production GRANTs) to KAN-259. The DB objects are done (`done (DB, 173a3b9)`); production rollout is KAN-259 for all three epics.
 
 ## Requirement Traceability
 
-Per-story tests are part of each story; NFR7 and NFR9 are implemented per story and
-verified in KAN-281.
+Every FR, NFR, AC and EC ID of the spec appears exactly once. "deferred v2" requirements stay in the spec.
 
-| Requirement | Story key(s) |
+| Requirement | Story key / status |
 | --- | --- |
-| FR1 | KAN-274 |
-| FR2 | KAN-274 |
-| FR3 | KAN-275 |
+| FR1 | KAN-272 |
+| FR2 | KAN-272 |
+| FR3 | KAN-272 |
 | FR4 | KAN-272 |
 | FR5 | KAN-272 |
 | FR6 | KAN-272 |
 | FR7 | KAN-272 |
 | FR8 | KAN-272 |
-| FR9 | KAN-276 |
-| FR10 | KAN-276 |
-| FR11 | KAN-276 |
-| FR12 | KAN-276 |
-| FR13 | KAN-276 |
-| FR14 | KAN-277 |
-| FR15 | KAN-277 |
-| FR16 | KAN-277 |
-| FR17 | KAN-277 |
-| FR18 | KAN-277 |
-| FR19 | KAN-277 |
-| FR20 | KAN-278 |
-| FR21 | KAN-278 |
-| FR22 | KAN-278 |
-| FR23 | KAN-279 |
-| FR24 | KAN-279 |
-| FR25 | KAN-279 |
-| FR26 | KAN-279 |
-| FR27 | KAN-279 |
-| FR28 | KAN-280 |
-| FR29 | KAN-280 |
-| FR30 | KAN-280 |
-| FR31 | KAN-273 |
-| FR32 | KAN-273 |
-| FR33 | KAN-275, KAN-278 |
-| FR34 | KAN-275 |
-| FR35 | KAN-275 |
-| NFR1 | KAN-273, KAN-281 |
-| NFR2 | KAN-272, KAN-273 |
-| NFR3 | KAN-272 |
-| NFR4 | KAN-273, KAN-277 |
-| NFR5 | KAN-272, KAN-273 |
-| NFR6 | KAN-272 |
-| NFR7 | KAN-277, KAN-279, KAN-280, KAN-281 |
-| NFR8 | KAN-275, KAN-278 |
-| NFR9 | KAN-272, KAN-273, KAN-279, KAN-281 |
-| NFR10 | KAN-276 |
-| NFR11 | KAN-272, KAN-273 |
-| NFR12 | KAN-277 |
-| AC1 | KAN-274 |
-| AC2 | KAN-275 |
+| FR9 | KAN-272 |
+| FR10 | KAN-272 |
+| FR11 | KAN-272 |
+| FR12 | KAN-272 |
+| FR13 | KAN-272 |
+| FR14 | deferred v2 |
+| FR15 | deferred v2 |
+| FR16 | deferred v2 |
+| FR17 | deferred v2 |
+| FR18 | deferred v2 |
+| FR19 | deferred v2 |
+| FR20 | deferred v2 |
+| FR21 | deferred v2 |
+| FR22 | deferred v2 |
+| FR23 | deferred v2 |
+| FR24 | KAN-272 |
+| FR25 | deferred v2 |
+| FR26 | deferred v2 |
+| FR27 | deferred v2 |
+| FR28 | moved KAN-261 |
+| FR29 | deferred v2 |
+| FR30 | deferred v2 |
+| FR31 | deferred v2 |
+| FR32 | deferred v2 |
+| FR33 | deferred v2 |
+| FR34 | KAN-272 |
+| FR35 | KAN-272 |
+| NFR1 | KAN-272 |
+| NFR2 | KAN-272 |
+| NFR3 | deferred v2 |
+| NFR4 | deferred v2 |
+| NFR5 | KAN-272 |
+| NFR6 | moved KAN-259 |
+| NFR7 | deferred v2 |
+| NFR8 | KAN-272 |
+| NFR9 | deferred v2 |
+| NFR10 | KAN-272 |
+| NFR11 | KAN-272 |
+| NFR12 | KAN-272 |
+| AC1 | KAN-272 |
+| AC2 | KAN-272 |
 | AC3 | KAN-272 |
 | AC4 | KAN-272 |
 | AC5 | KAN-272 |
-| AC6 | KAN-276 |
-| AC7 | KAN-276 |
-| AC8 | KAN-276 |
-| AC9 | KAN-276, KAN-280 |
-| AC10 | KAN-277 |
-| AC11 | KAN-277 |
-| AC12 | KAN-277 |
-| AC13 | KAN-277 |
-| AC14 | KAN-278 |
-| AC15 | KAN-278 |
-| AC16 | KAN-279 |
-| AC17 | KAN-279 |
-| AC18 | KAN-280 |
-| AC19 | KAN-273 |
-| AC20 | KAN-275, KAN-278 |
-| AC21 | KAN-275 |
-| AC22 | KAN-275, KAN-281 |
-| AC23 | KAN-281 |
-| AC24 | KAN-272 |
-| AC25 | KAN-273, KAN-277 |
-| AC26 | KAN-272, KAN-273 |
-| AC27 | KAN-281 |
-| AC28 | KAN-281 |
-| AC29 | KAN-272, KAN-273 |
-| AC30 | KAN-277 |
-| AC31 | KAN-272, KAN-276 |
-| AC32 | KAN-276, KAN-277 |
-| AC33 | KAN-281 |
-| EC1 | KAN-275 |
-| EC2 | KAN-272, KAN-276 |
-| EC3 | KAN-272, KAN-276 |
-| EC4 | KAN-276 |
-| EC5 | KAN-276 |
-| EC6 | KAN-276 |
+| AC6 | KAN-272 |
+| AC7 | KAN-272 |
+| AC8 | KAN-272 |
+| AC9 | KAN-272 |
+| AC10 | deferred v2 |
+| AC11 | deferred v2 |
+| AC12 | deferred v2 |
+| AC13 | deferred v2 |
+| AC14 | deferred v2 |
+| AC15 | deferred v2 |
+| AC16 | deferred v2 |
+| AC17 | KAN-272 |
+| AC18 | moved KAN-261 |
+| AC19 | deferred v2 |
+| AC20 | deferred v2 |
+| AC21 | KAN-272 |
+| AC22 | KAN-272 |
+| AC23 | KAN-272 |
+| AC24 | deferred v2 |
+| AC25 | deferred v2 |
+| AC26 | KAN-272, moved KAN-259 (NFR6 part) |
+| AC27 | KAN-272 |
+| AC28 | deferred v2 |
+| AC29 | KAN-272 |
+| AC30 | KAN-272 |
+| AC31 | KAN-272 |
+| AC32 | KAN-272 |
+| AC33 | KAN-272 |
+| EC1 | KAN-272 |
+| EC2 | KAN-272 |
+| EC3 | KAN-272 |
+| EC4 | KAN-272 |
+| EC5 | KAN-272 |
+| EC6 | KAN-272 |
 | EC7 | KAN-272 |
-| EC8 | KAN-272, KAN-279 |
-| EC9 | KAN-272, KAN-279 |
-| EC10 | KAN-279 |
-| EC11 | KAN-272, KAN-277 |
-| EC12 | KAN-278 |
-| EC13 | KAN-277 |
-| EC14 | KAN-279 |
-| EC15 | KAN-277 |
-| EC16 | KAN-276 |
-| EC17 | KAN-276 |
-| EC18 | KAN-278 |
-| EC19 | KAN-280 |
-| EC20 | KAN-275 |
-| EC21 | KAN-277 |
-| EC22 | KAN-277 |
+| EC8 | KAN-272 |
+| EC9 | KAN-272 |
+| EC10 | deferred v2 |
+| EC11 | KAN-272 |
+| EC12 | deferred v2 |
+| EC13 | deferred v2 |
+| EC14 | deferred v2 |
+| EC15 | deferred v2 |
+| EC16 | KAN-272 |
+| EC17 | KAN-272 |
+| EC18 | deferred v2 |
+| EC19 | moved KAN-261 |
+| EC20 | KAN-272 |
+| EC21 | deferred v2 |
+| EC22 | deferred v2 |
 
-*Coverage: all 35 FRs, 12 NFRs, 33 ACs and 22 ECs mapped to at least one story.
-100% structural coverage.*
+*Coverage: all 35 FRs, 12 NFRs, 33 ACs and 22 ECs placed exactly once (kept story, moved, or deferred v2).*
 
 ## Related Documentation
-- Feature spec: [`BACKLOG-Pulse.md`](../features/BACKLOG-Pulse.md)
-- Siblings: [`BACKLOG-Anomaly-Workflow.md`](../features/BACKLOG-Anomaly-Workflow.md), [`BACKLOG-Trends.md`](../features/BACKLOG-Trends.md)
+- Feature spec: [`IN-PROGRESS-Pulse.md`](../features/IN-PROGRESS-Pulse.md)
+- Siblings: [`IN-PROGRESS-Anomaly-Workflow.md`](../features/IN-PROGRESS-Anomaly-Workflow.md), [`IN-PROGRESS-Trends.md`](../features/IN-PROGRESS-Trends.md)
 
 ## Tracker Link
 - Epic: [KAN-270](https://c-pal.atlassian.net/browse/KAN-270) — sprint S4, 2026-11-09 → 2026-11-20 (moved from the expired S3 on 2026-11-19)

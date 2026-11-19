@@ -2,8 +2,8 @@
 
 > Forward-looking product spec, per
 > [`engineering/product/FEATURE.md`](../engineering/product/FEATURE.md). One of the three
-> dashboard features (with [`BACKLOG-Pulse.md`](BACKLOG-Pulse.md) and
-> [`BACKLOG-Trends.md`](BACKLOG-Trends.md)).
+> dashboard features (with [`IN-PROGRESS-Pulse.md`](IN-PROGRESS-Pulse.md) and
+> [`IN-PROGRESS-Trends.md`](IN-PROGRESS-Trends.md)).
 >
 > Sources:
 > - Confluence COC « 2026-11-18 - dashboard » §5 "Volet anomalie" + workflow table, §8.1, §8.3
@@ -21,6 +21,40 @@
 >   `sp_anomalies_eval`, `sp_anomalies_recalc`, `T_TRAITEMENT`).
 >
 > Deviations from Confluence that Gaël must validate are listed in §19.
+
+---
+
+## Scope v1 (trimmed 2026-11-19)
+
+Owner rule: Pulse is the existing Live Tracking plus each device's lot, anomalies are a table in a drawer opened from Pulse, and Trends reads a hardcoded table; one vertical slice per story (backend, UI and its own tests), no separate QA, E2E, kit-component, nav or ops stories. Requirements below stay in this spec (single source of truth); those not in v1 are marked deferred, never deleted or renumbered. FR30, NFR6 and NFR13 are already done in the database (`03-dashboard.sql`, commit 173a3b9, tested live 2026-11-19, see the closing notes).
+
+| Story | What the user sees | Requirements |
+|---|---|---|
+| KAN-261 Anomalies, table in a drawer, opened from Pulse (8 pts; depends on Pulse KAN-272 for the opener) | A drawer opened from a button on `/pulse` with a table of the contract's anomalies (status filter, the 200 most recent matching, no pagination); a row opens the detail with frozen data, readings and status history. Backend: `anomalies/list.php`, `detail.php`, `anomalies_logic.php`. | FR1-FR5, FR6 (reduced), FR8, FR9, FR12, FR13, FR20, FR21, FR25, FR26, FR27, FR29, FR33; Pulse FR28 (the opener); NFR1, NFR2, NFR8, NFR9, NFR10 |
+| KAN-263 Anomalies, change status with a comment (3 pts; depends on KAN-261) | In the drawer detail, the allowed actions and a comment form to change the status; the existing DB trigger enforces the rules. Backend: `anomalies/transition.php`. | FR14-FR19, FR22, FR23; NFR3, NFR4 |
+| KAN-259 Dashboard DB rollout to production (VPS) (2 pts; no dependency) | Nothing directly: applies to production only what v1 reads (anomaly history table, triggers and views, `V_PULSE`, the hardcoded trends table) with GRANTs and a collation check. Pulse NFR6 and Trends NFR9 point here. | FR34 |
+
+Reductions of kept requirements (the FR text is not rewritten):
+- FR6: only the status filter in v1 (device, customer lot and period filters are deferred). Consequently the optional `custLotNumber` and `period` drawer inputs of FR1 are not needed in v1.
+- FR7 is deferred: the list returns the 200 most recent matching anomalies, with no pagination and no total.
+- FR9: the map and the position notice are deferred (FR10, FR11); the rest of the detail is shown.
+- FR26: the status and history carry over after a recalculation; the recalculation note (FR32) is deferred.
+- NFR8: kit components and theming only; the automated accessibility test of NFR7 is deferred.
+- NFR10: comments rendered as plain text and length limit; the audit event part is deferred with FR28 (T_ANOMALIE_SUIVI is the audit).
+
+### Deferred to v2
+
+- FR6 beyond the status filter: device, lot and period filters.
+- FR7: server-side pagination ("Afficher plus", total); replaced by the 200-row cap.
+- FR10, FR11: map in the detail, reference point, "position non disponible" notice.
+- FR24: `summary.php` (alert light and counts), consumed by Pulse in a later version.
+- FR28: separate behaviour log (`T_AUTH_LOG` events); `T_ANOMALIE_SUIVI` is the audit.
+- FR31, FR32: "(compte désactivé)" display for deactivated authors; recalculation note.
+- FR35: OpenAPI entries.
+- NFR5: API latency budget. NFR7: automated accessibility test. NFR11, NFR12: dedicated PHP and React test-suite requirements (each story carries its own tests).
+- EC4, EC6, EC7, EC18 and AC5, AC8, AC9, AC28, AC29, AC30, AC34, AC38, AC39 (their FRs are all deferred, see below).
+
+ACs and ECs follow their FR: an AC or EC whose referenced FRs are all deferred is deferred; otherwise it belongs to the story of its FR (an AC or EC citing only NFRs follows its NFR). The epic's traceability table (`epics/KAN-254-Anomaly-Workflow.md`) places every ID.
 
 ---
 
@@ -124,7 +158,7 @@ perform on this anomaly.
 ## 6. Out of Scope (What WILL NOT be delivered)
 
 - **The Pulse page itself**, its alert lights and per-device anomaly counts layout
-  (sibling spec `BACKLOG-Pulse.md`). This feature delivers the drawer and the summary
+  (sibling spec `IN-PROGRESS-Pulse.md`). This feature delivers the drawer and the summary
   endpoint Pulse reads; Pulse decides where the lights are and opens the drawer.
 - **Profile-menu work**: no alert lights in the profile menu, no messages badge, no
   "Mes contrats" panel (owner decision 2026-11-19 §C.4).
@@ -474,7 +508,7 @@ documented in OpenAPI (see OQ7).
 | `auth.php` (`cpal_api_require_auth`, `cpal_contrat_autorise`, `cpal_is_admin`, `cpal_log`) | reused, unchanged | auth, contract scope, audit |
 | `api/v1/_lib.php` | reused, unchanged | JSON/CORS/error helpers, `{id}` resolution |
 | `history_logic.php` (`cpal_history_valider_plage`) | reused, unchanged | period validation |
-| Pulse (`BACKLOG-Pulse.md`) | downstream consumer | reads `summary.php`, opens `AnomalyDrawer` (FR1), refreshes on `onAnomaliesChanged` |
+| Pulse (`IN-PROGRESS-Pulse.md`) | downstream consumer | reads `summary.php`, opens `AnomalyDrawer` (FR1), refreshes on `onAnomaliesChanged` |
 | `cpaltracker-react` `apiClient`, `AuthContext`, `ContractContext` | reused, unchanged | bearer calls, session loss, contract list |
 | Map kit (`FleetMap`, `DeviceMarker`) | reused | reading position and LF reference point |
 | OpenStreetMap tiles | external, existing | map background (kit already handles tile failure) |
@@ -962,6 +996,8 @@ covers a "seen" event.
 Totals: 35 FR, 13 NFR, 22 EC, 39 AC.
 
 ## 23. Proposed feature areas
+
+> Story split v1: the feature areas below were the original split. The stories actually built are listed in [Scope v1](#scope-v1-trimmed-2026-11-19); the epic's traceability table is authoritative.
 
 | # | Feature area | Requirements |
 |---|---|---|
