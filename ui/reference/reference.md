@@ -8,7 +8,9 @@ what, and the constraints every screen keeps. Evidence and the detailed reasonin
 
 | Folder | Source | Used for |
 |---|---|---|
-| [`brand.md`](brand.md) | c-PAL design reference (Confluence) | **All colors, type and signature elements.** Fixed: overrides every other source |
+| [`theme.md`](theme.md) | Theming spec "Clair minéral" / "Sombre graphite" (operator, 2026-11-25) | **All colors**: tokens, theme switching, chrome, accent rules, components, map and charts. Fixed: overrides every other source |
+| [`brand.md`](brand.md) | c-PAL charter (Confluence, 2026-11-20) | Typography, logo, signature elements. Fixed |
+| `directions/blue-theme/` | Ariane deck (Aéroport Marseille Provence, Oct. 2026) | Visual reference for the blue charter: cards, key figures, cyan accent. Theming only |
 | `directions/newrelic/` | New Relic (one Northflank shot, `18-31-54`) | App structure: shell, page header, time picker, filter bar, dashboards, KPI tiles, tables, detail pages, forms, menus, empty states |
 | `directions/reui-map/` | ReUI "Dispatch" fleet map block | Live tracking layout: full map, floating fleet panel, needs-attention list, device markers, map controls. Layout only; no ReUI code |
 | `directions/login/` | Datadog login | Login, forgot password, reset password layout |
@@ -44,7 +46,7 @@ what, and the constraints every screen keeps. Evidence and the detailed reasonin
 
 ## Avoid
 
-- New Relic's filled borderless inputs (fail 3:1 boundary contrast), its blue links
+- New Relic's filled borderless inputs (fail 3:1 boundary contrast), its colored links
   everywhere, its saturated rainbow chart palette, its two-level navigation.
 - Datadog's patterned background, Google/SSO buttons, region selector.
 - ReUI's white primary button, pure-grey neutrals, purple state color.
@@ -55,23 +57,24 @@ what, and the constraints every screen keeps. Evidence and the detailed reasonin
 | # | Decision |
 |---|---|
 | D1 | One sidebar, collapsible to an icon rail |
-| D2 | Links text-colored and underlined; orange only for the primary action, the active nav item and key numbers |
-| D3 | Status colors: red alert, **yellow** warning (never the brand orange), green OK, grey not reporting |
-| D4 | Chart palette: orange first, then muted cool hues, each ≥ 3:1 on the background in both themes |
+| D2 | Links in `--primary-text`, underlined. The `--signal` accent only where [`theme.md` §5](theme.md#5-accent-rules-and-components) allows it (revised 2026-11-25) |
+| D3 | Status colors: red alert, **yellow** warning, green OK, grey not reporting, **periwinkle** info (never the brand cyan) |
+| D4 | Chart palette: `--signal` first, then muted hues away from blue (violet, sage, sand, slate), each ≥ 3:1 on background and card in both themes |
 | D5 | Dense data views (tables, dashboards); the brand's spacing in headers, empty states and login |
-| D6 | Georgia for big numbers in KPI tiles and the donut center; tables stay sans with tabular figures |
-| D7 | Dark theme by default; light and system available |
-| D8 | Maps: **Leaflet 1.9.4 + OpenStreetMap raster tiles**, as the monolith; marker clustering as the monolith (`leaflet.markercluster`). Markers are HTML `divIcon`s styled with the tokens; dark basemap through the CSS tile filter, tuned toward the brand charcoal |
+| D6 | Montserrat everywhere; Montserrat ExtraBold (`font-display`) for big numbers in KPI tiles and the donut center; tables keep tabular figures (revised 2026-11-24, was Georgia) |
+| D7 | The theme **follows the OS by default**; the toggle overrides it and persists (revised 2026-11-25 with the Clair minéral / Sombre graphite spec; was light by default) |
+| D8 | Maps: **Leaflet 1.9.4 + OpenStreetMap raster tiles**, as the monolith; marker clustering as the monolith (`leaflet.markercluster`). Markers are HTML `divIcon`s styled with the tokens; the basemap follows the theme through `--map-tile-filter` (mineral grey in light, graphite in dark). CARTO, the spec's first choice, needs an API key: see [`theme.md` §6](theme.md#6-the-map-and-the-theme) |
 | D9 | Tile source: `tile.openstreetmap.org`, as the monolith. The production CSP must allow it (`img-src`) |
 | D10 | ReUI not used: layout reference only |
 | D11 | Charts: **Plotly** kept. Colors read from the tokens at runtime; threshold bands as Plotly shapes; donut as a Plotly pie with a 0.62 hole |
 
 ## Constraints
 
-- **Brand:** every color from [`brand.md`](brand.md), using its *app values*
-  (contrast-corrected). Primary button: orange fill, charcoal text, both themes.
-- **Logo:** the canonical files only, never redrawn. Off-white and white variants
-  are still to be supplied.
+- **Colors:** every color from [`theme.md`](theme.md) ("Clair minéral" / "Sombre graphite",
+  2026-11-25). Primary button: anthracite in light, `--signal` in dark. The brand cyan is
+  the logo's only.
+- **Logo:** the canonical files only, never redrawn: black and white wordmarks
+  (`c-pal-black-transparent.png`, `c-pal-white-transparent.png`).
 - **Language (decided 2026-10-29):** no page is translated; each page keeps the
   language it has in the monolith (French navigation: "Accueil", "Suivi en direct";
   English login title "Sign in"). The kit carries no default copy. See X-COPY.
@@ -82,6 +85,5 @@ what, and the constraints every screen keeps. Evidence and the detailed reasonin
 
 ## Still missing
 
-- Light-theme references (any of the sources above, in light mode). Until then the
-  light theme is derived from `brand.md`'s light palette.
-- Off-white and white logo files.
+- A square logo mark for the favicon and the collapsed sidebar rail (both use the rail
+  mark, a cyan dot in a halo, since 2026-11-25).

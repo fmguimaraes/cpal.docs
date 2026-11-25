@@ -27,21 +27,26 @@ Paths below are relative to `cpaltracker.ui-reference/`. The kit is imported as
 
 ## Cross-cutting rules (X-*)
 
-- **X-COLOR.** Orange (`primary`, `text-primary-text`, `bg-primary-soft`) signals and
-  never decorates: the primary action (one per page), the active nav item, key numbers
-  and the eyebrow. Status colors (`success`, `warning`, `danger`, `offline`, `info`)
-  mean state only, never branding. Warning is **yellow**, never orange. Red is for
+- **X-COLOR.** Color belongs to the data and the status, not to the chrome
+  ([`theme.md`](../ui/reference/theme.md)). The accent `--signal` (`bg-signal`,
+  `ring-signal`, `border-signal`) only marks selection, active, focus, the primary series,
+  map markers and key figures, as listed in theme.md §5. It is never a large fill, body text,
+  or a chip or segment fill. Small accent text is `text-primary-text`. The brand cyan
+  (`--brand`) is for the logo and rail mark only. Status colors (`success`, `warning`, `danger`, `offline`, `info`)
+  mean state only, never branding. Warning is **yellow**; info is **periwinkle**, never
+  the brand cyan. Red is for
   alerts and destructive actions. Text uses `text-foreground` (titles), `text-body`
   (running text), `text-muted-foreground` (secondary). Never signal state with color
   alone: pair it with an icon or text (`StatusBadge` does).
-- **X-TYPE.** Sans for everything. Georgia (`font-serif`) only for big numbers: KPI
-  values (`Stat`) and the donut center. Tables stay sans with tabular figures
+- **X-TYPE.** Montserrat (`font-sans`) for everything. Montserrat ExtraBold
+  (`font-display font-extrabold`) only for big numbers: KPI values (`Stat`), numbered
+  lists, timeline dates and the donut center. Tables stay sans with tabular figures
   (`tabular-nums`). Headings come from `PageHeader` and `Card*`, do not restyle them.
 - **X-DENSITY (D5).** Dense in data views (tables, dashboards, lists: `DataTable`
   density `compact`/`comfortable`, `WidgetCard`); the brand's generous spacing in page
   headers, empty states and login. Page padding and section gaps come from the pattern.
-- **X-LINKS (D2).** Links are text-colored and underlined. Orange links are forbidden;
-  orange is for the primary action, active nav and key numbers.
+- **X-LINKS (D2).** Links are `text-primary-text` and underlined (the `link` button
+  variant). Never `text-signal` or the brand cyan.
 - **X-COPY (decided 2026-10-29).** No page is translated: each page keeps the language
   it has in the monolith (`cpaltracker.web`). A restyle moves components, never words.
   The kit ships no default copy: every label, placeholder and message is passed in by
@@ -78,8 +83,8 @@ default, light and system available). Utilities are mapped in `src/index.css`.
 | Page / card / popover | `bg-background`, `bg-card`, `bg-popover` | Surfaces, from back to front |
 | Inset / hover surface | `bg-muted`, `bg-secondary`, `bg-accent` | Insets, side panels, hovered or selected rows |
 | Media | `bg-media` | Map frame, screenshots |
-| Text | `text-foreground`, `text-body`, `text-muted-foreground` | Titles, running text, secondary |
-| Brand | `bg-primary` + `text-primary-foreground`, `text-primary-text`, `bg-primary-soft` | Fill, orange text, soft highlight |
+| Text | `text-foreground`, `text-body`, `text-muted-foreground`, `text-faint` | Titles, running text, secondary, placeholders / separators / disabled |
+| Primary / accent | `bg-primary` + `text-primary-foreground` (primary button); `bg-signal` + `text-on-signal`, `ring-signal`, `ring-signal-ring` (selection, focus); `text-primary-text` (links, small accent text) | See theme.md §5 for where the accent is allowed |
 | State | `text-success`, `text-warning`, `text-danger`, `text-offline`, `text-info` and `bg-*` / `bg-*-soft` | Status only |
 | Lines | `border-border` (decorative), `border-input` (control boundary, 3:1) | |
 | Focus | `ring-ring` | Focus ring |
@@ -100,7 +105,7 @@ Inventory IDs are explained in the Inventory section.
 | Need | Use (import) | Not |
 |---|---|---|
 | Main action on a page (CMP-BUTTON) | `Button` (`@/ui/button`), in `PageHeader` `actions`, one per page | Several primary buttons; raw `<button>` |
-| Secondary / tertiary action | `Button variant="outline"` / `"ghost"` | A second orange button |
+| Secondary / tertiary action | `Button variant="outline"` / `"ghost"` | A second primary button |
 | Icon-only action | `Button size="icon"` with `aria-label` (+ `Tooltip`) | An unlabeled icon |
 | Destructive action (OVL-CONFIRM) | `Button variant="destructive"` + `AlertDialog` (`@/ui/alert-dialog`) | `window.confirm()` |
 | Toggle a state / filter set | `Toggle`, `ToggleGroup` (`@/ui/toggle`, `toggle-group`) | Buttons with manual pressed styling |
@@ -130,7 +135,7 @@ Inventory IDs are explained in the Inventory section.
 | Progress | `Progress` (`@/ui/progress`) | |
 | Card (DAT-CARD) | `Card*` (`@/ui/card`) | A bordered `div` |
 | Dashboard tile with menu and period | `WidgetCard` (`@/ui/widget-card`) | |
-| Key number (DAT-STAT) | `Stat` (`@/ui/stat`; `goodDirection`, `change`, `accent` for the one orange KPI) | Hand-built KPI |
+| Key number (DAT-STAT) | `Stat` (`@/ui/stat`; `goodDirection`, `change`, `accent` for the one accent KPI) | Hand-built KPI |
 | List rows | `Item*` (`@/ui/item`), `NumberedList` | |
 | Tabular data (DAT-TABLE) | `DataTable` (`@/ui/data-table`; sorting, selection, row menu, density, pagination; `labels` for the page language; `rowProps` for the app's own row attributes such as `data-testid`, `aria-selected` or a selection class, applied after the defaults with `className` merged; `containerProps` on the root); `Table*` only for static tables | Raw `<table>`; testids on an inner cell element to work around the row |
 | Timeline / feed (DAT-TIMELINE) | `Timeline`, `ActivityTimeline` (`@/ui/timeline`; per item `badge` after the title, e.g. a `Badge` for an ongoing entry, and `testId`; `formatTime` and `label` for the page language) | A dot-and-line list composed by hand |
@@ -146,7 +151,7 @@ Inventory IDs are explained in the Inventory section.
 | Long table (K-6) | `DataTable` virtualizes rows above `virtualizeThreshold` (default 100): fixed row height, cells truncate, no pagination in that mode | Paginating or rendering thousands of DOM rows |
 | More than 5 series (K-7) | `seriesStyle(i)` / `useChartTheme` (`@/ui/charts`): colour cycles `--chart-1..5`, each further pass changes dash and marker; `FleetMap` markers use the same index (`MapDevice.series`) | A sixth colour; colour as the only cue |
 | Track playback (K-8) | `TrackPlayback` + `useTrackPlayback(points)` (`@/ui/map`): instant slider, step/play/pause, trail switch, fit-to-track, as the companion of `FleetMap` | A custom player outside the kit |
-| Theme before first paint | Same-origin classic script `public/theme-init.js`, loaded from the `<head>` of `index.html` with `<script src="/theme-init.js">` (render-blocking, before the app bundle), reads `cpaltracker:theme` (`light`/`dark`/`system`, default dark) and sets `html[data-theme]`; `ThemeProvider` (`@/app/theme`) keeps it in sync. The production CSP stays `script-src 'self'` | Setting the theme only after React mounts (flash of the wrong theme); an inline `<script>` in `index.html` (blocked by the CSP), or a CSP hash / `'unsafe-inline'` to let it run |
+| Theme before first paint | Same-origin classic script `public/theme-init.js`, loaded from the `<head>` of `index.html` with `<script src="/theme-init.js">` (render-blocking, before the app bundle), reads `cpaltracker:theme` (`light`/`dark`/`system`, default light) and sets `html[data-theme]`; `ThemeProvider` (`@/app/theme`) keeps it in sync. The production CSP stays `script-src 'self'` | Setting the theme only after React mounts (flash of the wrong theme); an inline `<script>` in `index.html` (blocked by the CSP), or a CSP hash / `'unsafe-inline'` to let it run |
 | Disclosure | `Accordion`, `Collapsible` | |
 | Scroll region | `ScrollArea` | |
 
