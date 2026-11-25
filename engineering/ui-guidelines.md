@@ -145,7 +145,7 @@ Inventory IDs are explained in the Inventory section.
 | Navigation shell (NAV-SHELL) | `AppShell` (`@/ui/patterns/app-shell`); the app passes `sections` (paths + `testId`s), `userMenu` (account link, sign out), `logo` (client-logo slot) and optional copy and hooks (`skipToContentLabel`, `navigationLabel`, `sidebarTriggerLabel`, `themeLabels`, `sidebarTestId`, `navTestId`; `userMenu.testId`, `userMenu.signOut` = `{ label, onSelect, pending, testId }` for an async sign-out, omitted when signed out); it renders the skip-to-content link and the single `<main id="main-content">` | A per-page layout, a second `<main>`, a nav hard-coded in the kit |
 | Page header (NAV-HEADER) | `PageHeader` + `Eyebrow` (`@/ui/patterns/page-header`, `eyebrow`) | Hand-built titles |
 | Breadcrumb, tabs, pagination | `Breadcrumb*`, `Tabs*`, `Pagination*`; `PageHeader` `breadcrumb` prop | |
-| Theme switch | `ThemeToggle` (`data-testid="theme-toggle"`: one click flips the resolved theme light/dark; it is the only control in the top bar: no system button, no desktop/mobile switch, responsiveness is real) | A group that needs two clicks to flip |
+| Theme switch | `ThemeChoiceControl` (`@/ui/patterns/theme-toggle`), a segmented control (clair / sombre / système) inside the user menu, rendered by `AppShell` from `themeLabels`; the top bar carries no theme control (Pulse layout v2, 2026-11-25). The selected segment uses the selected-toggle fill (see "Selected state" below) | A theme button in the top bar; a selected segment styled so it reads as unselected |
 | Device status type (K-1) | `DeviceStatus`, `StatusDevice`, `statusLabel`, `countByStatus` from `@/ui/status`: the kit owns the type; the app maps its own data to it | A status union redefined per app or per page |
 | Typed date entry (K-5) | `TypedDateField` + `parseTypedDate` (`@/ui/typed-date-field`): strict `YYYY-MM-DD` text field with `min`/`max` and overridable `TypedDateMessages` (app language) | Raw `type="date"`; a second parser |
 | Long table (K-6) | `DataTable` virtualizes rows above `virtualizeThreshold` (default 100): fixed row height, cells truncate, no pagination in that mode | Paginating or rendering thousands of DOM rows |
@@ -174,6 +174,79 @@ and starts with `PageHeader`.
 
 Every data view: loading = `Skeleton` shaped like the content; empty = `Empty` with the
 reason and next step; error = inline `Alert variant="danger"` with a retry.
+
+**PAT-DETAIL header/section rhythm (unified shell).** In `cpaltracker-react`, a sub-page
+a list row opens onto its own item's information (an anomaly's own view, a device's own
+page) follows one rhythm, not a bespoke header per screen:
+- Header: `<header className="flex min-w-0 flex-col gap-0.5 pb-3">` — a first row
+  (`flex items-center gap-1.5`) with a `Button variant="ghost" size="icon-sm"
+  className="-ml-2 shrink-0"` back button (the `-ml-2` flushes it to the content edge,
+  `ArrowLeft` icon, `aria-label`/`title` "Retour à la liste") then the `h2` title
+  (`min-w-0 truncate text-base font-semibold`, plus `font-mono` when the title is an
+  identifier like a chip id), then an optional muted subtitle row
+  (`text-xs text-muted-foreground`, items separated by an `aria-hidden` `·`).
+- Body: each section is a labelled block, not a second page-level card —
+  `<section className="flex min-w-0 flex-col gap-2 border-t border-border pt-5 pb-4">`
+  with an uppercase `h3` (`text-xs font-semibold tracking-wider uppercase`) above the
+  content. A section's content keeps its own component conventions (e.g. a PAT-FORM
+  `Card`); the section wrapper is the divider and label, never a second border around it.
+- Reference implementation: `AnomalyDetailView.tsx`'s local `Section` helper (the
+  original), reused the same way by `PilotageDeviceDetail.tsx`. Any new detail sub-page
+  follows this rhythm rather than inventing its own header/section markup.
+- A section's own link ("Voir la palette →") sits right-aligned on the section title row
+  (`Section` `action` prop), not on a line of its own.
+- A record with a status workflow (anomalies: Détectée → En cours → Clôture provisoire →
+  Clôturée) shows its lifecycle as a horizontal step bar at the bottom of the header
+  (`AnomalyLifecycle.tsx`): reached steps filled and joined, the current one ringed
+  (`aria-current="step"`), later steps hollow; under each reached step the date it was last
+  entered, its author in the tooltip. After a reopening, the later steps are pending again.
+  The full history (with comments) stays in the last section, "Historique".
+
+**Lists that open a detail.** One click on a row or card opens its detail directly. No
+intermediate "Voir le détail" step or expanded preview.
+
+### Map pages (Pulse), learned 2026-11-25
+
+These come from the Pulse redesign in `cpaltracker-react`. Each one fixes a defect seen
+in the browser.
+
+- **Stacking.** Wrap the map in an `isolate` stacking context (`PositionsMap` root, the
+  Pulse split). Leaflet's panes and controls (z 400–1000) then stay inside it, and the
+  shell's portalled menus (z-50: user menu, top-bar popovers) render above the map.
+  Overlays drawn inside the map (legend, hover card) use `z-1000`.
+- **Hover card on a marker.** Anchor it to the marker element and write all four offsets
+  (`left/top/right/bottom`) in one imperative step. Mixing corner classes with anchor styles
+  stretches the card for a frame. While the marker element is missing (icon swap, off
+  screen), keep the card `visibility: hidden`; never fall back to a corner, which flashes.
+  Track `mouseout` with `relatedTarget`, so moving between a marker's dot and label doesn't
+  unmount the card.
+- **Marker labels.** On a pallet map the id label is always shown next to the dot, on one
+  line (an inner `whitespace-nowrap` span, `shrink-0` dots). It is never shown only on
+  hover. `not-sr-only` resets `white-space`, so it can't be the only nowrap.
+- **Legends.** A legend the markers depend on (the load ramp "Poids restant transporté")
+  is a card always visible over the map, bottom-left. It never sits only inside the
+  layers popover, and its title never wraps (`w-max`, `whitespace-nowrap`).
+- **Deselect.** One click on the map background clears the pallet or anomaly selection
+  (`FleetMap` `onMapClick`). Don't use a double-click: that is Leaflet's zoom.
+- **No data in the period.** Keep the map on screen and show the empty state centred over
+  it. Never replace the map with an empty block.
+- **Collapsed drawer.** The icon rail of a collapsed drawer shows what the drawer holds.
+  With a pallet open, that is its latest readings (icon above, value, unit below:
+  `PalletRail`), not the anomaly count.
+- **Replay timeline.** A permanent bar under the map: play/pause, the period presets
+  `1 j · 7 j · 15 j · 1 mois` (+ custom), the track, and the speed. The anomalies of the
+  shown pallets in the period are ticks on the track: label in the tooltip, and a click
+  jumps there and opens the anomaly. Ticks are one colour for now; colouring them by
+  status is an open question.
+
+**Selected state of toggles and segments.** A selected `Toggle`/`ToggleGroup` item uses
+the primary fill (`SELECTED_TOGGLE` in `@/ui/patterns/period-control`:
+`data-[state=on]:bg-primary text-primary-foreground font-semibold`). `bg-muted` alone
+read as unselected in both themes and was reported as a bug twice (period presets, theme
+segments).
+
+**Document title.** `<page> · cPal` (`DocumentTitle.tsx`, `APP_NAME = 'cPal'`; `index.html`
+`<title>cPal</title>`), never the package name.
 
 ## Forms
 
@@ -228,4 +301,5 @@ text name through `label`.
 |---|---|---|
 | `src/ui/charts`, `src/ui/map` | Runtime bridges may read CSS variables and set inline styles (Plotly/Leaflet need computed values). They hold no color literal. | Permanent |
 | `src/ui/**` | Layout lengths such as `w-[390px]` are tolerated inside the kit; the arbitrary-length rule is not applied there. | Permanent |
+| `cpaltracker-react` `src/anomalies/AnomalyLifecycle.tsx`, `AnomalyDetailView.tsx` (`History`) | The lifecycle step bar and the history list are dot-and-line markup built by hand. The kit has no stepper, and `ActivityTimeline` doesn't yet take a comment block per item. | A `Stepper` is added to the kit and `ActivityTimeline` takes comments (rule 5) |
 | `src/showcase/lib/contrast.ts` | Computes contrast from rendered tokens and needs a canvas sentinel color. Lint must pass; use a scoped, reasoned disable if the sentinel is flagged. | Permanent |
