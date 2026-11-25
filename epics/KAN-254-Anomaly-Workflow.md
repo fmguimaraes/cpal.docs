@@ -29,9 +29,11 @@ trigger, closing right) is already built and pushed in `docker/mysql/init/03-das
 commit 173a3b9, shared with Pulse and Trends) and is not part of this epic; the
 production rollout is KAN-259.
 
+Since the owner's 2026-11-20 Pulse layout decision and his 2026-11-23 review, the drawer is an always-visible side panel on Pulse. The anomaly view zooms Pulse's main map instead of showing a minimap, shows no report action, and lets the user save a comment without changing the status. See the spec, "Scope v1" → "Review 2026-11-23".
+
 ## Requirement References
 Feature spec: [`IN-PROGRESS-Anomaly-Workflow.md`](../features/IN-PROGRESS-Anomaly-Workflow.md)
-— 35 FRs, 13 NFRs, 22 ECs, 39 ACs (v1 subset: see "Scope v1" in the spec). This epic references requirements by ID only;
+— 39 FRs, 13 NFRs, 23 ECs, 44 ACs (v1 subset: see "Scope v1" in the spec). This epic references requirements by ID only;
 requirement text lives solely in the feature spec.
 
 ## KPIs
@@ -50,12 +52,15 @@ Scope v1 trimmed 2026-11-19 (see feature spec "Scope v1"). One vertical slice pe
 
 | Key | Story | Pts | Depends on | Repos / files owned |
 | --- | --- | --- | --- | --- |
-| KAN-261 | Anomalies — table in a drawer, opened from Pulse | 8 | Pulse KAN-272 (for the opener) | cpaltracker.web: `anomalies/list.php`, `anomalies/detail.php`, `anomalies/anomalies_logic.php`, PHPUnit; cpaltracker-react: `anomalies/*` and the opener button on `/pulse`, Vitest |
-| KAN-263 | Anomalies — change status with a comment | 3 | KAN-261 | cpaltracker.web: `anomalies/transition.php`, PHPUnit; cpaltracker-react: transition form in the drawer, Vitest |
+| KAN-261 | Anomalies — table in a drawer, opened from Pulse | 8 | Pulse KAN-272 (for the opener) | cpaltracker.web: `anomalies/list.php`, `anomalies/detail.php`, `anomalies/anomalies_logic.php`, PHPUnit; cpaltracker-react: `anomalies/*` and the opener button on `/pulse`, Vitest. Since 2026-11-23: the panel views on `/pulse` and the main-map zoom (FR36, FR37) |
+| KAN-263 | Anomalies — change status with a comment | 3 | KAN-261 | cpaltracker.web: `anomalies/transition.php`, PHPUnit; cpaltracker-react: transition form in the drawer, Vitest. Since 2026-11-23: `anomalies/comment.php` and the "Enregistrer le commentaire" control (FR38, FR39) |
 | KAN-259 | Dashboard DB rollout to production (VPS) | 2 | none | Production SQL: anomaly history table, triggers and views, `V_PULSE`, the hardcoded trends table; GRANTs; collation check |
 | KAN-265, KAN-267, KAN-268, KAN-271 | [Reporté v2] — backlog | n/a | n/a | Retired (label `reporte-v2`); their scope is folded into KAN-261 / KAN-263 or deferred |
 
 *Total: 13 points across 3 stories.*
+
+### Review 2026-11-23
+Changed in place: FR1, FR3, FR6 (the `chipId` filter is now v1), FR10, FR11 (now v1), FR12, AC1; AC9 and EC7 move into v1 with FR11. New: FR36, FR37 (KAN-261: main-map zoom from the side panel, no report action), FR38, FR39 (KAN-263: `anomalies/comment.php` and the "Enregistrer le commentaire" control), AC40–AC44, EC23, OQ14. If OQ14 needs a database change (trigger or comment table), its production rollout belongs to KAN-259. Out of scope, confirmed: messaging; contracts in the user dropdown. Nothing is left without a story.
 
 ## Requirement Traceability
 
@@ -73,7 +78,7 @@ Every ID of the feature spec maps to a kept story, to "done (DB, 173a3b9)" or to
 | FR8 | KAN-261 |
 | FR9 | KAN-261 |
 | FR10 | deferred v2 |
-| FR11 | deferred v2 |
+| FR11 | KAN-261 (moved from deferred v2, 2026-11-23) |
 | FR12 | KAN-261 |
 | FR13 | KAN-261 |
 | FR14 | KAN-263 |
@@ -98,6 +103,10 @@ Every ID of the feature spec maps to a kept story, to "done (DB, 173a3b9)" or to
 | FR33 | KAN-261 |
 | FR34 | KAN-259 |
 | FR35 | deferred v2 |
+| FR36 | KAN-261 |
+| FR37 | KAN-261 |
+| FR38 | KAN-263 |
+| FR39 | KAN-263 (+ KAN-259 if OQ14 needs a DB change) |
 | NFR1 | KAN-261 |
 | NFR2 | KAN-261 |
 | NFR3 | KAN-263 |
@@ -117,7 +126,7 @@ Every ID of the feature spec maps to a kept story, to "done (DB, 173a3b9)" or to
 | EC4 | deferred v2 |
 | EC5 | KAN-261 |
 | EC6 | deferred v2 |
-| EC7 | deferred v2 |
+| EC7 | KAN-261 (moved from deferred v2, 2026-11-23) |
 | EC8 | KAN-263 |
 | EC9 | KAN-263 |
 | EC10 | KAN-263 |
@@ -133,6 +142,7 @@ Every ID of the feature spec maps to a kept story, to "done (DB, 173a3b9)" or to
 | EC20 | KAN-261 |
 | EC21 | KAN-263 |
 | EC22 | KAN-261 |
+| EC23 | KAN-263 |
 | AC1 | KAN-261 |
 | AC2 | KAN-261 |
 | AC3 | KAN-261 |
@@ -141,7 +151,7 @@ Every ID of the feature spec maps to a kept story, to "done (DB, 173a3b9)" or to
 | AC6 | KAN-261 |
 | AC7 | KAN-261 |
 | AC8 | deferred v2 |
-| AC9 | deferred v2 |
+| AC9 | KAN-261 (moved from deferred v2, 2026-11-23) |
 | AC10 | KAN-261 |
 | AC11 | KAN-263 |
 | AC12 | KAN-263 |
@@ -172,8 +182,13 @@ Every ID of the feature spec maps to a kept story, to "done (DB, 173a3b9)" or to
 | AC37 | KAN-259 |
 | AC38 | deferred v2 |
 | AC39 | deferred v2 |
+| AC40 | KAN-261 |
+| AC41 | KAN-261 |
+| AC42 | KAN-261 |
+| AC43 | KAN-263 |
+| AC44 | KAN-263 |
 
-*Coverage: all 35 FRs, 13 NFRs, 22 ECs and 39 ACs appear exactly once. Pulse FR28 (the opener) is owned by KAN-261 but belongs to the Pulse spec, so it is not listed here.*
+*Coverage: all 39 FRs, 13 NFRs, 23 ECs and 44 ACs appear exactly once. Changed on 2026-11-23: FR1, FR3, FR6, FR10, FR11, FR12, AC1, AC9, EC7; added: FR36–FR39, AC40–AC44, EC23. Pulse FR28 (the opener) is owned by KAN-261 but belongs to the Pulse spec, so it is not listed here.*
 
 ## Related Documentation
 - Feature spec: [`IN-PROGRESS-Anomaly-Workflow.md`](../features/IN-PROGRESS-Anomaly-Workflow.md)

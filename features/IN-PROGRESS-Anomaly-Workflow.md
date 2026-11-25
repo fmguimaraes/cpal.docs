@@ -56,6 +56,25 @@ Reductions of kept requirements (the FR text is not rewritten):
 
 ACs and ECs follow their FR: an AC or EC whose referenced FRs are all deferred is deferred; otherwise it belongs to the story of its FR (an AC or EC citing only NFRs follows its NFR). The epic's traceability table (`epics/KAN-254-Anomaly-Workflow.md`) places every ID.
 
+### Review 2026-11-23 (owner review, requirement changes)
+
+The owner reviewed the running v1 on 2026-11-23. These changes amend the v1 scope above; where they differ, they win. Under the owner's 2026-11-20 Pulse layout decision, the anomalies are no longer a drawer: they are an always-visible side panel on Pulse (Pulse FR36, FR37). FR1 and FR3 are amended to match.
+
+- **Panel, not drawer:** list and detail live in the Pulse side panel. The detail is its own view taking the whole panel, with a back control. Amended FR1, FR3.
+- **Pallet anomalies:** the Pulse pallet view lists one device's anomalies, so the device part of FR6 (server-side `chipId` filter, no filter control) moves into v1. Amended FR6 reduction above: status filter plus the `chipId` input; customer lot and period stay deferred.
+- **Anomaly view zooms the main map:** no minimap in the detail and no transparent overlay over the map. Pulse's main map frames the reading instead. New FR36. FR11 (no-position notice) moves into v1 with it. FR10 stays deferred; its LF reference point is v2.
+- **No report action:** the anomaly view shows no "Rapport PDF" or other report action. New FR37.
+- **Save a comment without changing the status:** "Enregistrer le commentaire". The history records who, when and the text. Read-only on a STD contract and on a `cloturee` anomaly. At most 2,000 characters. New FR38 (UI) and FR39 (API); FR12 amended for comment-only entries.
+- **Out of scope (confirmed 2026-11-23):** a messaging system; contracts in the user dropdown (see §6).
+- New ACs: AC40–AC44. New EC: EC23. New open question: OQ14 (comment storage).
+
+| Story | Requirements added or changed on 2026-11-23 |
+|---|---|
+| KAN-261 Anomalies, list and detail | FR1, FR3, FR6 (`chipId`), FR11 (amended; FR11 now v1); FR36, FR37 (new); AC1 (amended); AC9, EC7 (now v1); AC40–AC42 |
+| KAN-263 Anomalies, status and comment | FR12 (amended); FR38, FR39 (new); AC43, AC44; EC23 |
+| KAN-259 DB rollout | Only if OQ14 needs a database change (trigger or table) |
+
+
 ---
 
 ## 1. Feature Name
@@ -163,7 +182,10 @@ perform on this anomaly.
 - **Profile-menu work**: no alert lights in the profile menu, no messages badge, no
   "Mes contrats" panel (owner decision 2026-11-19 §C.4).
 - **PDF anomaly report** (Confluence §5 asks for it): deferred, no PDF library in
-  either repo (§16).
+  either repo (§16). Since the owner review of 2026-11-23 the anomaly view shows no report
+  action at all (FR37).
+- **Messaging system** and **contracts in the user dropdown** (confirmed out of scope by the
+  owner review of 2026-11-23).
 - Outbound notifications (mail, SMS, webhook).
 - A criticality axis on anomalies; grouping anomalies into events.
 - Any UI to grant or revoke the closing right (`T_USER.PeutCloturerAnomalies` is set
@@ -181,6 +203,11 @@ perform on this anomaly.
 - A deep-link route to an anomaly (the drawer is not a page).
 
 ## 7. User Flow / UX Breakdown
+
+> v1 flow as of 2026-11-23: the list and the detail are views of the Pulse side panel (Pulse
+> FR37), not a drawer. Step 4's "Localisation" map becomes the zoom of Pulse's main map
+> (FR36). Step 6 also offers "Enregistrer le commentaire" without a status change (FR38).
+> See [Review 2026-11-23](#review-2026-11-23-owner-review-requirement-changes).
 
 UI copy is French, like the rest of the app. Status labels: `detectee` "Détectée",
 `en_cours` "En cours", `fermee` "Fermée", `cloturee` "Clôturée".
@@ -267,12 +294,19 @@ STD contract).
   status filter), `anomalyKey` (open directly on that anomaly), and
   `onAnomaliesChanged()` (called after every successful transition). It SHALL NOT be
   a route and SHALL NOT change the URL.
+  *Amended 2026-11-23:* in v1 the component is the always-visible side panel of Pulse
+  (Pulse FR36, FR37), not a `Sheet`. `open`/`onOpenChange` do not apply. It takes
+  `contractId` and, in the pallet view, `chipId`. It is still not a route and does not
+  change the URL.
 - **FR2.** The drawer SHALL only be usable inside the authenticated app shell; every
   call SHALL go through the existing `apiClient` (bearer token), and a session loss
   during use SHALL be handled by the existing session-loss handler.
 - **FR3.** When opened without `anomalyKey` the drawer SHALL show the list view; when
   opened with `anomalyKey` it SHALL show that anomaly's detail view, with a control
   to go to the list (filtered by the other inputs).
+  *Amended 2026-11-23:* in v1 the detail is its own view taking the whole side panel
+  (Pulse FR37), opened from the contract or the pallet list, with a back control to the
+  view it was opened from.
 - **FR4.** The list SHALL by default show the anomalies of `contractId` (narrowed by
   the optional inputs) whose current status is not `cloturee`, sorted by `EventDate`
   descending, then `DetectedAt` descending, then `anomalyKey` descending.
@@ -302,13 +336,20 @@ STD contract).
   framing that position. For an LF anomaly it SHALL also show the reference point
   (`Ref_Latitude`, `Ref_Longitude`) as a distinct, labelled marker and frame both
   points.
+  *Amended 2026-11-23:* the detail SHALL NOT contain its own map (no minimap); the
+  position is shown on Pulse's main map (FR36). The LF reference point stays deferred.
 - **FR11.** When the reading has no usable position (latitude or longitude NULL, or
   both within 0.0001 of 0, the `HasPosition` rule of `V_DATA_WITH_CLIENT`), the
   detail SHALL show "Position non disponible pour cette mesure" instead of the map.
+  *Amended 2026-11-23:* in v1 the notice shows in the detail and Pulse's main map does
+  not move (FR36).
 - **FR12.** The detail SHALL show the status history newest first: one entry per
   `T_ANOMALIE_SUIVI` row with author (first and last name), `ChangedAt`, from → to
   status and comment, plus a first entry "Détectée" by "Système" at `DetectedAt`.
   Comments SHALL be rendered as plain text with line breaks preserved.
+  *Amended 2026-11-23:* a comment saved without a status change (FR38) SHALL appear as
+  its own entry, labelled "Commentaire", with author, server time and text, and no
+  from → to. It does not count as a status change for FR13.
 - **FR13.** The detail header SHALL show the current status and, when it has
   changed at least once, who changed it last and when.
 
@@ -415,6 +456,38 @@ STD contract).
   deployed.
 - **FR35.** The four endpoints SHALL be documented in `api/openapi.yaml` with their
   parameters, response shapes and every error code of §17.5.
+
+### Review 2026-11-23: main-map zoom, no report, comment without status change
+
+- **FR36.** When the anomaly view opens and the reading has a usable position (FR11
+  rule), Pulse's main map SHALL zoom to frame that position and mark it with a distinct
+  anomaly marker. There SHALL be no map in the detail (no minimap) and no transparent
+  overlay or scrim over the map, whether the view is open or not. Leaving the anomaly view
+  SHALL remove the anomaly marker and keep the current framing; Pulse's "fit" control
+  (Pulse FR13) reframes the markers. Without a usable position the map does not move and
+  the FR11 notice shows.
+- **FR37.** The anomaly view SHALL NOT offer a report action ("Rapport PDF" or any other
+  export or report of the anomaly).
+- **FR38.** The detail SHALL offer an "Enregistrer le commentaire" control that saves the
+  "Résumé des actions" text (FR15 field: at most 2,000 characters, visible counter) without
+  changing the status. It SHALL refuse an empty or whitespace-only comment with an inline
+  error. It SHALL be disabled while the request is pending. On success the detail SHALL be
+  replaced by the server's response, the new entry SHALL appear in the history (FR12), the
+  field SHALL be cleared and a toast SHALL confirm "Commentaire enregistré". The status, the
+  list row and the `allowedTransitions` stay unchanged. The control SHALL be shown only when
+  the server's `canComment` is true (FR39): never on a STD contract scope and never on a
+  `cloturee` anomaly, which stay read-only. Refusals show the server's message and keep the
+  text (FR19 rule).
+- **FR39.** `POST /api/v1/anomalies/comment.php/{anomalyKey}` with body
+  `{ contractId, comment }` SHALL: authenticate; validate the body; resolve the anomaly in
+  the contract scope (else the same `404 not_found` as FR21); pre-check, in this order,
+  scope policy (`403 read_only_scope` on a STD contract), current status (`409
+  anomaly_closed` when `cloturee`), comment (`400 comment_required` when empty or
+  whitespace-only, `400 comment_too_long` over 2,000 characters); then store one
+  insert-only history entry with the authenticated user and the server time (NFR4), never
+  changing the status; and answer `201` with the updated detail (FR21 shape). The FR21
+  detail response SHALL carry `canComment` (boolean), computed server-side with the same
+  rules; the client SHALL NOT compute it (NFR3). The storage is set by OQ14.
 
 ## 9. Non-Functional Requirements (NFRs)
 
@@ -603,6 +676,9 @@ FR31, NFR2, NFR4 and NFR13.
   comment_too_long` from the API.
 - **EC22. Anomaly visible to several clients** (MAIN owner and a STD client): one
   shared status and history; each client sees it through its own contract.
+- **EC23. Anomaly closed while a comment is typed** *(2026-11-23)*: another user moves it
+  to `cloturee`; saving answers `409 anomaly_closed`, the detail shows the server's message
+  with "Recharger", and the typed text is kept (FR18 rule).
 
 ## 13. Metrics / KPIs
 
@@ -655,6 +731,7 @@ the handling funnel `detectee → en_cours → fermee → cloturee`) and `T_AUTH
 
 - [ ] **AC1.** Pulse can open the drawer with only `contractId`, and with `chipId`;
   the drawer is a right side sheet and the URL does not change (FR1, FR3).
+  *Amended 2026-11-23:* in v1 checked by AC40 (always-visible side panel, no sheet).
 - [ ] **AC2.** Opened with `anomalyKey`, the drawer shows that anomaly's detail and
   can go to the list (FR3).
 - [ ] **AC3.** The default list excludes `cloturee`, is sorted newest `EventDate`
@@ -747,6 +824,25 @@ the handling funnel `detectee → en_cours → fermee → cloturee`) and `T_AUTH
   the seeding of §20.
 - [ ] **AC39.** Every FR, NFR and edge case is mapped to at least one story in the
   epic's traceability table.
+- [ ] **AC40.** *(2026-11-23.)* The anomaly list and detail are views of Pulse's
+  always-visible side panel; the detail takes the whole panel and its back control
+  returns to the contract or pallet list it came from; the pallet list shows only that
+  device's anomalies, filtered server-side on `chipId` (FR1, FR3, FR6).
+- [ ] **AC41.** *(2026-11-23.)* Opening an anomaly with a usable position zooms Pulse's
+  main map to it with a distinct marker; the detail has no minimap and no overlay covers
+  the map; without a position the notice shows and the map does not move; leaving the
+  view removes the marker (FR36, FR11).
+- [ ] **AC42.** *(2026-11-23.)* The anomaly view shows no "Rapport PDF" or other report
+  action (FR37).
+- [ ] **AC43.** *(2026-11-23.)* "Enregistrer le commentaire" saves a comment without
+  changing the status: the history shows a "Commentaire" entry with author, time and
+  text, the status and actions are unchanged, the field clears and a toast confirms; an
+  empty comment is blocked inline and answered `400 comment_required` by the API; 2,001
+  characters are blocked and answered `400 comment_too_long` (FR38, FR39, FR12).
+- [ ] **AC44.** *(2026-11-23.)* On a STD contract and on a `cloturee` anomaly the detail
+  shows no comment control (`canComment` false), and a forged POST answers `403
+  read_only_scope` and `409 anomaly_closed` respectively, adding no entry (FR38, FR39,
+  EC23).
 
 ## 16. Future Extensions (Optional)
 
@@ -973,6 +1069,12 @@ anomalies per test (distinct keys) or `make reset`, never deletes.
 - **OQ13.** Should opening an anomaly's detail be logged (e.g. `anomalie_consultee`)
   to measure the "seen" step of the funnel? The app has no client-side analytics; not
   proposed by default to keep `T_AUTH_LOG` lean.
+- **OQ14.** *(2026-11-23.)* Where is a comment without a status change stored (FR39)?
+  Options: a `T_ANOMALIE_SUIVI` row with the same status before and after, which needs
+  `trg_anomalie_suivi_bi` amended to accept it and `V_ANOMALIES_STATUT` unaffected; or
+  a dedicated insert-only comment table. Either way the history stays insert-only (NFR4)
+  and the change ships to production through KAN-259. KAN-263 decides and records the
+  choice here.
 
 ## 22. Requirement inventory
 
@@ -990,10 +1092,11 @@ covers a "seen" event.
 | API | FR20, FR21, FR22, FR23, FR24, FR25, FR26, FR27, FR28, FR29 |
 | Data integrity, display rules, deployment | FR30, FR31, FR32, FR33, FR34, FR35 |
 | Non-functional | NFR1, NFR2, NFR3, NFR4, NFR5, NFR6, NFR7, NFR8, NFR9, NFR10, NFR11, NFR12, NFR13 |
-| Edge cases | EC1, EC2, EC3, EC4, EC5, EC6, EC7, EC8, EC9, EC10, EC11, EC12, EC13, EC14, EC15, EC16, EC17, EC18, EC19, EC20, EC21, EC22 |
-| Acceptance criteria | AC1 … AC39 |
+| Review 2026-11-23 | FR36, FR37, FR38, FR39 |
+| Edge cases | EC1, EC2, EC3, EC4, EC5, EC6, EC7, EC8, EC9, EC10, EC11, EC12, EC13, EC14, EC15, EC16, EC17, EC18, EC19, EC20, EC21, EC22, EC23 |
+| Acceptance criteria | AC1 … AC44 |
 
-Totals: 35 FR, 13 NFR, 22 EC, 39 AC.
+Totals: 39 FR, 13 NFR, 23 EC, 44 AC.
 
 ## 23. Proposed feature areas
 

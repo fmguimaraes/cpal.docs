@@ -60,6 +60,17 @@ Deferred to v2:
 
 ACs and ECs follow their FR: an AC/EC whose referenced FRs are all deferred is deferred; otherwise it belongs to the story of its FR (KAN-256), reduced as above. Kept in v1: AC8, AC13, AC14, AC16–AC19, AC23, AC25, AC26, AC29; EC1, EC10, EC19, EC21, EC22. ECs on the calculation (EC2–EC9, EC11–EC14), on closing (EC17, EC18), on grids and snapshots (EC15, EC16) and EC20 are deferred. Where an AC mixes kept and deferred parts, only the kept part applies in v1 (for example AC8 without the FR18 part, AC16 without the monthly view, AC19 without the reasons, AC23 without the no-snapshot state, AC25 without the kit component and showcase, AC29 for the kept requirements only). Retired stories are in the Jira backlog with prefix "[Reporté v2]" and label `reporte-v2`.
 
+### Review 2026-11-23 (owner review, requirement changes)
+
+The owner reviewed the running v1 on 2026-11-23. These changes amend the v1 scope above; where they differ, they win.
+
+- **Y axis:** the quadrant chart's Y axis shows a plain "Score de risque" title, with no formula and no description of how the score is computed. Amended FR28; new AC30. The method note (FR40) stays deferred to v2.
+- **Out of scope (confirmed 2026-11-23):** a messaging system; contracts in the user dropdown (see §6).
+
+| Story | Requirements added or changed on 2026-11-23 |
+|---|---|
+| KAN-256 Trends page | FR28 (amended), AC30 (new) |
+
 ## 1. Feature Name
 
 Trends: a new page of the c-PAL React app that shows, for every open lot of the
@@ -158,7 +169,8 @@ else in the app changes.
   in `T_LOT_CONSO_SNAP` but not shown (§16).
 - **Lots with no consumption yet** (in transport, flat weight): they have no snapshot
   and are not listed (EC7, OQ8).
-- Profile menu, messages, "Mes contrats" panel (owner decision C4).
+- Profile menu, messages, "Mes contrats" panel (owner decision C4). Confirmed by the owner
+  review of 2026-11-23: no messaging system, no contracts in the user dropdown.
 - Exports (CSV, API), notifications (mail, SMS, webhook).
 - Pulse (`IN-PROGRESS-Pulse.md`) and the anomaly workflow (`IN-PROGRESS-Anomaly-Workflow.md`).
 - Display roles per population (Confluence §2: one dashboard for everyone).
@@ -377,6 +389,8 @@ else in the app changes.
   - x = `daysToExpiry` of the selected grid, axis title "Durée de vie restante
     (jours)";
   - y = `zMean` or `zMedian` per the method, axis title "Score de risque z";
+    *amended 2026-11-23:* the axis title SHALL be the plain text "Score de risque",
+    with no formula, symbol or description of the calculation on or next to the axis;
   - three horizontal bands, low (`z <= 0`), medium (`0 < z <= 1`), high (`z > 1`), with
     lines at `z = 0` and `z = 1`, always in view whatever the data range;
   - a vertical dashed line at `x = quadrantSplitDays`;
@@ -718,6 +732,7 @@ Not applicable (see [SDLC, product templates](../sdlc/README.md#product-template
 - [ ] AC27. Production script applies the objects, grants and event scheduler; a first snapshot exists after install. *(NFR9)*
 - [ ] AC28. SQL fixtures, PHP endpoint tests, Vitest and Playwright E2E for US1–US5 exist and pass; tests use `sp_lot_conso_refresh_at`. *(NFR10, EC20)*
 - [ ] AC29. All FRs and NFRs validated; Gaël has validated §10.3 and the open questions' defaults.
+- [ ] AC30. *(2026-11-23.)* The chart's Y axis title reads "Score de risque", with no formula or description of the calculation. *(FR28)*
 
 ## 16. Future Extensions (Optional)
 
@@ -760,7 +775,7 @@ only.
 |---|---|---|
 | Functional requirements | FR1–FR40 | 40 |
 | Non-functional requirements | NFR1–NFR11 | 11 |
-| Acceptance criteria | AC1–AC29 | 29 |
+| Acceptance criteria | AC1–AC30 | 30 |
 | Edge cases | EC1–EC22 | 22 |
 | Calculation deviations to validate | D1–D17 | 17 |
 | Open questions | OQ1–OQ11 | 11 |

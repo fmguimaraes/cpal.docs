@@ -32,10 +32,10 @@ strictly additive. The database objects (`V_PULSE`, `V_ANOMALIES_OUVERTES`,
 `cpaltracker.web/docker/mysql/init/03-dashboard.sql` and are not part of any story.
 
 ## Requirement References
-Feature spec: [`IN-PROGRESS-Pulse.md`](../features/IN-PROGRESS-Pulse.md) (v1 scope: see its "Scope v1" section) — 35 FRs (FR1–FR35),
-12 NFRs (NFR1–NFR12), 33 ACs (AC1–AC33), 22 edge cases (EC1–EC22). This epic references
+Feature spec: [`IN-PROGRESS-Pulse.md`](../features/IN-PROGRESS-Pulse.md) (v1 scope: see its "Scope v1" section) — 41 FRs (FR1–FR41),
+12 NFRs (NFR1–NFR12), 39 ACs (AC1–AC39), 25 edge cases (EC1–EC25). This epic references
 requirements by ID only; requirement text lives solely in the feature spec. Open
-questions OQ1–OQ10 are recorded in the spec; the stories that depend on one say so.
+questions OQ1–OQ12 are recorded in the spec; the stories that depend on one say so.
 
 ## KPIs
 - Snapshot endpoint p95: < 1 s for 100 devices, < 3 s for the Pharma stress contract (NFR3).
@@ -48,6 +48,9 @@ questions OQ1–OQ10 are recorded in the spec; the stories that depend on one sa
 
 ## Scope v1 (2026-11-19)
 Epic trimmed to one story, KAN-272 (5 points): Live Tracking layout plus lot information and a lot filter. Timeline, charts, replay, History parameters and the device filter are deferred to v2; the anomaly drawer opener moved to KAN-261. The Description above is the full (v2) vision.
+
+### Review 2026-11-23
+The owner's review of 2026-11-23, and his layout decision of 2026-11-20, are recorded in the spec ("Scope v1" → "Review 2026-11-23"). Changed: FR9, FR12, FR24, FR28, FR34, AC21 (amended in place); FR32 moved from deferred v2 into KAN-272. New: FR36–FR41, AC34–AC39, EC23–EC25, OQ11–OQ12, all mapped to KAN-272. The anomaly list and the anomaly view shown in the FR37 side panel are delivered by KAN-261 and KAN-263 (anomaly spec FR36–FR39). Out of scope, confirmed: messaging; contracts in the user dropdown. Nothing is left without a story.
 
 ## Dependencies
 - `cpaltracker.web/docker/mysql/init/03-dashboard.sql` (built and pushed, cpaltracker.web commit 173a3b9; shared by Pulse, Trends and Anomaly Workflow).
@@ -63,7 +66,7 @@ Software Items do not apply to c-PAL (spec §11a), so the column is omitted. v1 
 
 | Key | Story | Pts | Depends on | Repos / files owned | Covered Requirements |
 | --- | --- | --- | --- | --- | --- |
-| KAN-272 | Pulse — Live Tracking with lot information | 5 | — | `cpaltracker.web`: `api/v1/contracts/pulse.php` (reads `V_PULSE`), PHPUnit Pulse tests, `api/openapi.yaml` (pulse path only). `cpaltracker-react`: route `/pulse` and nav entry (`src/App.tsx`, `src/auth/paths.ts`, `src/chrome/AppShellLayout.tsx`, `src/chrome/DocumentTitle.tsx`), `src/routes/Pulse.tsx`, `src/api/pulse.ts`, Pulse page reusing `src/live-tracking` components, lot filter, Vitest tests | FR1–FR13, FR24, FR34, FR35; NFR1, NFR2, NFR5, NFR8, NFR10, NFR11, NFR12 |
+| KAN-272 | Pulse — Live Tracking with lot information | 5 | — | `cpaltracker.web`: `api/v1/contracts/pulse.php` (reads `V_PULSE`), PHPUnit Pulse tests, `api/openapi.yaml` (pulse path only). `cpaltracker-react`: route `/pulse` and nav entry (`src/App.tsx`, `src/auth/paths.ts`, `src/chrome/AppShellLayout.tsx`, `src/chrome/DocumentTitle.tsx`), `src/routes/Pulse.tsx`, `src/api/pulse.ts`, Pulse page reusing `src/live-tracking` components, lot filter, Vitest tests | FR1–FR13, FR24, FR32, FR34, FR35, FR36–FR41; NFR1, NFR2, NFR5, NFR8, NFR10, NFR11, NFR12 |
 | KAN-273 … KAN-281 | [Reporté v2] — backlog (KAN-273, KAN-274, KAN-275, KAN-276, KAN-277, KAN-278, KAN-279, KAN-280, KAN-281) | — | — | Retired; label `reporte-v2` | Deferred requirements, see traceability |
 
 *Total: 5 points across 1 story.*
@@ -107,10 +110,16 @@ Every FR, NFR, AC and EC ID of the spec appears exactly once. "deferred v2" requ
 | FR29 | deferred v2 |
 | FR30 | deferred v2 |
 | FR31 | deferred v2 |
-| FR32 | deferred v2 |
+| FR32 | KAN-272 (moved from deferred v2, 2026-11-23) |
 | FR33 | deferred v2 |
 | FR34 | KAN-272 |
 | FR35 | KAN-272 |
+| FR36 | KAN-272 |
+| FR37 | KAN-272 |
+| FR38 | KAN-272 |
+| FR39 | KAN-272 |
+| FR40 | KAN-272 |
+| FR41 | KAN-272 |
 | NFR1 | KAN-272 |
 | NFR2 | KAN-272 |
 | NFR3 | deferred v2 |
@@ -156,6 +165,12 @@ Every FR, NFR, AC and EC ID of the spec appears exactly once. "deferred v2" requ
 | AC31 | KAN-272 |
 | AC32 | KAN-272 |
 | AC33 | KAN-272 |
+| AC34 | KAN-272 |
+| AC35 | KAN-272 |
+| AC36 | KAN-272 |
+| AC37 | KAN-272 |
+| AC38 | KAN-272 |
+| AC39 | KAN-272 |
 | EC1 | KAN-272 |
 | EC2 | KAN-272 |
 | EC3 | KAN-272 |
@@ -178,8 +193,11 @@ Every FR, NFR, AC and EC ID of the spec appears exactly once. "deferred v2" requ
 | EC20 | KAN-272 |
 | EC21 | deferred v2 |
 | EC22 | deferred v2 |
+| EC23 | KAN-272 |
+| EC24 | KAN-272 |
+| EC25 | KAN-272 |
 
-*Coverage: all 35 FRs, 12 NFRs, 33 ACs and 22 ECs placed exactly once (kept story, moved, or deferred v2).*
+*Coverage: all 41 FRs, 12 NFRs, 39 ACs and 25 ECs placed exactly once (kept story, moved, or deferred v2). Changed on 2026-11-23: FR9, FR12, FR24, FR28, FR32, FR34, AC21; added: FR36–FR41, AC34–AC39, EC23–EC25.*
 
 ## Related Documentation
 - Feature spec: [`IN-PROGRESS-Pulse.md`](../features/IN-PROGRESS-Pulse.md)

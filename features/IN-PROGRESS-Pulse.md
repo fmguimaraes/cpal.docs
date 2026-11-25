@@ -50,6 +50,23 @@ Deferred to v2:
 
 ACs and ECs follow their FR: an AC or EC whose referenced FRs are all deferred is deferred, otherwise it belongs to the story of its FR (or follows the moved FR). Where a kept AC/EC also mentions a deferred part (range mode, charts, device filter, anomaly counts), only the kept part is in v1: AC9 (no FR30 refresh of the alert light), AC17 (lot narrows the map only), AC21 (Live Tracking layout), AC32 (EC22 deferred), AC26 (NFR6 part moved), AC31 and EC2 (no range mode to offer), EC4 (no device filter), EC8 and EC9 (hook windows only, no range). AC14 (charts), AC19 and AC20 (History parameters, History untouched) are deferred even though they cite FR34 or NFR1.
 
+### Review 2026-11-23 (owner review, requirement changes)
+
+The owner reviewed the running v1 on 2026-11-23. The layout he decided on 2026-11-20, already built, is recorded here at the same time. These changes amend the v1 scope above; where they differ, they win.
+
+- **Layout (decided 2026-11-20):** no visible page header; no fleet panel on Pulse (Live Tracking is unchanged); a footer bar under the map only, holding the lot filter, the time selector and "last updated" with Refresh; the anomalies side panel is always visible on the right fifth of the page, at full height. New FR36; amended FR12, FR24, FR28, FR34.
+- **Side panel views:** the panel shows the contract's anomalies (no pallet selected), then a pallet view, then an anomaly view that takes the whole panel. New FR37. The anomaly view itself is specified in `IN-PROGRESS-Anomaly-Workflow.md` (FR36–FR39 there).
+- **Pallet selection:** clicking a marker selects that pallet and opens its view. New FR38.
+- **Pallet view:** main information, four charts showing the period's min and max, one colour scale per pallet labelled with that pallet's min and max, and the pallet's anomalies. New FR39, FR40. Restricting the History request to one device needs FR32, so FR32 moves from v2 into v1 (KAN-272). FR31 stays deferred: the charts use `rows`, which already carry `g`.
+- **Time selector:** 1j / 7j / 15j / 1 mois. It filters the map on each device's last report and sets the period of the pallet charts. New FR41; amended FR9.
+- **Out of scope (confirmed 2026-11-23):** a messaging system; contracts in the user dropdown (see §6).
+- New ACs: AC34–AC39. New ECs: EC23–EC25. New open questions: OQ11, OQ12.
+
+| Story | Requirements added or changed on 2026-11-23 |
+|---|---|
+| KAN-272 Pulse | FR9, FR12, FR24, FR28 (amended), FR32 (now v1), FR34 (amended), FR36–FR41 (new); AC21 (amended), AC34–AC39; EC23–EC25 |
+| KAN-261 Anomalies | The anomalies list and anomaly view inside the FR37 panel (anomaly spec FR1, FR3, FR6, FR36) |
+
 ---
 
 ## 1. Feature Name
@@ -150,6 +167,8 @@ are unchanged.
   `IN-PROGRESS-Anomaly-Workflow.md`. Pulse only opens it.
 - **Profile menu work**: messages list and badge, "Mes contrats", `T_MESSAGE_LU`
   (owner decision 2026-11-19 §C4).
+- **Messaging system** and **contracts in the user dropdown** (confirmed out of scope by the
+  owner review of 2026-11-23). The contract stays chosen in the sidebar (FR3).
 - **Outgoing notifications** (mail, SMS, webhook), **geofencing, dwell time, ETA**, **CSV/API
   export**, **PDF** (Confluence §3, postponed).
 - **Trends** (quadrants, consumption velocity): `IN-PROGRESS-Trends.md`.
@@ -160,6 +179,9 @@ are unchanged.
 - **Mobile-first layout**: desktop first, mobile best effort (same rule as LT-NFR4).
 
 ## 7. User Flow / UX Breakdown
+
+> v1 flow as of 2026-11-23: the steps below are the full (v2) flow. In v1 the flow is the one
+> set by FR36–FR41 (see [Review 2026-11-23](#review-2026-11-23-owner-review-requirement-changes)).
 
 1. User clicks **Pulse** in the sidebar. `RequireAuth` lets an authenticated user through;
    otherwise they go to login (FR1).
@@ -199,9 +221,10 @@ are unchanged.
   `src/auth/paths.ts`), rendered inside `AppShellLayout` behind `RequireAuth`, like the
   existing protected routes. `DocumentTitle` SHALL title it "Pulse".
 - **FR2.** The sidebar SHALL gain a "Pulse" entry (`data-testid="nav-pulse"`) in the
-  `Navigation` section of `AppShellLayout`. The existing entries (Accueil, Suivi en direct,
-  Historique, Pilotage) SHALL keep their labels, paths, icons, test IDs and relative order.
-  Pulse is placed directly after Accueil unless OQ3 decides otherwise.
+  `Navigation` section of `AppShellLayout`, first in the list. The other entries (Suivi en
+  direct, Historique, Pilotage) SHALL keep their labels, paths, icons, test IDs and relative
+  order. The "Accueil" entry (`nav-home`) is removed: `/` redirects to `/pulse` (OQ1,
+  decided 2026-11-25).
 - **FR3.** Pulse SHALL take its contract from `useContracts()` (`ContractProvider`): no
   page-level contract picker. It SHALL show the same states as Live Tracking for loading,
   contract-list error, zero contracts and no selection, and on a 404 from any Pulse request
@@ -242,6 +265,8 @@ are unchanged.
 - **FR9.** On arrival and on contract change, Pulse SHALL request only the FR4 endpoint and
   render one marker per entry with a valid position; it SHALL NOT request a series until a
   range is chosen (Confluence §8.4).
+  *Amended 2026-11-23:* in v1 a series is requested only when a pallet is selected (FR38),
+  for that device and the FR41 period (FR39).
 - **FR10.** Marker colour SHALL use the existing weight thresholds of LT-FR5 / HD-FR11
   (< 200 kg red, < 500 kg orange, ≥ 500 kg green, null or NaN grey) applied to
   `remainingWeight` in snapshot mode and to the row's `m` in range mode, by calling the
@@ -256,6 +281,8 @@ are unchanged.
   the behaviour of LT-FR9/LT-FR10: refresh re-requests the FR4 endpoint and the contract
   alert light (FR30), updates the time only on success, keeps the previous snapshot on
   failure with an inline error, and never polls.
+  *Amended 2026-11-23:* in v1 the Refresh control and "last updated" sit in the footer bar
+  under the map (FR36); there is no alert light to reload.
 - **FR13.** The map SHALL auto-fit to the displayed markers once after each load and offer a
   "fit" control (HD-FR15/HD-FR16 behaviour).
 
@@ -320,6 +347,9 @@ are unchanged.
   load the series as in FR16;
   and hide from map and charts any row outside the lot's hook windows (half-open
   `[from, to)`, the HD-FR13 hook rule).
+  *Amended 2026-11-23:* in v1 the lot filter sits in the footer bar under the map (FR36) and
+  narrows the markers only (Scope v1). A selected pallet that the lot filter hides is
+  deselected (EC23).
 - **FR25.** Clearing the lot filter SHALL restore "all devices", keep the current range, and
   re-request the series for the whole contract.
 - **FR26.** Lot and device filters SHALL combine: while a lot is selected, the device filter
@@ -334,6 +364,9 @@ are unchanged.
   otherwise, always with a text label and the counts (detected / in progress / awaiting
   closure). Activating it SHALL open the anomaly drawer of `IN-PROGRESS-Anomaly-Workflow.md`
   scoped to the contract. The read endpoint and the drawer are owned by that spec.
+  *Amended 2026-11-23:* in v1 there is no drawer to open: the contract's anomalies are always
+  shown in the side panel (FR37). The alert light stays deferred with `summary.php`
+  (anomaly spec FR24).
 - **FR29.** Each device SHALL show its anomaly count (in the tooltip and the device filter
   list): in snapshot mode the count of its non-closed anomalies; in range mode the count of
   its anomalies whose `EventDate` falls in the range. Activating the count SHALL open the
@@ -371,8 +404,59 @@ are unchanged.
   `col-span-8`, the four stacked charts `col-span-4`, the date bar spanning the 12 columns
   above them, filters and the alert light in the page header row. Below `lg` the blocks stack
   (bar, map, charts).
+  *Amended 2026-11-23:* in v1 the layout is FR36. This text describes the v2 range mode.
 - **FR35.** UI text SHALL be in French, consistent with the existing pages (e.g. "Pulse",
   "Lot client", "Appareils", "Actualiser", "Lecture", "Pause").
+
+### Review 2026-11-23: layout, side panel, pallet view, time selector
+
+- **FR36.** *(Owner decision 2026-11-20.)* At desktop width the page SHALL have no visible
+  page header (the title stays in `DocumentTitle` and in a visually hidden heading) and no
+  fleet panel; Live Tracking keeps its own layout unchanged. The page SHALL be split into
+  fifths: the map on the left four fifths, the side panel (FR37) on the right fifth, at full
+  page height. A footer bar SHALL sit under the map only, holding the lot filter (FR24), the
+  time selector (FR41) and "last updated" with Refresh (FR12). Below `lg` the blocks stack:
+  map, footer bar, side panel.
+- **FR37.** The side panel SHALL always be visible and SHALL show one of three views:
+  - **contract view** (no pallet selected): all the anomalies of the selected contract, as
+    listed by `IN-PROGRESS-Anomaly-Workflow.md` (FR4–FR8 there);
+  - **pallet view** (a pallet selected, FR38): FR39;
+  - **anomaly view** (an anomaly opened from either list): the anomaly detail of the anomaly
+    spec (FR36–FR39 there), taking the whole panel.
+  The anomaly view SHALL offer a back control to the view it was opened from. The pallet
+  view SHALL offer a control that clears the selection and returns to the contract view.
+  Changing the contract SHALL clear the selection and show the contract view.
+- **FR38.** Clicking a marker SHALL select that pallet (device) and show the pallet view.
+  The selected marker SHALL be marked on the map by a sign other than colour alone.
+  Clicking another marker SHALL switch the selection. Hovering keeps the FR11 tooltip.
+- **FR39.** The pallet view SHALL show:
+  - the pallet's main information: device ID, last report date (UTC), remaining weight and,
+    when `lot` is present, customer lot number, product, cPAL lot and expiry date (the FR11
+    fields, rendered as text);
+  - four charts, in this order: weight (kg), temperature (°C), humidity (%), acceleration
+    (g). Each plots the device's readings over the FR41 period, shows the latest value and
+    shows the minimum and maximum of the plotted readings as labelled values. The series
+    SHALL come from one `GET /contracts/history.php/{contractId}` request for the period,
+    restricted to the device with `chipIds` (FR32). A chart with no reading in the period
+    SHALL show "Aucune mesure sur cette période" (EC24). A response for a pallet or period
+    that is no longer current SHALL be discarded;
+  - the colour scale of FR40;
+  - the pallet's anomalies: the anomaly list of the anomaly spec restricted to this device
+    (`chipId`). Clicking an anomaly SHALL open the anomaly view (FR37).
+- **FR40.** The pallet view SHALL show one colour scale for that pallet's remaining weight,
+  titled "Poids restant transporté", going from empty to full load, and labelled with that
+  pallet's minimum and maximum weight over the FR41 period. Each pallet has its own scale;
+  no scale is shared between pallets. Map marker colours keep the FR10 thresholds.
+- **FR41.** The footer bar SHALL offer a time selector with four single-choice values:
+  "1j", "7j", "15j", "1 mois" (1, 7, 15 and 30 days back from now, UTC), default "7j"
+  (OQ12). The selected value SHALL:
+  - filter the map: only devices whose last positioned report (FR5 reading date) is inside
+    the period get a marker; the others are hidden, and the auto-fit (FR13) applies to the
+    markers shown;
+  - set the period of the pallet charts and colour scale (FR39, FR40).
+  Changing it SHALL NOT re-request the FR4 snapshot; it re-requests the series only when a
+  pallet is selected. If the selected pallet's marker is hidden, the selection is cleared
+  (EC23).
 
 ## 9. Non-Functional Requirements (NFRs)
 
@@ -541,6 +625,13 @@ Item Registry exists.
   markers shown at that instant.
 - **EC22.** A device transferred to an STD contract during the range: rows follow
   `V_DATA_WITH_CLIENT` visibility, so the series may have gaps; no interpolation.
+- **EC23.** *(2026-11-23.)* The selected pallet is hidden by the lot filter or by the time
+  selector: the selection is cleared and the panel shows the contract view.
+- **EC24.** *(2026-11-23.)* Selected pallet with no reading in the period: each chart shows
+  "Aucune mesure sur cette période" and the colour scale shows "—" for min and max; the
+  main information and the anomalies still show.
+- **EC25.** *(2026-11-23.)* Selected pallet whose lot is absent or not owned (FR6): the lot
+  fields are omitted from the pallet view; the rest shows.
 
 ## 13. Metrics / KPIs
 
@@ -594,7 +685,7 @@ Item Registry exists.
 - [ ] AC18. The contract alert light shows red/orange/off with text and counts and opens the anomaly drawer; device counts follow the mode and open the drawer filtered; anomaly endpoint failure shows a neutral state. *(FR28, FR29, FR30, EC19)*
 - [ ] AC19. `history.php` without `measures`/`chipIds` returns an identical response to before; with them, it returns exactly the requested summaries and device subset, ignores foreign ChipIDs, and rejects malformed values with 400. *(FR31, FR32, NFR1)*
 - [ ] AC20. History still shows exactly three tiles and three modal tabs. *(FR33, NFR1)*
-- [ ] AC21. Desktop layout follows the 8/4 column split with the full-width bar; narrow screens stack. *(FR34, NFR8)*
+- [ ] AC21. Desktop layout follows the 8/4 column split with the full-width bar; narrow screens stack. *(FR34, NFR8)* *Amended 2026-11-23:* in v1 the layout is checked by AC34.
 - [ ] AC22. UI text is French and consistent with existing pages. *(FR35)*
 - [ ] AC23. Existing PHPUnit, Vitest and Playwright suites pass unmodified. *(NFR1)*
 - [ ] AC24. Snapshot latency meets the NFR3 budget on 100 devices and on the Pharma stress contract, numbers recorded. *(NFR3)*
@@ -607,6 +698,12 @@ Item Registry exists.
 - [ ] AC31. Inactive and NULL-dated contracts show the EC2 message and still allow range mode. *(FR8, EC2, EC3)*
 - [ ] AC32. Unpositioned latest readings, transfers and tile failures are handled as described. *(EC5, EC17, EC22)*
 - [ ] AC33. All FRs and NFRs validated.
+- [ ] AC34. *(2026-11-23.)* Pulse has no visible page header and no fleet panel; the map takes four fifths with the footer bar (lot filter, time selector, last updated and Refresh) under it only; the side panel is always visible on the right fifth at full height; Live Tracking is unchanged. *(FR36, FR12, FR24)*
+- [ ] AC35. *(2026-11-23.)* With no pallet selected the panel lists the contract's anomalies; clicking a marker shows that pallet's view, which is marked on the map; clearing the selection, or changing the contract, returns to the contract view. *(FR37, FR38, EC23)*
+- [ ] AC36. *(2026-11-23.)* The pallet view shows the main information, the four charts with latest value and min/max for the period, and the pallet's anomalies; it makes one History request restricted to the device with `chipIds`; empty measures show "Aucune mesure sur cette période". *(FR39, FR32, EC24, EC25)*
+- [ ] AC37. *(2026-11-23.)* The pallet view shows its own weight colour scale labelled with that pallet's min and max over the period; marker colours still follow FR10. *(FR40)*
+- [ ] AC38. *(2026-11-23.)* Clicking an anomaly in the contract or pallet view opens the anomaly view on the whole panel, and its back control returns to the view it came from. *(FR37)*
+- [ ] AC39. *(2026-11-23.)* The time selector offers 1j / 7j / 15j / 1 mois (default 7j); it hides markers whose last report is outside the period without re-requesting the snapshot, and reloads the selected pallet's charts for the new period. *(FR41, FR9, EC23)*
 
 ## 16. Future Extensions (Optional)
 
@@ -623,14 +720,13 @@ Item Registry exists.
 
 ## Open questions
 
-- **OQ1. Landing page.** Confluence makes Pulse the default tab. `/` currently renders the
-  "Accueil" connectivity page and is the post-login target (`Login.tsx` → `HOME_PATH`).
-  Redirect `/` to `/pulse`, make Pulse the post-login target, or keep `/` as is? This spec
-  keeps `/` unchanged.
+- **OQ1. Landing page.** **Decided 2026-11-25 (operator):** `/` redirects to `/pulse`
+  (`<Navigate replace>` in `App.tsx`), so Pulse is the post-login target (`Login.tsx` →
+  `HOME_PATH` → `/pulse`) and the target of every "back to the app" link. The "Accueil"
+  connectivity page (`HelloWorld`) is no longer routed and its nav entry is removed.
 - **OQ2. All-contracts view.** Should a later iteration show every active contract of the
   user on one map, and how does that interact with the global contract selector?
-- **OQ3. Nav order and label.** Pulse first (after Accueil) as proposed, or elsewhere? Where
-  does Trends go?
+- **OQ3. Nav order and label.** Pulse first (Accueil removed, see OQ1). Where does Trends go?
 - **OQ4. Open-ended contracts.** Should `V_PULSE` treat a NULL `DebutContrat`/`FinContrat` as
   open (amend the view), or are such contracts really out of the snapshot (EC3)?
 - **OQ5. Acceleration display.** Unit shown as "g", 2 decimals, stable band for the trend
@@ -652,6 +748,11 @@ Item Registry exists.
   (proposed names: `pulse_viewed`, `pulse_range_applied`, `pulse_playback_started`,
   `pulse_lot_selected`, `pulse_device_filter_changed`, `pulse_anomaly_drawer_opened`)? Until
   decided, adoption is measured from access logs (§13).
+- **OQ11. Per-pallet colour scale on the map.** *(2026-11-23.)* FR40 shows the pallet's own
+  weight scale in the pallet view only, and markers keep the FR10 thresholds. Should the
+  selected pallet's marker (or its trail) also use that scale?
+- **OQ12. Time selector default and "1 mois".** *(2026-11-23.)* Proposed: default "7j";
+  "1 mois" = 30 days. To confirm with the owner.
 
 ---
 
@@ -661,12 +762,12 @@ Every ID below must be covered by at least one story.
 
 | Kind | IDs | Count |
 |---|---|---|
-| Functional | FR1–FR35 | 35 |
+| Functional | FR1–FR41 | 41 |
 | Non-functional | NFR1–NFR12 | 12 |
-| Acceptance criteria | AC1–AC33 | 33 |
-| Edge cases | EC1–EC22 | 22 |
+| Acceptance criteria | AC1–AC39 | 39 |
+| Edge cases | EC1–EC25 | 25 |
 | User stories (context, not tracked) | US1–US5 | 5 |
-| Open questions (to decide before the stories that depend on them) | OQ1–OQ10 | 10 |
+| Open questions (to decide before the stories that depend on them) | OQ1–OQ12 | 12 |
 
 Behavior tracking: Pulse is customer-facing, but c-PAL has no analytics or funnel
 infrastructure today, so no tracking requirement is set; the proposed events are recorded in
@@ -686,4 +787,6 @@ OQ10 and adoption is measured from server logs (§13).
 | A8 | Anomaly entry point | FR28–FR30, EC19 | Depends on `IN-PROGRESS-Anomaly-Workflow.md` (KAN-261, KAN-265); OQ7 resolved |
 | A9 | Quality and non-regression | NFR1, NFR7, NFR9, all ACs as verification | Accessibility pass, full test suites, Playwright primary flow |
 
+> **Review 2026-11-23:** FR36–FR41 (layout, side panel, pallet view, time selector) are in KAN-272, with FR32 moved from A2 into v1; see [Review 2026-11-23](#review-2026-11-23-owner-review-requirement-changes).
+>
 > **Scope v1 note (2026-11-19):** this feature-area split is the full (v1 + v2) analysis and is kept as is. The stories actually delivered in v1 are listed in [Scope v1](#scope-v1-trimmed-2026-11-19): a single story, KAN-272, covering A1 (without NFR3), A3 (reduced) and A4 (plus the lot filter narrowing the map from A7). A2, A5, A6, the rest of A7 and A9 are deferred to v2; A8 moved to the Anomaly epic.
