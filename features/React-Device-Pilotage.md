@@ -225,6 +225,13 @@ MAIN/active gating logic.
 - **FR14.** The transfer form SHALL let the operator select a target STD
   sub-contract only from the list `/api/v1` returns for this MAIN contract; the
   UI SHALL NOT look up or construct a transfer target independently. *(CB22)*
+  *Resolved:* the list is `GET /api/v1/contracts/transfer-targets.php/{mainContractId}`
+  (`{ targets: [{ contractId, contractRef, clientName, start, end }] }`), authorized
+  like the transfer write (visible MAIN contract only; unknown and foreign ids
+  are the same 404) and built from the same definition as the transfer's own
+  target check (`cpal_pilotage_std_cibles()` next to `cpal_pilotage_std_cible()`).
+  This replaces the earlier proxy over `/contracts/list.php`, which a non-admin
+  could never fill with sub-clients' contracts.
 - **FR15.** The transfer form SHALL require a start date and accept an optional
   end date; when the end date is omitted the UI SHALL indicate the transfer is
   open-ended. *(CB23)*

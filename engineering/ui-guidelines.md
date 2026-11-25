@@ -128,7 +128,7 @@ Inventory IDs are explained in the Inventory section.
 | Side task, list still visible (OVL-SHEET) | `Sheet` (`@/ui/sheet`) | A dialog over the list |
 | Contextual content / menu (OVL-POPOVER, OVL-MENU) | `Popover`, `DropdownMenu`, `HoverCard` | |
 | Command palette (OVL-COMMAND) | `Command`, `CommandDialog` (`@/ui/command`) | |
-| Outcome of an action (FBK-TOAST) | `toast()` from `sonner` (`Toaster` is in `App`) | An alert at the page top |
+| Outcome of an action (FBK-TOAST) | `toast.success/info/error()` from `sonner`; one `<Toaster position="top-center" />` in `AppShellLayout` (the account pages keep their own). A form's save result is a toast, never a flash `Alert` in its action bar | An alert at the page top; a flash `Alert` beside the submit button |
 | Persistent problem (FBK-ALERT) | `Alert` variants `default/info/success/warning/danger/note` (`@/ui/alert`) | A toast |
 | Nothing to show (FBK-EMPTY) | `Empty*` (`@/ui/empty`), with a next step | Blank area |
 | Failure (FBK-ERROR) | `Alert variant="danger"` inline or `Empty` for a section; retry action | Raw error text |
@@ -188,8 +188,35 @@ page) follows one rhythm, not a bespoke header per screen:
 - Body: each section is a labelled block, not a second page-level card —
   `<section className="flex min-w-0 flex-col gap-2 border-t border-border pt-5 pb-4">`
   with an uppercase `h3` (`text-xs font-semibold tracking-wider uppercase`) above the
-  content. A section's content keeps its own component conventions (e.g. a PAT-FORM
-  `Card`); the section wrapper is the divider and label, never a second border around it.
+  content. The section wrapper is the frame: what goes inside it is never wrapped in a
+  `Card` (no form card, no box around a box). A form inside a section keeps PAT-FORM's
+  field rules (labels above, `FieldSet` + `FieldLegend variant="label"` for sub-groups)
+  and ends on an action bar `border-t pt-4`, primary button right-aligned
+  (`sm:justify-end`); its outcome is a toast (FBK-TOAST), not an alert in the bar.
+- Full-page width (a detail that is a route, not a drawer): the body is a 12-column grid,
+  `grid grid-cols-1 lg:grid-cols-12 lg:gap-x-10`. The main task (e.g. a device's
+  configuration) spans `lg:col-span-7 xl:col-span-8`, a side column
+  `lg:col-span-5 xl:col-span-4` holds the at-a-glance facts and short secondary tasks
+  (latest readings, a transfer). Both columns open on a section divider, so their tops
+  line up. Below `lg` the side column flattens into the single column with
+  `max-lg:contents`, and the facts section moves first (`max-lg:order-first`) so a phone
+  sees state before forms. A wide main form may go 2 columns (`md:grid-cols-2`); a
+  side-column form stays 1 column.
+- Facts read as tiles, the same as the anomaly view's "Relevés": a `grid grid-cols-2
+  gap-2` of `h-14 rounded-md border px-2.5` tiles, icon (`TYPE_ICON`) + formatted value
+  (`formatMeasure`, tabular numbers) on the first line, muted label below; position takes
+  a full row (`col-span-2`, `formatCoordinates`).
+- Help text says each rule once. A rule shared by every field (e.g. "Laissez un champ vide
+  pour conserver sa valeur actuelle.") is a muted line at the top of the form, referenced
+  by every input's `aria-describedby`. Each field's own hint keeps only what is specific
+  to it (range, unit, current value: `entier de 0 à 255 · valeur actuelle : 3`).
+- A measured value is never a bare text box: `InputGroup` with the unit as suffix (°C,
+  % HR, kg, G, °, V, min), `inputMode="decimal"` (`text` when it can be negative, the iOS
+  decimal pad has no minus); a small bounded integer gets −/+ stepper buttons; a duration
+  gets a live readout ("= 6 h") and a few `ToggleGroup` presets. Validation (format, type
+  range, physical bounds) lives in one module per form, runs on blur and on submit, shows
+  an inline `FieldError` naming the range and unit, and submit focuses the first invalid
+  field (reference: `src/pilotage/SettingsForm.tsx`, `settingsValidation.ts`).
 - Reference implementation: `AnomalyDetailView.tsx`'s local `Section` helper (the
   original), reused the same way by `PilotageDeviceDetail.tsx`. Any new detail sub-page
   follows this rhythm rather than inventing its own header/section markup.
