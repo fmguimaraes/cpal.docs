@@ -229,9 +229,14 @@ On the Pharma demo, for contracts 4 and 5:
   (1) select candidate `DATA_ID`s from `T_ANOMALIE` for the devices of the contract's MAIN
   contract (the contract itself when MAIN, its `ParentContratID` when STD). The candidate set
   may include extra rows but must never miss one the final query would return;
-  (2) query `V_ANOMALIES_STATUT` as today, adding `AND DATA_ID IN (…)` with the candidates as
-  bound parameters. The MAIN/STD visibility, status, lot disclosure, ordering and `LIMIT`
-  (`CPAL_ANOMALIES_LIMITE`) stay in the view and the current SQL.
+  (2) run the joins of `V_ANOMALIES_STATUT` in application SQL, with `ContratID = ?` and
+  `DATA_ID IN (…)` (candidates as bound parameters) written on `V_DATA_WITH_CLIENT`. The
+  MAIN/STD visibility and owner-at-date rules stay in `V_DATA_WITH_CLIENT`; status, lot
+  disclosure, ordering and `LIMIT` (`CPAL_ANOMALIES_LIMITE`) are the same as the view's.
+  *Amended in KAN-343:* filtering `V_ANOMALIES_STATUT` itself by `DATA_ID IN (…)` measured
+  5–9 s on contract 4, because the predicate cannot reach the `V_DATA_WITH_CLIENT` derived
+  table. The view and `cpal_anomalies_from_sql` must be kept in sync; FR30's perf-compare is
+  the equivalence check after any change to either.
 - **FR13.** When there are more candidates than a constant `CPAL_ANOMALIES_CANDIDATS_MAX`
   (proposal: 1,000), step 2 SHALL run per chunk. The rows are merged, sorted by the current
   order (`EventDate DESC, DetectedAt DESC, DATA_ID DESC, TRAITEMENT_ID DESC`) and cut to the
@@ -464,7 +469,7 @@ Item Registry exists.
 | Adding the column breaks `tracking_logic.php` at once: its derived table gets two `EventDate` columns. | FR6: the query rewrite (FR8) ships in the same release as the schema change; the upgrade is applied only with that code deployed. |
 | `LATERAL` was used in the 0.66 s benchmark but MariaDB 10.11 (production) lacks it. | NFR8: correlated scalar subquery form; benchmark re-run in the chosen form on both engines. |
 | Table rebuild blocks ingestion for the upgrade's duration in production. | NFR10, EC9: measured duration, maintenance window, documented in `deployment.md`. TTN uplinks arriving meanwhile wait on the lock. |
-| The rewritten `V_PULSE` or alerts query subtly changes visibility (MAIN/STD, lots). | Alerts keep all visibility in the existing view (FR12). `V_PULSE` keeps its rules (FR10). The FR30 before/after check on contracts 1, 4, 5 (NFR5) includes the STD contract. |
+| The rewritten `V_PULSE` or alerts query subtly changes visibility (MAIN/STD, lots). | Alerts keep MAIN/STD and owner-at-date visibility in `V_DATA_WITH_CLIENT` (FR12, amended). `V_PULSE` keeps its rules (FR10). The FR30 before/after check on contracts 1, 4, 5 (NFR5) includes the STD contract. |
 | The anomaly candidate set misses an anomaly that the view would show. | FR12 requires a superset; PHPUnit case with an STD contract and a transferred device. |
 | The cache shows another user's data, or stale data after a change. | Memory only, cleared on session end, invalidated by the mutations, errors not cached (FR25, FR26, EC14, EC20). |
 | Gzip applied twice (Apache `mod_deflate` plus PHP). | FR28: skip when `Content-Encoding` is set or `zlib.output_compression` is on; `mod_deflate` leaves already-encoded responses alone. |
