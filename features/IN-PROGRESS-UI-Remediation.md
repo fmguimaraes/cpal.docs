@@ -410,6 +410,10 @@ The theme preference stays in `localStorage` under `cpaltracker:theme`; the valu
     device `FilterBar` immediately to its right (portalled from `HistoryReadyPanel` into
     `history-header-filters`, same `selected` state as the checklist, shown only once the
     history is ready) and the `TimePicker` on the far right; it wraps at 390 px with no overflow.
+    *Superseded 2026-11-13 (operator decision, recorded in `HistoryReadyPanel.tsx`):* the device
+    `FilterBar` is removed; the single device-filter entry point is the "Appareils (n/N)" button
+    (`device-checklist-trigger`) in the same header slot, opening the device checklist in a
+    popover. Unit tests aligned in KAN-351.
   - Spec edits (intent kept):
     - `e2e/history-dashboard.spec.ts`: every `history-contract-option-{id}` click is preceded by
       a click on `history-contract-selector` (2 sites). "No data panels before a selection"
