@@ -46,7 +46,7 @@ Known follow-up: `src/pulse/PalletPanel.tsx` has no cache peek (file had uncommi
 
 ## Backend stories
 
-KAN-340, KAN-341, KAN-342, KAN-343 and KAN-346 have no observable UI change. They are verified by PHPUnit and by `make perf-compare` (before/after timing and JSON diff).
+KAN-340, KAN-341, KAN-342, KAN-343 and KAN-346 have no observable UI change. They are verified by PHPUnit and by `make perf-compare` (before/after timing and JSON diff). KAN-347 (verification and tooling: the cold-run script, the baselines, the MariaDB 10.11 stand-in and the report) has no UI either; it is covered by `tests/Perf/ColdScriptTest` and the `make perf*` targets.
 
 | ID | Scenario | automation |
 |----|----------|------------|

@@ -50,6 +50,16 @@ the demo review.
 
 *Total: 36 points across 8 stories.*
 
+Follow-ups raised during delivery (not in the original split):
+
+| Key | Story | Covered Requirements | Origin |
+| --- | --- | --- | --- |
+| KAN-348 | Fix stale E2E specs KAN-173 and KAN-176 | NFR11; AC25 | KAN-347 verification (pre-existing failures) |
+| KAN-349 | PalletPanel cache peek and History skeleton E2E | FR24 (Pulse panels); scenario 344-12 | KAN-345 review, KAN-347 AC26 re-check |
+
+Verification report: `cpaltracker.web/tools/perf/baselines/REPORT-KAN-339.md`
+(production timings, NFR3/AC10, pending).
+
 ## Requirement Traceability
 
 | Requirement | Story key(s) |
