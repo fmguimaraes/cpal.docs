@@ -208,8 +208,10 @@ On the Pharma demo, for contracts 4 and 5:
 - **FR8.** `cpal_tracking_positions_courantes` SHALL return, for each device of the given
   contracts in `T_CONTRATS_DEVICES`, its reading with `HasPosition = 1` and the greatest
   `(EventDate, DATA_ID)`, found through the FR3 index (one index descent per device, no scan of
-  the device's history). Rows, columns (including `ContratID` and `EventDate`) and order
-  (`ContratID, ChipID`) SHALL be those of the current function.
+  the device's history). Rows, the values of `ContratID` and `EventDate`, order
+  (`ContratID, ChipID`) and the API mapping (FR9) SHALL be those of the current function.
+  *Amended in KAN-341:* the raw row now also carries `HasPosition` (always 1) and no longer the
+  `rn` window column; no consumer reads either.
 - **FR9.** The positions response (`cpal_tracking_position_vers_api`) SHALL be unchanged.
 
 ### Pulse snapshot
