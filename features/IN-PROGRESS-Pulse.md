@@ -452,7 +452,9 @@ are unchanged.
   (OQ12). The selected value SHALL:
   - filter the map: only devices whose last positioned report (FR5 reading date) is inside
     the period get a marker; the others are hidden, and the auto-fit (FR13) applies to the
-    markers shown;
+    markers shown. For these preset values the period has no upper bound on the map: a
+    last report dated after now (EC11, clock skew) is shown, not hidden. Custom calendar
+    days keep their end bound (amended 2026-11-26, KAN-350);
   - set the period of the pallet charts and colour scale (FR39, FR40).
   Changing it SHALL NOT re-request the FR4 snapshot; it re-requests the series only when a
   pallet is selected. If the selected pallet's marker is hidden, the selection is cleared

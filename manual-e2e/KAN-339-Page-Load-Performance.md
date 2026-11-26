@@ -1,7 +1,7 @@
 # KAN-339 - Page Load Performance (manual E2E scenarios)
 
 Requirement IDs only (text lives in `features/IN-PROGRESS-Page-Load-Performance.md`).
-Specs: `cpaltracker-react/e2e/KAN-344-non-blocking-loading.spec.ts` and `cpaltracker-react/e2e/KAN-345-client-cache.spec.ts`.
+Specs: `cpaltracker-react/e2e/KAN-344-non-blocking-loading.spec.ts`, `cpaltracker-react/e2e/KAN-345-client-cache.spec.ts` and `cpaltracker-react/e2e/KAN-350-pulse-future-reports.spec.ts`.
 Tags: `e2e` (Playwright, automated), `manual`, `unit-only` (covered by the named test, no browser scenario).
 
 ## KAN-344 - Non-blocking loading UI
@@ -43,6 +43,18 @@ Tags: `e2e` (Playwright, automated), `manual`, `unit-only` (covered by the named
 | 345-14 | A cached snapshot is shown at once in `ContractPositions`, updates in place, and a failed revalidation keeps it and reports `failed`. Tests: `ContractPositions.test.tsx` "KAN-345" describe; `useLoad.test.tsx`. | AC20, FR27 | unit-only |
 
 Known follow-up: `src/pulse/PalletPanel.tsx` has no cache peek (file had uncommitted user work at the time), so the Pulse pallet panel shows a skeleton on revisit instead of cached rows. FR24 "the Pulse panels" is not fully done; it needs `peekAnomalies(contractId, ALL_STATUSES)` passed to its `useLoad`.
+
+## KAN-350 - Pulse map keeps reports dated after now (follow-up bug)
+
+Pulse FR41 (amended 2026-11-26) and EC11 in `features/IN-PROGRESS-Pulse.md`. Positions and pulse responses are route-stubbed.
+
+| ID | Scenario (Given / When / Then) | Covers | automation |
+|----|-------------------------------|--------|------------|
+| 350-1 | Given a pallet whose last report is in 2029, When Pulse opens on the "1 j" or "1 mois" preset, Then it is drawn ("Palettes 1/1", one marker) and `positions-period-empty` is absent. | Pulse FR41, EC11 | e2e |
+| 350-2 | Given "1 mois", When a pallet's last report is 45 days old and another's is in 2029, Then the old one is not on the map (Localiser disabled), the 2029 one is, and no notice shows. | Pulse FR41 | e2e |
+| 350-3 | Given typed custom days ending 10 days ago, When the last reports are in 2029 and 1 hour ago, Then both are hidden, the notice "Aucun appareil n'a émis de position sur cette période." shows and the map stays mounted. | Pulse FR41, Page-Load FR22 | e2e |
+| 350-4 | Given the default period and the 2029 pallet unticked in the pallet list (hidden), When the user clicks its Localiser, Then it is selected (`palette=` in the URL), its pallet panel opens and no notice shows. | Pulse FR41, EC11 | e2e |
+| 350-5 | Pharma demo check: Given contract MAIN-INNOPHARM, When Pulse opens on each preset, Then the map draws the pallets the list shows and no "no position" notice appears. | Pulse FR41 | manual |
 
 ## Backend stories
 
