@@ -23,7 +23,7 @@ background revalidation and gzip on API responses. Measure before and after, and
 the results are identical.
 
 ## Requirement References
-Feature spec: [`IN-PROGRESS-Page-Load-Performance.md`](../features/IN-PROGRESS-Page-Load-Performance.md)
+Feature spec: [`Page-Load-Performance.md`](../features/Page-Load-Performance.md)
 — 31 FRs, 12 NFRs, 26 ACs, 22 edge cases. This epic references requirements by ID only;
 requirement text lives solely in the feature spec.
 
@@ -58,10 +58,15 @@ Follow-ups raised during delivery (not in the original split):
 | KAN-349 | PalletPanel cache peek and History skeleton E2E | FR24 (Pulse panels); scenario 344-12 | KAN-345 review, KAN-347 AC26 re-check |
 | KAN-350 | Pulse map hid pallets whose last report is dated after now (bug, pre-existing) | Pulse FR41 (amended), EC11; scenarios 350-1..350-5 | KAN-347 verification |
 | KAN-351 | Unit tests failing on main (stale tests, two flaky) | NFR11; AC25 | KAN-347 verification (pre-existing failures) |
-| KAN-352 | FR10 arbitrary-length lint errors in FleetPanel | NFR11 (lint gate) | KAN-351 review |
+| KAN-352 | FR10 arbitrary-length lint errors (12, lint green) | NFR11 (lint gate) | KAN-351 review |
+| KAN-353 | useLoad kept the previous key's data on a contract, period or item switch (bug, pre-existing) | EC11, FR27; scenarios 353-1, 353-2 | KAN-349 review |
 
-Verification report: `cpaltracker.web/tools/perf/baselines/REPORT-KAN-339.md`
-(production timings, NFR3/AC10, pending).
+Verification report: `cpaltracker.web/tools/perf/baselines/REPORT-KAN-339.md`.
+
+## Status
+Closed 2026-11-26 at the owner's request. Everything is delivered and verified locally and on
+a MariaDB 10.11 container. The production timings (NFR3, AC10) were **not recorded**: the
+production upgrade and the timing run are the owner's to do, with the steps in the report §6.
 
 ## Requirement Traceability
 
@@ -107,7 +112,7 @@ Verification report: `cpaltracker.web/tools/perf/baselines/REPORT-KAN-339.md`
 100% structural coverage.*
 
 ## Related Documentation
-- Feature spec: [`IN-PROGRESS-Page-Load-Performance.md`](../features/IN-PROGRESS-Page-Load-Performance.md)
+- Feature spec: [`Page-Load-Performance.md`](../features/Page-Load-Performance.md)
 
 ## Tracker Link
 - Epic: [KAN-339](https://c-pal.atlassian.net/browse/KAN-339) — sprint S5, 2026-11-22 → 2026-12-06

@@ -1,7 +1,7 @@
 # KAN-339 - Page Load Performance (manual E2E scenarios)
 
-Requirement IDs only (text lives in `features/IN-PROGRESS-Page-Load-Performance.md`).
-Specs: `cpaltracker-react/e2e/KAN-344-non-blocking-loading.spec.ts`, `cpaltracker-react/e2e/KAN-345-client-cache.spec.ts` and `cpaltracker-react/e2e/KAN-350-pulse-future-reports.spec.ts`.
+Requirement IDs only (text lives in `features/Page-Load-Performance.md`).
+Specs: `cpaltracker-react/e2e/KAN-344-non-blocking-loading.spec.ts`, `cpaltracker-react/e2e/KAN-345-client-cache.spec.ts`, `cpaltracker-react/e2e/KAN-350-pulse-future-reports.spec.ts` and `cpaltracker-react/e2e/KAN-353-switch-keeps-no-stale-data.spec.ts`.
 Tags: `e2e` (Playwright, automated), `manual`, `unit-only` (covered by the named test, no browser scenario).
 
 ## KAN-344 - Non-blocking loading UI
@@ -19,7 +19,7 @@ Tags: `e2e` (Playwright, automated), `manual`, `unit-only` (covered by the named
 | 344-9 | Given the contract list is still loading, Then the map and loader show and no positions request is sent. Test: `ContractPositions.test.tsx` "shows the map and the loader without fetching while the contract is unknown (EC17)". | EC17 | unit-only |
 | 344-10 | Loaders and skeletons are announced and removed when content shows. Tests: `skeleton-rows.test.tsx` "announces itself and draws the requested number of rows (FR23)", `DeviceListSkeleton.test.tsx` "is one announced status region ...". | AC18 | unit-only |
 | 344-11 | Error, empty, zero-contract and 404 states keep texts and test IDs. Tests: the existing `ContractPositions.test.tsx`, `Alerts.test.tsx`, `DevicePilotage.test.tsx` suites. | AC17, EC18 | unit-only |
-| 344-12 | Given contracts are loading on History, Then content-shaped skeletons replace the old loading text, and the audit of every data route is recorded. No automated test asserts the History skeleton today (`HistoryDashboard.test.tsx` has no loading-state test), and the audit is a one-time review. Check by hand: open `/history` with throttled network and see skeletons, not text. | AC16 | manual |
+| 344-12 | Given contracts are loading on History, Then content-shaped skeletons replace the old loading text. (spec: "344-12 / AC16: History shows its content-shaped skeleton, not text, while the contracts are delayed", added in KAN-349). The audit of every data route is recorded in `cpaltracker.web/tools/perf/baselines/REPORT-KAN-339.md` (one-time review). | AC16 | e2e |
 | 344-12b | Alerts shows the status filter with count placeholders before any answer. Test: `Alerts.test.tsx` "shows the filter with count placeholders at once, before any answer (AC15, AC18)". | AC15, AC18 | unit-only |
 | 344-13 | Tile failure and very slow responses (EC16, EC21) and the ineligible/empty Pilotage states (EC22) keep the page usable: no browser scenario; unchanged paths covered by `ContractPositions.test.tsx` and `DevicePilotage.test.tsx`. | EC16, EC21, EC22 | unit-only |
 
@@ -42,7 +42,17 @@ Tags: `e2e` (Playwright, automated), `manual`, `unit-only` (covered by the named
 | 345-13 | Session end and identity change clear everything. Test: "setAuthToken clears everything on logout and on another identity (FR25, EC14)". | AC21, EC14 | unit-only |
 | 345-14 | A cached snapshot is shown at once in `ContractPositions`, updates in place, and a failed revalidation keeps it and reports `failed`. Tests: `ContractPositions.test.tsx` "KAN-345" describe; `useLoad.test.tsx`. | AC20, FR27 | unit-only |
 
-Known follow-up: `src/pulse/PalletPanel.tsx` has no cache peek (file had uncommitted user work at the time), so the Pulse pallet panel shows a skeleton on revisit instead of cached rows. FR24 "the Pulse panels" is not fully done; it needs `peekAnomalies(contractId, ALL_STATUSES)` passed to its `useLoad`.
+| 345-15 | Reopening the Pulse pallet panel shows its cached alerts at once and revalidates (KAN-349). Test: `PalletPanel.test.tsx` cache-peek test (pill on the first render, fetch still called). The panel's history is outside FR24's cached set, so its chart skeleton on reopen is expected. | FR24, AC20 | unit-only |
+| 345-16 | A new data key with nothing cached (another contract, period, pallet or anomaly) shows the loading state, never the previous key's data; a new load or `reload()` of the same key keeps it (KAN-353). Tests: `useLoad.test.tsx` "useLoad on a data key change (KAN-353)", `useAnomalyDetail.test.tsx`, `PalletPanel.test.tsx`. | EC11, FR27 | unit-only |
+
+## KAN-353 - No previous key's data after a switch (follow-up bug)
+
+Spec: `cpaltracker-react/e2e/KAN-353-switch-keeps-no-stale-data.spec.ts` (tag `@SI-353`).
+
+| ID | Scenario (Given / When / Then) | Covers | automation |
+|----|-------------------------------|--------|------------|
+| 353-1 | Given the Pulse anomalies drawer shows contract A's alerts, When the user switches to contract B with B's answer held, Then the drawer shows its skeleton and none of A's alerts, then B's alerts when the answer arrives. | AC21, EC11 | e2e |
+| 353-2 | Given the Pulse pallet panel is open with its charts, When the user presses refresh, Then the charts stay (no skeleton) while the positions revalidate; the positions loader never shows. | AC20, EC13, FR27 | e2e |
 
 ## KAN-350 - Pulse map keeps reports dated after now (follow-up bug)
 

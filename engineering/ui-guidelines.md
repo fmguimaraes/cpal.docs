@@ -93,8 +93,12 @@ default, light and system available). Utilities are mapped in `src/index.css`.
 | Elevation | `shadow-overlay`, `shadow-media` | Overlays, media |
 | Map | `--map-tile-filter` | Dark basemap (used by `FleetMap` only) |
 | Type | `font-sans`, `font-serif` (big numbers only) | |
+| Sizes | `h-page` (`--page-height`), `max-h-panel-inset` (`--panel-inset`, a map side panel's height cap), `rounded-badge` (`--badge-radius`, half of `--radius`) | Named lengths with no Tailwind scale value (KAN-352) |
+| Layers | `Z_OVERLAY_ABOVE_MAP` (`src/ui/z-index.ts`, `z-1100`) | An overlay above the map; never hard-code the number |
 
-Spacing uses the Tailwind scale; radius comes from the one base (`rounded-md`, `rounded-lg`).
+Spacing uses the Tailwind scale, written as bare numbers (`max-h-200`, `z-1000`, `aspect-160/63`),
+never `[...]`; radius comes from the one base (`rounded-md`, `rounded-lg`). `src/index.css`
+`@theme inline` only maps tokens to utilities; it never holds a value.
 To add or change a value, edit `tokens.css` (comment why, with the contrast ratio) in a
 dedicated change, then show it in Foundations.
 
