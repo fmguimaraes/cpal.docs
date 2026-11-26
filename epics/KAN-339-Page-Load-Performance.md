@@ -56,6 +56,9 @@ Follow-ups raised during delivery (not in the original split):
 | --- | --- | --- | --- |
 | KAN-348 | Fix stale E2E specs KAN-173 and KAN-176 | NFR11; AC25 | KAN-347 verification (pre-existing failures) |
 | KAN-349 | PalletPanel cache peek and History skeleton E2E | FR24 (Pulse panels); scenario 344-12 | KAN-345 review, KAN-347 AC26 re-check |
+| KAN-350 | Pulse map hid pallets whose last report is dated after now (bug, pre-existing) | Pulse FR41 (amended), EC11; scenarios 350-1..350-5 | KAN-347 verification |
+| KAN-351 | Unit tests failing on main (stale tests, two flaky) | NFR11; AC25 | KAN-347 verification (pre-existing failures) |
+| KAN-352 | FR10 arbitrary-length lint errors in FleetPanel | NFR11 (lint gate) | KAN-351 review |
 
 Verification report: `cpaltracker.web/tools/perf/baselines/REPORT-KAN-339.md`
 (production timings, NFR3/AC10, pending).
