@@ -272,6 +272,15 @@ are unchanged.
   `remainingWeight` in snapshot mode and to the row's `m` in range mode, by calling the
   existing `massStatus()` function. Pulse SHALL NOT define its own thresholds or a
   percentage ramp.
+  *Amended 2026-11-27 (owner):* Pulse markers SHALL be coloured by the remaining weight in %
+  of the pallet's initial weight, computed by the FR4 endpoint: `initialWeight` = the first
+  reading above 0 of the lot hook holding the reading (no per-pallet weight exists in the
+  database; the lot's weight is the whole lot's), else the first reading above 0 since the
+  contract start; `remainingPercent` = current ÷ initial × 100; `weightStatus` = ok ≥ 50 %,
+  warning ≥ 20 %, alert below, grey (offline) with no reading or no initial weight (never
+  loaded). In playback, a past reading is set against the snapshot's initial weight. The
+  map legend "Poids restant transporté" shows this scale (0–20–50–100 %, vide → poids
+  initial) and the grey. Live Tracking and History keep the kg thresholds.
 - **FR11.** The marker tooltip SHALL show the device ID, the reading date (UTC), position,
   ambient temperature, humidity, remaining weight, acceleration and MPU temperature, and,
   when `lot` is present, the customer lot number, product name, cPAL lot and expiry date.
